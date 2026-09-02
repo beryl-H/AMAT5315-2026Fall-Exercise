@@ -1,0 +1,2 @@
+The task. Build a program that lives in week1/pi.py and provides one function, estimate_pi(n, seed). It throws n random darts at the unit square (corners (0, 0) to (1, 1)), counts how many land within distance 1 of the origin, and returns four times that fraction. The seed input fixes the random numbers, so the same call always returns the same value. The test lives in week1/test_pi.py and checks this exact line: abs(estimate_pi(1_000_000, seed=2026) - math.pi) < 1e-2.
+
