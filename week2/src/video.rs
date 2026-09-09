@@ -1,26 +1,29 @@
 //! PPM frame rendering (pixels, no fonts) and ffmpeg muxing.
 
-/// One rendered frame as PPM (P6) bytes. Left panel: the box with atoms.
-/// Right panel: the RDF curve so far, fixed axes r in [0, box/2], g in [0, 5].
+/// One rendered frame as PPM (P6) bytes, width 2s by height s.
+/// Left panel: the periodic box with atoms (positions wrapped into [0, box)).
+/// Right panel: the RDF curve so far on its own axes, r in [0, box/2],
+/// g in [0, 5].
 pub fn render_frame(
     box_l: f64,
     positions: &[[f64; 2]],
     rdf_curve: &[(f64, f64)],
-    size: u32,
+    s: u32,
 ) -> Vec<u8> {
-    let size = size as usize;
-    let mut px = vec![255u8; size * size * 3];
+    let s = s as usize;
+    let (w, h) = (2 * s, s);
+    let mut px = vec![255u8; w * h * 3];
     let set = |px: &mut [u8], x: f64, y: f64, c: [u8; 3]| {
         let (xi, yi) = (x as isize, y as isize);
-        if xi >= 0 && yi >= 0 && (xi as usize) < size && (yi as usize) < size {
-            let o = ((yi as usize) * size + xi as usize) * 3;
+        if xi >= 0 && yi >= 0 && (xi as usize) < w && (yi as usize) < h {
+            let o = ((yi as usize) * w + xi as usize) * 3;
             px[o] = c[0];
             px[o + 1] = c[1];
             px[o + 2] = c[2];
         }
     };
-    let panel = size as f64 * 0.05; // margin
-    let side = size as f64 - 2.0 * panel;
+    let p = s as f64 * 0.05; // inner margin of each square panel
+    let side = s as f64 - 2.0 * p; // drawing side of one panel
     let scale = side / box_l;
     let circle = |px: &mut [u8], cx: f64, cy: f64, rad: f64, c: [u8; 3]| {
         let r2 = rad * rad;
@@ -32,45 +35,46 @@ pub fn render_frame(
             }
         }
     };
-    // Atoms: dark circles of radius 0.4 sigma.
-    for p in positions {
+    // Left panel: atoms at their positions wrapped into the periodic box.
+    let wrap = |v: f64| v.rem_euclid(box_l);
+    for pos in positions {
         circle(
             &mut px,
-            panel + p[0] * scale,
-            panel + p[1] * scale,
+            p + wrap(pos[0]) * scale,
+            p + wrap(pos[1]) * scale,
             0.4 * scale,
             [40, 40, 40],
         );
     }
-    // Right panel: RDF curve in blue on light axes.
-    let rx0 = size as f64 - panel - side;
+    // Right panel: RDF curve in blue on light axes, on its own square.
+    let x0 = s as f64 + p;
     let g_ceil = 5.0;
     let g_scale = side / g_ceil;
     let r_max = box_l / 2.0;
-    let to_px = |r: f64, g: f64| (rx0 + r / r_max * side, panel + side - g * g_scale);
-    // Axes.
+    let to_px = |r: f64, g: f64| (x0 + r / r_max * side, p + side - g * g_scale);
+    // Axes (bottom and left of the right panel).
     for i in 0..(side as usize) {
-        set(&mut px, rx0 + i as f64, panel + side, [180, 180, 180]);
-        set(&mut px, rx0, panel + i as f64, [180, 180, 180]);
+        set(&mut px, x0 + i as f64, p + side, [180, 180, 180]);
+        set(&mut px, x0, p + i as f64, [180, 180, 180]);
     }
-    let line = |px: &mut [u8], p: (f64, f64), q: (f64, f64), c: [u8; 3]| {
-        let steps = ((q.0 - p.0).abs().max((q.1 - p.1).abs()) as usize).max(1);
+    let line = |px: &mut [u8], a: (f64, f64), b: (f64, f64), c: [u8; 3]| {
+        let steps = ((b.0 - a.0).abs().max((b.1 - a.1).abs()) as usize).max(1);
         for k in 0..=steps {
             let f = k as f64 / steps as f64;
-            set(px, p.0 + f * (q.0 - p.0), p.1 + f * (q.1 - p.1), c);
+            set(px, a.0 + f * (b.0 - a.0), a.1 + f * (b.1 - a.1), c);
         }
     };
-    for w in rdf_curve.windows(2) {
+    for wnd in rdf_curve.windows(2) {
         line(
             &mut px,
-            to_px(w[0].0, w[0].1),
-            to_px(w[1].0, w[1].1),
+            to_px(wnd[0].0, wnd[0].1),
+            to_px(wnd[1].0, wnd[1].1),
             [13, 110, 253],
         );
     }
 
-    let mut out = Vec::with_capacity(size * size * 3 + 32);
-    out.extend_from_slice(format!("P6\n{size} {size} 255\n").as_bytes());
+    let mut out = Vec::with_capacity(w * h * 3 + 32);
+    out.extend_from_slice(format!("P6\n{w} {h} 255\n").as_bytes());
     out.extend_from_slice(&px);
     out
 }

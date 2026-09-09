@@ -1,6 +1,6 @@
 //! End-to-end checks of the md CLI operations.
 
-use md::cli::{CheckCfg, RunCfg};
+use md::cli::{CheckCfg, RunCfg, VideoCfg};
 use md::ops::run_sim;
 use md::trajectory::read;
 
@@ -80,19 +80,60 @@ fn frames_render_as_ppm() {
     let frame = &t.frames[0];
     let positions: Vec<[f64; 2]> = frame.iter().map(|a| [a[0], a[1]]).collect();
     let ppm = md::video::render_frame(t.meta.box_l, &positions, &[], 450);
-    // P6 header with the right dimensions, then RGB data.
-    const HEADER: &[u8] = b"P6\n450 450 255\n";
+    // P6 header with the right dimensions (2 panels wide, 1 tall), then RGB.
+    const HEADER: &[u8] = b"P6\n900 450 255\n";
     assert_eq!(&ppm[..HEADER.len()], HEADER);
-    assert_eq!(ppm.len(), HEADER.len() + 450 * 450 * 3);
-    // An atom center lands on a non-white pixel. The implementation draws a
-    // 22.5 px margin and a 405 px panel with atoms of radius ~14 px, so any
-    // point within ~10 px of the projected center is safely inside the dot.
+    assert_eq!(ppm.len(), HEADER.len() + 900 * 450 * 3);
+    // An atom center lands on a non-white pixel in the LEFT panel: margin
+    // p = 22.5 px, drawing side 405 px, atoms of radius ~14 px.
     let a = frame[0];
     let scale = 405.0 / t.meta.box_l;
     let px = 22.5 + a[0] * scale;
     let py = 22.5 + a[1] * scale;
-    let idx = HEADER.len() + (py as usize) * 450 * 3 + (px as usize) * 3;
+    let idx = HEADER.len() + (py as usize) * 900 * 3 + (px as usize) * 3;
     assert!(ppm[idx] < 250 || ppm[idx + 1] < 250 || ppm[idx + 2] < 250);
+}
+
+#[test]
+fn render_wraps_positions_into_the_box() {
+    // Shifting every atom by one box length in x and y must not change the
+    // frame: rem_euclid(box) makes the display periodic.
+    let path = std::env::temp_dir().join("md_cli_run_test.txt");
+    let t = read(path.to_str().unwrap()).unwrap();
+    let frame = &t.frames[0];
+    let box_l = t.meta.box_l;
+    let positions: Vec<[f64; 2]> = frame.iter().map(|a| [a[0], a[1]]).collect();
+    let shifted: Vec<[f64; 2]> = frame
+        .iter()
+        .map(|a| [a[0] + box_l, a[1] + 2.0 * box_l])
+        .collect();
+    let a = md::video::render_frame(box_l, &positions, &[], 300);
+    let b = md::video::render_frame(box_l, &shifted, &[], 300);
+    assert_eq!(a, b);
+}
+
+#[test]
+fn rdf_gets_its_own_panel() {
+    // A nonempty RDF curve draws blue pixels in the RIGHT half only;
+    // the atoms-only LEFT half stays free of blue.
+    let box_l = 10.0;
+    let positions = vec![[1.0, 5.0], [4.0, 5.0]];
+    let curve = vec![(1.0, 2.0), (2.0, 1.5), (3.0, 1.0)];
+    let ppm = md::video::render_frame(box_l, &positions, &curve, 300);
+    let is_blue = |i: usize| ppm[i] < 100 && ppm[i + 2] > 180;
+    let (mut left_blue, mut right_blue) = (0, 0);
+    for y in 0..300 {
+        for x in 0..300 {
+            let o = (y * 600 + x) * 3;
+            left_blue += is_blue(o) as usize;
+        }
+        for x in 300..600 {
+            let o = (y * 600 + x) * 3;
+            right_blue += is_blue(o) as usize;
+        }
+    }
+    assert_eq!(left_blue, 0, "left panel must not contain the RDF");
+    assert!(right_blue > 0, "right panel should show the RDF curve");
 }
 
 #[test]
