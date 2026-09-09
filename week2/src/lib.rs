@@ -15,7 +15,7 @@ pub mod video;
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
-pub use system::System;
+pub use system::{ForceStrategy, System};
 
 /// The greeting returned by this crate.
 pub fn greeting() -> &'static str {
