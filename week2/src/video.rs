@@ -13,7 +13,7 @@ pub fn render_frame(
     let set = |px: &mut [u8], x: f64, y: f64, c: [u8; 3]| {
         let (xi, yi) = (x as isize, y as isize);
         if xi >= 0 && yi >= 0 && (xi as usize) < size && (yi as usize) < size {
-            let o = (yi * size + xi) * 3;
+            let o = ((yi as usize) * size + xi as usize) * 3;
             px[o] = c[0];
             px[o + 1] = c[1];
             px[o + 2] = c[2];
