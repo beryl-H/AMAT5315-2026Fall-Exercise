@@ -1,5 +1,8 @@
 //! Library for the `md` molecular-dynamics crate.
 
+mod system;
+pub use system::System;
+
 /// The greeting returned by this crate.
 pub fn greeting() -> &'static str {
     "Hello, world!"
