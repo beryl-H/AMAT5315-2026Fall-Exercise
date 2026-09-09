@@ -1,8 +1,17 @@
 //! End-to-end checks of the md CLI operations.
 
-use md::cli::RunCfg;
+use md::cli::{CheckCfg, RunCfg};
 use md::ops::run_sim;
 use md::trajectory::read;
+
+fn check_cfg(path: &str) -> CheckCfg {
+    CheckCfg {
+        file: path.into(),
+        temp_tol: 0.05,
+        drift_tol: 1e-3,
+        ks_tol: 0.05,
+    }
+}
 
 #[test]
 fn run_writes_a_checkable_trajectory() {
@@ -29,4 +38,37 @@ fn run_writes_a_checkable_trajectory() {
         .sum::<f64>()
         / t.frames.len() as f64;
     assert!((mean_t - 1.0).abs() < 0.05 * 1.0, "mean T {mean_t}");
+}
+
+#[test]
+fn check_passes_on_our_own_run() {
+    let path = std::env::temp_dir().join("md_cli_run_test.txt");
+    let path = path.to_str().unwrap().to_string();
+    let report = md::ops::check(&check_cfg(&path)).unwrap();
+    assert!(report.pass, "report {report:?}");
+}
+
+#[test]
+fn check_rejects_doctored_temperature() {
+    // Re-scale all velocities by 1.5: mean temperature rises ~2.25x, out of tolerance.
+    let src = std::env::temp_dir().join("md_cli_run_test.txt");
+    let mut t = read(src.to_str().unwrap()).unwrap();
+    for frame in &mut t.frames {
+        for a in frame {
+            a[2] *= 1.5;
+            a[3] *= 1.5;
+        }
+    }
+    let path = std::env::temp_dir().join("md_cli_doctored.txt");
+    md::trajectory::write(path.to_str().unwrap(), &t).unwrap();
+    let report = md::ops::check(&check_cfg(path.to_str().unwrap())).unwrap();
+    assert!(!report.pass);
+}
+
+#[test]
+fn energy_of_frames_is_consistent() {
+    // The drift metric on an NVE Verlet run stays far below the tolerance.
+    let path = std::env::temp_dir().join("md_cli_run_test.txt");
+    let report = md::ops::check(&check_cfg(path.to_str().unwrap())).unwrap();
+    assert!(report.drift < 1e-3, "drift {}", report.drift);
 }
