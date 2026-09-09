@@ -7,6 +7,7 @@ use md::trajectory::read;
 fn check_cfg(path: &str) -> CheckCfg {
     CheckCfg {
         file: path.into(),
+        force: md::ForceStrategy::Cells,
         temp_tol: 0.05,
         drift_tol: 1e-3,
         ks_tol: 0.05,
@@ -18,6 +19,7 @@ fn run_writes_a_checkable_trajectory() {
     let path = std::env::temp_dir().join("md_cli_run_test.txt");
     let path = path.to_str().unwrap().to_string();
     let cfg = RunCfg {
+        force: md::ForceStrategy::Cells,
         n: 100,
         temp: 1.0,
         dt: 0.005,

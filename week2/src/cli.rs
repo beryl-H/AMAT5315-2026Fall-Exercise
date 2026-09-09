@@ -1,6 +1,7 @@
 //! Command-line parsing for the md tool.
 
 pub struct RunCfg {
+    pub force: crate::ForceStrategy,
     pub n: usize,
     pub temp: f64,
     pub dt: f64,
@@ -12,6 +13,7 @@ pub struct RunCfg {
 
 pub struct CheckCfg {
     pub file: String,
+    pub force: crate::ForceStrategy,
     pub temp_tol: f64,
     pub drift_tol: f64,
     pub ks_tol: f64,
@@ -55,6 +57,16 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
             .map(|v| v.parse::<f64>().map_err(|_| format!("--{name}: not a number")))
             .transpose()
     };
+    let force = |name: &str| -> Result<Option<crate::ForceStrategy>, String> {
+        flags
+            .get(name)
+            .map(|v| match v.as_str() {
+                "naive" => Ok(crate::ForceStrategy::Naive),
+                "cells" => Ok(crate::ForceStrategy::Cells),
+                _ => Err(format!("--{name}: expected naive or cells, got {v:?}")),
+            })
+            .transpose()
+    };
     let uint = |name: &str| -> Result<Option<usize>, String> {
         flags
             .get(name)
@@ -63,7 +75,7 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
     };
     match sub.as_str() {
         "run" => {
-            reject_unknown(&flags, &["n", "temp", "dt", "steps", "equil", "out", "seed"])?;
+            reject_unknown(&flags, &["force", "n", "temp", "dt", "steps", "equil", "out", "seed"])?;
             // Physics-shaping parameters are required: a silently defaulted
             // value could produce an unwanted result.
             let required = ["n", "temp", "dt", "steps", "equil"];
@@ -76,6 +88,7 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
                 return Err(format!("run requires: {}", missing.join(", ")));
             }
             Ok(Command::Run(RunCfg {
+                force: force("force")?.unwrap_or(crate::ForceStrategy::Cells),
                 n: uint("n")?.unwrap(),
                 temp: num("temp")?.unwrap(),
                 dt: num("dt")?.unwrap(),
@@ -91,9 +104,10 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
         }
         "check" => {
             let file = positional.first().cloned().ok_or("check needs a trajectory file")?;
-            reject_unknown(&flags, &["temp-tol", "drift-tol", "ks-tol"])?;
+            reject_unknown(&flags, &["force", "temp-tol", "drift-tol", "ks-tol"])?;
             Ok(Command::Check(CheckCfg {
                 file,
+                force: force("force")?.unwrap_or(crate::ForceStrategy::Cells),
                 temp_tol: num("temp-tol")?.unwrap_or(0.05),
                 drift_tol: num("drift-tol")?.unwrap_or(1e-3),
                 ks_tol: num("ks-tol")?.unwrap_or(0.05),
@@ -158,6 +172,22 @@ mod tests {
             }
             _ => panic!("wrong command"),
         }
+    }
+
+    #[test]
+    fn force_flag_defaults_to_cells() {
+        use crate::ForceStrategy;
+        let c = parse(&args(&["run", "-n", "4", "--temp", "1", "--dt", "0.01", "--steps", "1", "--equil", "1"])).unwrap();
+        match c {
+            Command::Run(cfg) => assert_eq!(cfg.force, ForceStrategy::Cells),
+            _ => panic!("wrong command"),
+        }
+        let c = parse(&args(&["run", "-n", "4", "--temp", "1", "--dt", "0.01", "--steps", "1", "--equil", "1", "--force", "naive"])).unwrap();
+        match c {
+            Command::Run(cfg) => assert_eq!(cfg.force, ForceStrategy::Naive),
+            _ => panic!("wrong command"),
+        }
+        assert!(parse(&args(&["run", "-n", "4", "--temp", "1", "--dt", "0.01", "--steps", "1", "--equil", "1", "--force", "magic"])).is_err());
     }
 
     #[test]

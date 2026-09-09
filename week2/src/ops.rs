@@ -38,6 +38,7 @@ pub fn run_sim(cfg: &RunCfg) -> Result<String, String> {
     let mut rng = Rng::new(cfg.seed);
     let velocities = maxwell_velocities(positions.len(), cfg.temp, &mut rng);
     let mut system = System::periodic(positions, velocities, box_l, RC);
+    system.set_force(cfg.force);
     let integrator = VelocityVerlet;
 
     // Equilibration: velocity rescaling every step at the target temperature.
@@ -100,10 +101,12 @@ impl std::fmt::Debug for Report {
 }
 
 /// Total energy of one saved frame (shifted-force pairs + kinetic).
-fn frame_energy(meta: &trajectory::Meta, frame: &[[f64; 4]]) -> f64 {
+fn frame_energy(meta: &trajectory::Meta, frame: &[[f64; 4]], force: crate::ForceStrategy) -> f64 {
     let positions: Vec<[f64; 2]> = frame.iter().map(|a| [a[0], a[1]]).collect();
     let velocities: Vec<[f64; 2]> = frame.iter().map(|a| [a[2], a[3]]).collect();
-    System::periodic(positions, velocities, meta.box_l, RC).total_energy()
+    let mut s = System::periodic(positions, velocities, meta.box_l, RC);
+    s.set_force(force);
+    s.total_energy()
 }
 
 /// Kolmogorov-Smirnov statistic of speeds vs the 2D Maxwell-Boltzmann CDF
@@ -137,7 +140,7 @@ pub fn check(cfg: &CheckCfg) -> Result<Report, String> {
     let mean_temp = temps.iter().sum::<f64>() / temps.len() as f64;
 
     // Energy drift: least-squares slope of E(t), scaled by duration and |E0|.
-    let energies: Vec<f64> = t.frames.iter().map(|f| frame_energy(&t.meta, f)).collect();
+    let energies: Vec<f64> = t.frames.iter().map(|f| frame_energy(&t.meta, f, cfg.force)).collect();
     let e0 = energies[0];
     let duration = (t.frames.len() - 1) as f64 * t.meta.dt;
     let tm = duration / 2.0;

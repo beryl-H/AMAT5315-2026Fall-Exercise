@@ -4,8 +4,8 @@ use md::cli::{self, Command};
 use md::ops;
 
 fn usage() -> ! {
-    eprintln!("usage: md run -n N --temp T --dt DT --steps S --equil E [--out FILE] [--seed S]");
-    eprintln!("       md check FILE [--temp-tol T] [--drift-tol D] [--ks-tol K]");
+    eprintln!("usage: md run -n N --temp T --dt DT --steps S --equil E [--force naive|cells] [--out FILE] [--seed S]");
+    eprintln!("       md check FILE [--force naive|cells] [--temp-tol T] [--drift-tol D] [--ks-tol K]");
     eprintln!("       md video FILE [--out OUT.mp4] [--fps F]");
     std::process::exit(2);
 }
