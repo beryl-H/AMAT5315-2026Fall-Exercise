@@ -72,3 +72,25 @@ fn energy_of_frames_is_consistent() {
     let report = md::ops::check(&check_cfg(path.to_str().unwrap())).unwrap();
     assert!(report.drift < 1e-3, "drift {}", report.drift);
 }
+
+#[test]
+fn frames_render_as_ppm() {
+    let path = std::env::temp_dir().join("md_cli_run_test.txt");
+    let t = read(path.to_str().unwrap()).unwrap();
+    let frame = &t.frames[0];
+    let positions: Vec<[f64; 2]> = frame.iter().map(|a| [a[0], a[1]]).collect();
+    let ppm = md::video::render_frame(t.meta.box_l, &positions, &[], 450);
+    // P6 header with the right dimensions, then RGB data.
+    const HEADER: &[u8] = b"P6\n450 450 255\n";
+    assert_eq!(&ppm[..HEADER.len()], HEADER);
+    assert_eq!(ppm.len(), HEADER.len() + 450 * 450 * 3);
+    // An atom center lands on a non-white pixel. The implementation draws a
+    // 22.5 px margin and a 405 px panel with atoms of radius ~14 px, so any
+    // point within ~10 px of the projected center is safely inside the dot.
+    let a = frame[0];
+    let scale = 405.0 / t.meta.box_l;
+    let px = 22.5 + a[0] * scale;
+    let py = 22.5 + a[1] * scale;
+    let idx = HEADER.len() + (py as usize) * 450 * 3 + (px as usize) * 3;
+    assert!(ppm[idx] < 250 || ppm[idx + 1] < 250 || ppm[idx + 2] < 250);
+}

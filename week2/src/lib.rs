@@ -10,6 +10,8 @@ pub mod cli;
 
 pub mod ops;
 
+pub mod video;
+
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
