@@ -1,0 +1,16 @@
+//! Library for the `md` molecular-dynamics crate.
+
+/// The greeting returned by this crate.
+pub fn greeting() -> &'static str {
+    "Hello, world!"
+}
+
+#[cfg(test)]
+mod tests {
+    use super::greeting;
+
+    #[test]
+    fn greeting_is_hello_world() {
+        assert_eq!(greeting(), "Hello, world!");
+    }
+}
