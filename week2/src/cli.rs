@@ -7,6 +7,8 @@ pub struct RunCfg {
     pub dt: f64,
     pub steps: usize,
     pub equil: usize,
+    /// Optional linear temperature ramp during the recorded run.
+    pub ramp_to: Option<f64>,
     pub out: String,
     pub seed: u64,
 }
@@ -75,7 +77,7 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
     };
     match sub.as_str() {
         "run" => {
-            reject_unknown(&flags, &["force", "n", "temp", "dt", "steps", "equil", "out", "seed"])?;
+            reject_unknown(&flags, &["force", "n", "temp", "dt", "steps", "equil", "ramp-to", "out", "seed"])?;
             // Physics-shaping parameters are required: a silently defaulted
             // value could produce an unwanted result.
             let required = ["n", "temp", "dt", "steps", "equil"];
@@ -94,6 +96,7 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
                 dt: num("dt")?.unwrap(),
                 steps: uint("steps")?.unwrap(),
                 equil: uint("equil")?.unwrap(),
+                ramp_to: num("ramp-to")?,
                 out: flags.get("out").cloned().unwrap_or_else(|| "trajectory.txt".into()),
                 seed: flags
                     .get("seed")

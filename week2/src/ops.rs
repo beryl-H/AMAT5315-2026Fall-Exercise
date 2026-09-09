@@ -47,10 +47,16 @@ pub fn run_sim(cfg: &RunCfg) -> Result<String, String> {
         rescale(&mut system.velocities, cfg.temp);
     }
 
-    // Recording: pure NVE, one frame per step.
+    // Recording. Without --ramp-to this is pure NVE; with it, every step
+    // rescales velocities to a target rising linearly from temp (step 0) to
+    // ramp_to (the last step).
     let mut frames = Vec::with_capacity(cfg.steps);
-    for _ in 0..cfg.steps {
+    for k in 0..cfg.steps {
         integrator.step(&mut system, cfg.dt);
+        if let Some(ramp) = cfg.ramp_to {
+            let f = (k + 1) as f64 / cfg.steps as f64;
+            rescale(&mut system.velocities, cfg.temp + (ramp - cfg.temp) * f);
+        }
         frames.push(
             system
                 .positions
@@ -70,6 +76,7 @@ pub fn run_sim(cfg: &RunCfg) -> Result<String, String> {
         frames,
     };
     crate::trajectory::write(&cfg.out, &t).map_err(|e| e.to_string())?;
+    write_run_json(cfg, &t)?;
     Ok(format!(
         "wrote {} frames (N = {}, box = {box_l:.4}) to {}",
         t.frames.len(),
@@ -80,6 +87,28 @@ pub fn run_sim(cfg: &RunCfg) -> Result<String, String> {
 
 use crate::cli::CheckCfg;
 use crate::trajectory;
+
+/// Write run.json beside the trajectory file: the run's settings, including
+/// ramp_to when a ramp was requested.
+fn write_run_json(cfg: &RunCfg, t: &Trajectory) -> Result<(), String> {
+    let dir = std::path::Path::new(&cfg.out)
+        .parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_default();
+    let force = match cfg.force {
+        crate::ForceStrategy::Naive => "naive",
+        crate::ForceStrategy::Cells => "cells",
+    };
+    let mut s = format!(
+        "{{\"n\":{},\"temp\":{},\"dt\":{},\"steps\":{},\"equil\":{},\"seed\":{},\"force\":\"{force}\"",
+        t.meta.n, t.meta.temp, t.meta.dt, t.frames.len(), cfg.equil, cfg.seed
+    );
+    if let Some(ramp) = cfg.ramp_to {
+        s.push_str(&format!(",\"ramp_to\":{ramp}"));
+    }
+    s.push_str("}\n");
+    std::fs::write(dir.join("run.json"), s).map_err(|e| e.to_string())
+}
 
 /// Outcome of the three physics checks on one trajectory.
 pub struct Report {

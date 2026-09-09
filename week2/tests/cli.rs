@@ -25,6 +25,7 @@ fn run_writes_a_checkable_trajectory() {
         dt: 0.005,
         steps: 500,
         equil: 100,
+        ramp_to: None,
         out: path.clone(),
         seed: 1,
     };
@@ -151,4 +152,40 @@ fn make_video_produces_an_mp4() {
     md::ops::make_video(&cfg).unwrap();
     let meta = std::fs::metadata(&out).unwrap();
     assert!(meta.len() > 1000, "mp4 too small: {}", meta.len());
+}
+
+fn mean_t(frame: &[[f64; 4]]) -> f64 {
+    frame.iter().map(|a| a[2] * a[2] + a[3] * a[3]).sum::<f64>() / 200.0
+}
+
+#[test]
+fn ramp_to_heats_along_schedule_and_is_recorded() {
+    let dir = std::env::temp_dir().join("md_ramp_test");
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("ramp.txt");
+    let cfg = RunCfg {
+        force: md::ForceStrategy::Cells,
+        n: 100,
+        temp: 1.0,
+        dt: 0.005,
+        steps: 200,
+        equil: 10,
+        ramp_to: Some(2.0),
+        out: path.to_str().unwrap().into(),
+        seed: 1,
+    };
+    run_sim(&cfg).unwrap();
+    let t = read(path.to_str().unwrap()).unwrap();
+    assert_eq!(t.frames.len(), 200);
+    // Rescaling every recorded step makes the instantaneous temperature equal
+    // the ramp target: frame k sits after step k+1, fraction (k+1)/steps.
+    let first = mean_t(&t.frames[0]);
+    let target_first = 1.0 + (2.0 - 1.0) * (1.0 / 200.0);
+    assert!((first - target_first).abs() < 1e-6, "first T {first} vs {target_first}");
+    let last = mean_t(&t.frames[199]);
+    assert!((last - 2.0).abs() < 1e-6, "last T {last} vs 2.0");
+    // ramp_to recorded in run.json next to the trajectory.
+    let text = std::fs::read_to_string(dir.join("run.json")).unwrap();
+    assert!(text.contains("ramp_to"), "run.json: {text}");
+    assert!(text.contains("2"), "run.json: {text}");
 }
