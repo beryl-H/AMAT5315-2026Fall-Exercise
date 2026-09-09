@@ -2,3 +2,8 @@
 name = "md"
 version = "0.1.0"
 edition = "2024"
+
+# Keep DWARF debug info in release builds so sampling profilers can
+# resolve function names in optimized code.
+[profile.release]
+debug = true
