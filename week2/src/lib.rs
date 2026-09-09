@@ -6,6 +6,8 @@ pub mod trajectory;
 
 pub mod rdf;
 
+pub mod cli;
+
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
