@@ -9,9 +9,12 @@ pub fn lj_energy(r: f64) -> f64 {
     4.0 * inv_r6 * (inv_r6 - 1.0)
 }
 
-/// Lennard-Jones pair force (placeholder until the next step).
-pub fn lj_force(_r: f64) -> f64 {
-    todo!("lj_force is implemented in the next step")
+/// Lennard-Jones pair force in reduced units:
+/// `-d lj_energy / dr = 24 / r * (2 * r^-12 - r^-6)`.
+pub fn lj_force(r: f64) -> f64 {
+    let inv_r6 = r.powi(-6);
+    let inv_r12 = inv_r6 * inv_r6;
+    24.0 / r * (2.0 * inv_r12 - inv_r6)
 }
 
 #[cfg(test)]
