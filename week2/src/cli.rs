@@ -60,7 +60,9 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
             .transpose()
     };
     match sub.as_str() {
-        "run" => Ok(Command::Run(RunCfg {
+        "run" => {
+            reject_unknown(&flags, &["temp", "dt", "steps", "equil", "out", "seed"])?;
+            Ok(Command::Run(RunCfg {
             temp: num("temp")?.unwrap_or(1.0),
             dt: num("dt")?.unwrap_or(0.005),
             steps: uint("steps")?.unwrap_or(10000),
@@ -71,9 +73,11 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
                 .map(|v| v.parse::<u64>().map_err(|_| "--seed: not an integer"))
                 .transpose()?
                 .unwrap_or(1),
-        })),
+            })
+        }
         "check" => {
             let file = positional.first().cloned().ok_or("check needs a trajectory file")?;
+            reject_unknown(&flags, &["temp-tol", "drift-tol", "ks-tol"])?;
             Ok(Command::Check(CheckCfg {
                 file,
                 temp_tol: num("temp-tol")?.unwrap_or(0.05),
@@ -83,6 +87,7 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
         }
         "video" => {
             let file = positional.first().cloned().ok_or("video needs a trajectory file")?;
+            reject_unknown(&flags, &["out", "fps"])?;
             Ok(Command::Video(VideoCfg {
                 file,
                 out: flags.get("out").cloned().unwrap_or_else(|| "video.mp4".into()),
@@ -90,6 +95,17 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
             }))
         }
         other => Err(format!("unknown command {other:?}; use run, check, or video")),
+    }
+}
+
+/// Reject any flag not in the allowed set for the subcommand.
+fn reject_unknown(
+    flags: &std::collections::HashMap<String, String>,
+    allowed: &[&str],
+) -> Result<(), String> {
+    match flags.keys().find(|k| !allowed.contains(&k.as_str())) {
+        Some(bad) => Err(format!("unknown flag --{bad}")),
+        None => Ok(()),
     }
 }
 
