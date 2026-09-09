@@ -8,7 +8,9 @@ pub fn greeting() -> &'static str {
 /// The Lennard-Jones pair energy in reduced units (sigma = 1, epsilon = 1):
 /// U(r) = 4 (r^-12 - r^-6), zero at r = 1, minimum -1 at r0 = 2^(1/6).
 pub fn energy(r: f64) -> f64 {
-    unimplemented!("pair energy U(r) = 4 (r^-12 - r^-6)")
+    let r2 = r * r; // r^-6 = (r^-2)^3
+    let r6 = 1.0 / (r2 * r2 * r2);
+    4.0 * r6 * (r6 - 1.0)
 }
 
 /// The pair force magnitude F(r) = -dU/dr = 24/r (2 r^-12 - r^-6):
