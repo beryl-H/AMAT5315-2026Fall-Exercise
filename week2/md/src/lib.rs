@@ -17,6 +17,9 @@ pub fn lj_force(r: f64) -> f64 {
     24.0 / r * (2.0 * inv_r12 - inv_r6)
 }
 
+mod state;
+pub use state::{State, Vec2, two_atom_initial_state};
+
 #[cfg(test)]
 mod tests {
     use super::*;
