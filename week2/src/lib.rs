@@ -16,7 +16,10 @@ pub fn energy(r: f64) -> f64 {
 /// The pair force magnitude F(r) = -dU/dr = 24/r (2 r^-12 - r^-6):
 /// positive repels (r < r0), zero at r0 = 2^(1/6), negative attracts (r > r0).
 pub fn force(r: f64) -> f64 {
-    unimplemented!("pair force F(r) = 24/r (2 r^-12 - r^-6)")
+    let r2 = r * r;
+    let r6 = 1.0 / (r2 * r2 * r2);
+    let r12 = r6 * r6;
+    24.0 / r * (2.0 * r12 - r6)
 }
 
 #[cfg(test)]
