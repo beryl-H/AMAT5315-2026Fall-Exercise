@@ -71,9 +71,29 @@ pub fn dimer() -> System {
     )
 }
 
+/// A n_side x n_side triangular lattice (alternate rows offset half a spacing)
+/// in a square periodic box, at exactly the requested density.
+/// Returns the positions and the box side L = sqrt(N / rho).
+pub fn triangular_lattice(n_side: usize, rho: f64) -> (Vec<[f64; 2]>, f64) {
+    let n = n_side * n_side;
+    let l = (n as f64 / rho).sqrt();
+    let a = l / n_side as f64;
+    let mut positions = Vec::with_capacity(n);
+    for row in 0..n_side {
+        let offset = if row % 2 == 1 { a / 2.0 } else { 0.0 };
+        for col in 0..n_side {
+            positions.push([
+                ((col as f64 + 0.5) * a + offset).rem_euclid(l),
+                (row as f64 + 0.5) * a,
+            ]);
+        }
+    }
+    (positions, l)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{dimer, energy, energy_cutoff, force, force_cutoff, greeting, run, Euler, VelocityVerlet};
+    use super::{dimer, energy, energy_cutoff, force, force_cutoff, greeting, run, triangular_lattice, Euler, VelocityVerlet};
 
     #[test]
     fn greeting_is_hello_world() {
@@ -122,6 +142,28 @@ mod tests {
             let tol = 1e-5 * force_cutoff(r, rc).abs().max(1.0);
             assert!((force_cutoff(r, rc) - df).abs() < tol, "r = {r}");
         }
+    }
+
+    #[test]
+    fn lattice_has_exact_density() {
+        let (positions, l) = triangular_lattice(10, 0.8);
+        assert_eq!(positions.len(), 100);
+        // Exact density by construction: N / L^2 = rho.
+        assert!((100.0 / (l * l) - 0.8).abs() < 1e-12);
+        // All sites inside [0, L), none overlapping.
+        for p in &positions {
+            assert!((0.0..l).contains(&p[0]));
+            assert!((0.0..l).contains(&p[1]));
+        }
+        let mut min2 = f64::MAX;
+        for (i, a) in positions.iter().enumerate() {
+            for b in &positions[i + 1..] {
+                let d2 = (a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2);
+                min2 = min2.min(d2);
+            }
+        }
+        let a = l / 10.0;
+        assert!((min2.sqrt() - a).abs() < 1e-9, "min spacing {}", min2.sqrt());
     }
 
     #[test]
