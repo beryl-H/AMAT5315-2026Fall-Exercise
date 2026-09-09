@@ -1,5 +1,7 @@
 //! Library for the `md` molecular-dynamics crate.
 
+pub mod rng;
+
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
