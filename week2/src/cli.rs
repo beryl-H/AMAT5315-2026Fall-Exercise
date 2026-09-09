@@ -63,17 +63,17 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
         "run" => {
             reject_unknown(&flags, &["temp", "dt", "steps", "equil", "out", "seed"])?;
             Ok(Command::Run(RunCfg {
-            temp: num("temp")?.unwrap_or(1.0),
-            dt: num("dt")?.unwrap_or(0.005),
-            steps: uint("steps")?.unwrap_or(10000),
-            equil: uint("equil")?.unwrap_or(1000),
-            out: flags.get("out").cloned().unwrap_or_else(|| "trajectory.txt".into()),
-            seed: flags
-                .get("seed")
-                .map(|v| v.parse::<u64>().map_err(|_| "--seed: not an integer"))
-                .transpose()?
-                .unwrap_or(1),
-            })
+                temp: num("temp")?.unwrap_or(1.0),
+                dt: num("dt")?.unwrap_or(0.005),
+                steps: uint("steps")?.unwrap_or(10000),
+                equil: uint("equil")?.unwrap_or(1000),
+                out: flags.get("out").cloned().unwrap_or_else(|| "trajectory.txt".into()),
+                seed: flags
+                    .get("seed")
+                    .map(|v| v.parse::<u64>().map_err(|_| "--seed: not an integer"))
+                    .transpose()?
+                    .unwrap_or(1),
+            }))
         }
         "check" => {
             let file = positional.first().cloned().ok_or("check needs a trajectory file")?;
