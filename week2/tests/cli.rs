@@ -94,3 +94,17 @@ fn frames_render_as_ppm() {
     let idx = HEADER.len() + (py as usize) * 450 * 3 + (px as usize) * 3;
     assert!(ppm[idx] < 250 || ppm[idx + 1] < 250 || ppm[idx + 2] < 250);
 }
+
+#[test]
+fn make_video_produces_an_mp4() {
+    let path = std::env::temp_dir().join("md_cli_run_test.txt");
+    let out = std::env::temp_dir().join("md_cli_video_test.mp4");
+    let cfg = md::cli::VideoCfg {
+        file: path.to_str().unwrap().into(),
+        out: out.to_str().unwrap().into(),
+        fps: 10.0,
+    };
+    md::ops::make_video(&cfg).unwrap();
+    let meta = std::fs::metadata(&out).unwrap();
+    assert!(meta.len() > 1000, "mp4 too small: {}", meta.len());
+}

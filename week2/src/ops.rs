@@ -195,3 +195,35 @@ pub fn format_report(r: &Report, cfg: &CheckCfg) -> String {
     s.push_str(&format!("verdict: {}\n", if r.pass { "PASS" } else { "FAIL" }));
     s
 }
+
+use crate::cli::VideoCfg;
+use crate::rdf::Rdf;
+use crate::video;
+
+pub fn make_video(cfg: &VideoCfg) -> Result<String, String> {
+    let t = trajectory::read(&cfg.file)?;
+    let factor = ((t.frames.len() as f64) / (cfg.fps * 10.0)).ceil().max(1.0) as usize;
+    let frame_ids: Vec<usize> = (0..t.frames.len()).step_by(factor).collect();
+    let dir = std::env::temp_dir().join(format!("md_video_frames_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let mut rdf = Rdf::new(t.meta.box_l, 0.05);
+    let mut paths = Vec::new();
+    for (k, &f) in frame_ids.iter().enumerate() {
+        let positions: Vec<[f64; 2]> = t.frames[f].iter().map(|a| [a[0], a[1]]).collect();
+        rdf.add_frame(&positions);
+        let bytes = video::render_frame(t.meta.box_l, &positions, &rdf.curve(), 450);
+        let p = dir.join(format!("{k:06}.ppm"));
+        std::fs::write(&p, bytes).map_err(|e| e.to_string())?;
+        paths.push(p.to_string_lossy().into_owned());
+    }
+    // ffmpeg reads %06d.ppm by name; the files we wrote are already numbered.
+    video::mux(dir.to_str().unwrap(), &cfg.out, cfg.fps).map_err(|e| e.to_string())?;
+    let _ = std::fs::remove_dir_all(&dir);
+    let _ = paths;
+    Ok(format!(
+        "wrote {} ({} frames at {} fps)",
+        cfg.out,
+        frame_ids.len(),
+        cfg.fps
+    ))
+}
