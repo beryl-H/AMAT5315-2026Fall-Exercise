@@ -24,7 +24,7 @@ pub fn force(r: f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{energy, force, greeting};
+    use super::{dimer, energy, force, greeting, run, Euler, VelocityVerlet};
 
     #[test]
     fn greeting_is_hello_world() {
@@ -48,5 +48,32 @@ mod tests {
             let tol = 1e-6 * force(r).abs().max(1.0);
             assert!((force(r) - df).abs() < tol, "r = {r}");
         }
+    }
+
+    #[test]
+    fn dimer_conservation() {
+        // Same initial state and dt for both methods; only the integrator differs.
+        let dt = 0.01;
+
+        // Velocity-Verlet, 500 steps: error bounded below 1e-3.
+        let mut system = dimer();
+        let verlet = run(&VelocityVerlet, &mut system, dt, 500);
+        let max_err = verlet.iter().fold(0.0_f64, |m, e| m.max(e.abs()));
+        assert!(max_err < 1e-3, "Verlet 500-step max error {max_err} >= 1e-3");
+
+        // Euler, 500 steps: final error exceeds 0.5.
+        let mut system = dimer();
+        let euler = run(&Euler, &mut system, dt, 500);
+        assert!(
+            *euler.last().unwrap() > 0.5,
+            "Euler final error {} <= 0.5",
+            euler.last().unwrap()
+        );
+
+        // Velocity-Verlet alone, 5000 steps: same bound holds.
+        let mut system = dimer();
+        let verlet = run(&VelocityVerlet, &mut system, dt, 5000);
+        let max_err = verlet.iter().fold(0.0_f64, |m, e| m.max(e.abs()));
+        assert!(max_err < 1e-3, "Verlet 5000-step max error {max_err} >= 1e-3");
     }
 }
