@@ -80,8 +80,9 @@ All recomputed from the saved frames (nothing is taken on trust from `run`):
   duration, relative to `|E0|`, must be below `--drift-tol` (default `1e-3`).
   This measures trend, not the bounded velocity-Verlet oscillation.
 - Speed distribution: empirical speeds vs the 2D Maxwell-Boltzmann
-  distribution `f(v) = (v/T) exp(-v^2/(2T))` at the run's mean temperature;
-  binned maximum deviation must be below `--ks-tol`.
+  distribution at the run's mean temperature; the Kolmogorov-Smirnov
+  statistic (max deviation between empirical and theoretical CDF, with
+  closed-form `F(v) = 1 - exp(-v^2/(2T))`) must be below `--ks-tol`.
 
 `md run`'s own output must pass `md check`; that round trip is the acceptance
 test.
