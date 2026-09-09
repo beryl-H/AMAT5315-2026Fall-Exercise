@@ -8,6 +8,8 @@ pub mod rdf;
 
 pub mod cli;
 
+pub mod ops;
+
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
