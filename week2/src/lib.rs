@@ -1,6 +1,8 @@
 //! Library for the `md` molecular-dynamics crate.
 
+mod integrator;
 mod system;
+pub use integrator::{Euler, Integrator, VelocityVerlet};
 pub use system::System;
 
 /// The greeting returned by this crate.
@@ -23,6 +25,27 @@ pub fn force(r: f64) -> f64 {
     let r6 = 1.0 / (r2 * r2 * r2);
     let r12 = r6 * r6;
     24.0 / r * (2.0 * r12 - r6)
+}
+
+/// Run `steps` steps of `dt` through `integrator` from the given state and
+/// return the relative total-energy error (E(t) - E0) / |E0| after each step,
+/// where E0 is the energy at t = 0.
+pub fn run<I: Integrator>(integrator: &I, system: &mut System, dt: f64, steps: usize) -> Vec<f64> {
+    let e0 = system.total_energy();
+    let mut errors = Vec::with_capacity(steps);
+    for _ in 0..steps {
+        integrator.step(system, dt);
+        errors.push((system.total_energy() - e0) / e0.abs());
+    }
+    errors
+}
+
+/// The dimer experiment's initial state: two atoms at rest, separation 1.2.
+pub fn dimer() -> System {
+    System::new(
+        vec![[0.0, 0.0], [1.2, 0.0]],
+        vec![[0.0, 0.0], [0.0, 0.0]],
+    )
 }
 
 #[cfg(test)]
