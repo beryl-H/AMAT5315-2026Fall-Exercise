@@ -4,6 +4,8 @@ pub mod rng;
 
 pub mod trajectory;
 
+pub mod rdf;
+
 mod integrator;
 mod system;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
