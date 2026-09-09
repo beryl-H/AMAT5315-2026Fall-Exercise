@@ -80,10 +80,11 @@ impl System {
         self.force = strategy;
     }
 
+
     /// Visit every pair (i, j, d, r) inside the cutoff once, with the
     /// minimum-image displacement d and distance r.
-    fn scan_pairs(&self, visit: impl FnMut(usize, usize, [f64; 2], f64)) {
-        let use_cells = matches!(self.force, ForceStrategy::Cells)
+    fn scan_pairs(&self, strategy: ForceStrategy, visit: impl FnMut(usize, usize, [f64; 2], f64)) {
+        let use_cells = matches!(strategy, ForceStrategy::Cells)
             && self.box_size.is_some()
             && self.rc.is_some()
             && self.box_size.unwrap() / self.rc.unwrap() >= 2.0;
@@ -124,10 +125,13 @@ impl System {
         let cell_side = l / n_side as f64;
         let n_cells = n_side * n_side;
         let mut grid: Vec<Vec<usize>> = vec![Vec::new(); n_cells];
+        // Wrap each coordinate into [0, L) first: a bare float->usize cast
+        // saturates, so atoms that drifted below zero would land in cell 0
+        // instead of their periodic image's cell.
         for (idx, p) in self.positions.iter().enumerate() {
-            let cx = (p[0].div_euclid(cell_side) as usize).rem_euclid(n_side);
-            let cy = (p[1].div_euclid(cell_side) as usize).rem_euclid(n_side);
-            grid[cy * n_side + cx].push(idx);
+            let cx = ((p[0].rem_euclid(l)) / cell_side) as usize;
+            let cy = ((p[1].rem_euclid(l)) / cell_side) as usize;
+            grid[cy.min(n_side - 1) * n_side + cx.min(n_side - 1)].push(idx);
         }
         let mut pair = |i: usize, j: usize| {
             let d = self.displacement(i, j);
@@ -200,7 +204,7 @@ impl System {
     pub(crate) fn refresh_accelerations(&mut self) {
         let n = self.n_atoms();
         let mut a = vec![[0.0, 0.0]; n];
-        self.scan_pairs(|i, j, d, r| {
+        self.scan_pairs(self.force, |i, j, d, r| {
             let f = match self.rc {
                 Some(rc) => force_cutoff(r, rc),
                 None => force(r),
@@ -217,7 +221,7 @@ impl System {
     /// box (minimum image) and cutoff when set.
     pub fn pair_energy(&self) -> f64 {
         let mut u = 0.0;
-        self.scan_pairs(|_i, _j, _d, r| {
+        self.scan_pairs(self.force, |_i, _j, _d, r| {
             u += match self.rc {
                 Some(rc) => energy_cutoff(r, rc),
                 None => energy(r),
