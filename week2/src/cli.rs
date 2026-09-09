@@ -1,6 +1,7 @@
 //! Command-line parsing for the md tool.
 
 pub struct RunCfg {
+    pub n: usize,
     pub temp: f64,
     pub dt: f64,
     pub steps: usize,
@@ -36,7 +37,8 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
     let mut i = 1;
     while i < args.len() {
         let a = &args[i];
-        if let Some(name) = a.strip_prefix("--") {
+        if a.starts_with('-') && a.len() > 1 {
+            let name = a.trim_start_matches('-');
             let value = args
                 .get(i + 1)
                 .ok_or_else(|| format!("flag {name} needs a value"))?;
@@ -61,12 +63,24 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
     };
     match sub.as_str() {
         "run" => {
-            reject_unknown(&flags, &["temp", "dt", "steps", "equil", "out", "seed"])?;
+            reject_unknown(&flags, &["n", "temp", "dt", "steps", "equil", "out", "seed"])?;
+            // Physics-shaping parameters are required: a silently defaulted
+            // value could produce an unwanted result.
+            let required = ["n", "temp", "dt", "steps", "equil"];
+            let missing: Vec<&str> = required
+                .iter()
+                .copied()
+                .filter(|k| !flags.contains_key(*k))
+                .collect();
+            if !missing.is_empty() {
+                return Err(format!("run requires: {}", missing.join(", ")));
+            }
             Ok(Command::Run(RunCfg {
-                temp: num("temp")?.unwrap_or(1.0),
-                dt: num("dt")?.unwrap_or(0.005),
-                steps: uint("steps")?.unwrap_or(10000),
-                equil: uint("equil")?.unwrap_or(1000),
+                n: uint("n")?.unwrap(),
+                temp: num("temp")?.unwrap(),
+                dt: num("dt")?.unwrap(),
+                steps: uint("steps")?.unwrap(),
+                equil: uint("equil")?.unwrap(),
                 out: flags.get("out").cloned().unwrap_or_else(|| "trajectory.txt".into()),
                 seed: flags
                     .get("seed")
@@ -118,30 +132,23 @@ mod tests {
     }
 
     #[test]
-    fn defaults() {
-        let c = parse(&args(&["run"])).unwrap();
-        match c {
-            Command::Run(cfg) => {
-                assert_eq!(cfg.temp, 1.0);
-                assert_eq!(cfg.dt, 0.005);
-                assert_eq!(cfg.steps, 10000);
-                assert_eq!(cfg.equil, 1000);
-                assert_eq!(cfg.out, "trajectory.txt");
-                assert_eq!(cfg.seed, 1);
-            }
-            _ => panic!("wrong command"),
-        }
+    fn run_requires_physics_parameters() {
+        // Physics-shaping parameters must be explicit; missing any is an error.
+        assert!(parse(&args(&["run"])).is_err());
+        assert!(parse(&args(&["run", "-n", "100", "--temp", "1", "--dt", "0.01"])).is_err());
+        assert!(parse(&args(&["run", "-n", "100", "--temp", "1", "--dt", "0.01", "--steps", "10", "--equil", "5"])).is_ok());
     }
 
     #[test]
     fn overrides() {
         let c = parse(&args(&[
-            "run", "--temp", "0.5", "--dt", "0.01", "--steps", "10", "--equil", "5",
+            "run", "-n", "144", "--temp", "0.5", "--dt", "0.01", "--steps", "10", "--equil", "5",
             "--out", "t.txt", "--seed", "9",
         ]))
         .unwrap();
         match c {
             Command::Run(cfg) => {
+                assert_eq!(cfg.n, 144);
                 assert_eq!(cfg.temp, 0.5);
                 assert_eq!(cfg.dt, 0.01);
                 assert_eq!(cfg.steps, 10);

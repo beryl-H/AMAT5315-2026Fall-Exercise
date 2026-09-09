@@ -5,8 +5,6 @@ use crate::rng::Rng;
 use crate::trajectory::{Meta, Trajectory};
 use crate::{triangular_lattice, Integrator, System, VelocityVerlet};
 
-/// Number of atoms: fixed by spec (10x10 lattice).
-const N_SIDE: usize = 10;
 /// Shifted-force cutoff.
 const RC: f64 = 2.5;
 
@@ -31,7 +29,12 @@ fn rescale(v: &mut [[f64; 2]], t: f64) {
 }
 
 pub fn run_sim(cfg: &RunCfg) -> Result<String, String> {
-    let (positions, box_l) = triangular_lattice(N_SIDE, 0.8);
+    // The triangular lattice is n_side x n_side, so N must be a perfect square.
+    let side = (cfg.n as f64).sqrt();
+    if side.fract() != 0.0 || side < 2.0 {
+        return Err(format!("-n {} is not a perfect square >= 4", cfg.n));
+    }
+    let (positions, box_l) = triangular_lattice(side as usize, 0.8);
     let mut rng = Rng::new(cfg.seed);
     let velocities = maxwell_velocities(positions.len(), cfg.temp, &mut rng);
     let mut system = System::periodic(positions, velocities, box_l, RC);
