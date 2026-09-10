@@ -25,6 +25,9 @@ pub use experiment::{
     kinetic_energy, lj_accelerations, potential_energy, relative_energy_error, total_energy,
 };
 
+mod integrator;
+pub use integrator::{Euler, Integrator, VelocityVerlet};
+
 #[cfg(test)]
 mod tests {
     use super::*;
