@@ -1,7 +1,8 @@
 //! Lennard-Jones accelerations, energy measurement, and (in Task 5) the
 //! shared experiment driver.
 
-use crate::state::{State, Vec2};
+use crate::integrator::Integrator;
+use crate::state::{two_atom_initial_state, State, Vec2};
 use crate::{lj_energy, lj_force};
 
 /// Accelerations from the plain Lennard-Jones potential.
@@ -66,6 +67,49 @@ pub fn relative_energy_error(state: &State, e0: f64) -> f64 {
     (total_energy(state) - e0) / e0.abs()
 }
 
+/// Time series produced by the shared two-atom experiment driver.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExperimentResult {
+    pub steps: Vec<usize>,
+    pub times: Vec<f64>,
+    pub relative_energy_errors: Vec<f64>,
+}
+
+/// Run the fixed Week 2 dimer with any `Integrator`.
+///
+/// `steps` counts integrated steps. The returned series includes step 0 with
+/// error 0.0, so its length is `steps + 1`.
+pub fn run_experiment<I: Integrator>(
+    integrator: &mut I,
+    steps: usize,
+    dt: f64,
+) -> ExperimentResult {
+    let mut state = two_atom_initial_state();
+    let e0 = total_energy(&state);
+    let accelerations = |s: &State| lj_accelerations(s);
+
+    integrator.initialize(&state, &accelerations);
+
+    let mut step_indices = Vec::with_capacity(steps + 1);
+    let mut times = Vec::with_capacity(steps + 1);
+    let mut errors = Vec::with_capacity(steps + 1);
+
+    for step in 0..=steps {
+        if step > 0 {
+            integrator.step(&mut state, dt, &accelerations);
+        }
+        step_indices.push(step);
+        times.push(step as f64 * dt);
+        errors.push(relative_energy_error(&state, e0));
+    }
+
+    ExperimentResult {
+        steps: step_indices,
+        times,
+        relative_energy_errors: errors,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -96,5 +140,13 @@ mod tests {
         assert_eq!(accelerations[0][1], 0.0);
         assert!((accelerations[1][0] + accelerations[0][0]).abs() < EPSILON);
         assert_eq!(accelerations[1][1], 0.0);
+    }
+
+    #[test]
+    fn experiment_records_step_zero_and_every_integrated_step() {
+        let result = run_experiment(&mut crate::Euler::default(), 2, 0.5);
+        assert_eq!(result.steps, vec![0, 1, 2]);
+        assert_eq!(result.times, vec![0.0, 0.5, 1.0]);
+        assert_eq!(result.relative_energy_errors[0], 0.0);
     }
 }

@@ -22,7 +22,8 @@ pub use state::{State, Vec2, two_atom_initial_state};
 
 mod experiment;
 pub use experiment::{
-    kinetic_energy, lj_accelerations, potential_energy, relative_energy_error, total_energy,
+    kinetic_energy, lj_accelerations, potential_energy, relative_energy_error, run_experiment,
+    total_energy, ExperimentResult,
 };
 
 mod integrator;
