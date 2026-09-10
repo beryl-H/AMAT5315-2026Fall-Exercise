@@ -20,6 +20,11 @@ pub fn lj_force(r: f64) -> f64 {
 mod state;
 pub use state::{State, Vec2, two_atom_initial_state};
 
+mod experiment;
+pub use experiment::{
+    kinetic_energy, lj_accelerations, potential_energy, relative_energy_error, total_energy,
+};
+
 #[cfg(test)]
 mod tests {
     use super::*;
