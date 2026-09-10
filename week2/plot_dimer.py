@@ -73,14 +73,14 @@ ax_compare.plot(
 ax_compare.axhline(0.0, color="0.7", lw=0.8, zorder=0)
 ax_compare.set_title("500 steps, $\\mathrm{d}t = 0.01$")
 ax_compare.set_xlabel("time $t$")
-ax_compare.set_ylabel("relative energy error $\\times\\,10^{-3}$")
+ax_compare.set_ylabel("1000 × relative energy error")
 ax_compare.legend(loc="upper left")
 
 ax_long.plot(verlet5000[:, 2], verlet5000[:, 3] * 1e3, color="tab:blue")
 ax_long.axhline(0.0, color="0.7", lw=0.8, zorder=0)
 ax_long.set_title("velocity-Verlet, 5000 steps, $\\mathrm{d}t = 0.01$")
 ax_long.set_xlabel("time $t$")
-ax_long.set_ylabel("relative energy error $\\times\\,10^{-3}$")
+ax_long.set_ylabel("1000 × relative energy error")
 
 fig.suptitle(
     "Two-atom Lennard-Jones dimer: relative total-energy error "
