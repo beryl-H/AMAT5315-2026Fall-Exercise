@@ -256,8 +256,8 @@ formatting (the strict energy cross-check tolerates it).
 
 ## `md check` — independent verification
 
-Reads `run.json` and `traj.jsonl`; rebuilds the box from `n, rho` [and
-cross-checks the stored `box` within tolerance]; **recomputes** E_pot
+Reads `run.json` and `traj.jsonl`; rebuilds the box from `n, rho` and cross-checks
+the stored `box` within `1e-10 * max(1, L)` per axis [Suggestion]; **recomputes** E_pot
 (minimum image + shifted cutoff) and E_kin from the raw saved positions and
 velocities; the stored energies are only cross-checked and are never inputs
 to the physics metrics.
