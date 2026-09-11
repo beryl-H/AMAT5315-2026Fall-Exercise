@@ -96,15 +96,17 @@ files (also the repo pattern). All commands below run from `week2/`.
 
 ---
 
-### Task 1: Dependencies, CLI skeleton, and course-required acceptance tests (TEST / RED)
+### Task 1: Dependencies + course-required acceptance tests (TEST / RED)
+
+Strict test-first ordering: before the first RED commit only dependency
+declarations and Cargo.lock setup are allowed. No CLI skeleton, no
+implementation code. The CLI skeleton moves to Task 1b, after the RED
+commit of the failing tests.
 
 **Files:**
-- Modify: `week2/md/Cargo.toml`, `week2/md/src/lib.rs`,
-  `week2/md/src/main.rs`
-- Create: `week2/md/src/cli.rs`, `week2/md/tests/pair.rs`,
-  `week2/md/tests/fluid.rs`, `week2/md/tests/cli.rs`,
-  `week2/md/tests/contract.rs`
-- Modify: `week2/md/.gitignore`
+- Modify: `week2/md/Cargo.toml`, `week2/md/.gitignore`
+- Create: `week2/md/tests/pair.rs`, `week2/md/tests/fluid.rs`,
+  `week2/md/tests/cli.rs`, `week2/md/tests/contract.rs`
 
 **Interfaces:**
 - Consumes: existing crate `md`.
@@ -114,9 +116,8 @@ files (also the repo pattern). All commands below run from `week2/`.
   - `md::system::{Box2, lattice_state, minimum_image, wrap, side}`
   - `md::fluid::{fluid_accelerations, fluid_potential_energy}`
   - `md::simulate::{SimConfig, Frame, run_simulation}`
-  - `md::io::{RunConfig, read_artifacts}`
+  - `md::io::{RunConfig, read_artifacts, write_artifacts}`
   - `md::checker::check_artifacts`
-  - binary subcommands `run`/`check`/`video` with the contract flags.
 
 - [ ] **Step 1: Add dependencies [Suggestion per design]**
 
@@ -133,105 +134,10 @@ clap = { version = "4.4", features = ["derive"] }
 ```
 
 Run `cargo build --manifest-path md/Cargo.toml` to regenerate
-`Cargo.lock`; commit the lockfile.
+`Cargo.lock`; commit the lockfile together with the failing tests in
+Step 5 (nothing else). Do NOT create any source file yet.
 
-- [ ] **Step 2: Write the CLI skeleton**
-
-`week2/md/src/cli.rs`:
-
-```rust
-//! Command-line interface: one `md` binary with run / check / video.
-
-use clap::{Parser, Subcommand};
-use std::path::PathBuf;
-
-/// Parameters accepted by `md run`. Defaults are the course contract values.
-#[derive(Debug, Parser)]
-pub struct RunArgs {
-    /// Number of atoms; must be a perfect square.
-    #[arg(long, default_value_t = 100)]
-    pub n: usize,
-    /// Number density in reduced units.
-    #[arg(long, default_value_t = 0.8)]
-    pub rho: f64,
-    /// Target temperature in reduced units.
-    #[arg(long, default_value_t = 0.5)]
-    pub temperature: f64,
-    /// Time step.
-    #[arg(long, default_value_t = 0.01)]
-    pub dt: f64,
-    /// Equilibration steps (thermostat on).
-    #[arg(long, default_value_t = 2000)]
-    pub eq_steps: usize,
-    /// Production steps (thermostat off).
-    #[arg(long, default_value_t = 10000)]
-    pub steps: usize,
-    /// Save every this many production steps.
-    #[arg(long, default_value_t = 50)]
-    pub sample_every: usize,
-    /// RNG seed for the initial Gaussian velocities.
-    #[arg(long, default_value_t = 2026)]
-    pub seed: u64,
-    /// Output directory (relative to the working directory).
-    #[arg(long, default_value = "artifacts")]
-    pub out: PathBuf,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum Command {
-    /// Simulate and record an equilibrium Lennard-Jones fluid.
-    Run(RunArgs),
-    /// Independently recompute the physics of a saved run.
-    Check {
-        /// Directory containing run.json and traj.jsonl.
-        artifacts: PathBuf,
-    },
-    /// Render the trajectory and g(r) to an MP4 via ffmpeg.
-    Video {
-        /// Directory containing run.json and traj.jsonl.
-        artifacts: PathBuf,
-        /// Output MP4 path (required explicitly).
-        #[arg(long)]
-        out: PathBuf,
-    },
-}
-
-#[derive(Debug, Parser)]
-#[command(name = "md", about = "Week 2 molecular dynamics CLI")]
-pub struct Cli {
-    #[command(subcommand)]
-    pub command: Command,
-}
-
-/// CLI entry point. Returns the process exit code.
-pub fn main() -> i32 {
-    let cli = Cli::parse();
-    match cli.command {
-        Command::Run(_) => todo!("md run (Task 8)"),
-        Command::Check { .. } => todo!("md check (Task 10)"),
-        Command::Video { .. } => todo!("md video (Task 13)"),
-    }
-}
-```
-
-`week2/md/src/main.rs` becomes:
-
-```rust
-fn main() {
-    std::process::exit(md::cli::main());
-}
-```
-
-`week2/md/src/lib.rs` gains (and only gains) these lines:
-
-```rust
-mod cli;
-pub use cli::{Cli, Command, RunArgs};
-```
-
-Add `/artifacts` to `week2/md/.gitignore`.
-
-- [ ] **Step 3: Write the four course-required acceptance test files**
+- [ ] **Step 2: Write the four course-required acceptance test files**
 
 `week2/md/tests/pair.rs` (Course Requirement: shifted cutoff potential):
 
@@ -495,23 +401,148 @@ fn default_contract_run_passes_the_three_physics_bounds() {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify RED**
+- [ ] **Step 3: Run the tests to verify RED**
 
 Run: `cargo test --manifest-path md/Cargo.toml --no-run`
 Expected: compilation FAILS with unresolved imports
 (`md::pair`, `md::system`, `md::fluid`, `md::simulate`, `md::io`,
-`md::checker`, and `md::io::write_artifacts` do not exist). This is the
-first RED stage and it contains all four course-required tests.
-(Do NOT use `--release` here; see Task 14 for the release gate.)
+`md::checker` do not exist). This is the first RED stage and it contains
+all four course-required tests. (The existing hello-world `main.rs` still
+compiles, so `CARGO_BIN_EXE_md` resolves; only the new library modules are
+missing.)
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit the failing tests**
 
 ```bash
-git add week2/md/Cargo.toml week2/md/Cargo.lock week2/md/src/lib.rs \
-        week2/md/src/main.rs week2/md/src/cli.rs week2/md/.gitignore \
+git add week2/md/Cargo.toml week2/md/Cargo.lock week2/md/.gitignore \
         week2/md/tests/pair.rs week2/md/tests/fluid.rs week2/md/tests/cli.rs \
         week2/md/tests/contract.rs
-git commit -m "test: add failing Part 4 acceptance tests and CLI skeleton"
+git commit -m "test: add failing Part 4 acceptance tests"
+```
+
+Strict ordering: this RED commit of the failing tests happens BEFORE any
+CLI skeleton or other implementation code is created.
+
+---
+
+### Task 1b: CLI skeleton (after the RED commit)
+
+**Files:**
+- Create: `week2/md/src/cli.rs`
+- Modify: `week2/md/src/main.rs`, `week2/md/src/lib.rs`
+
+**Interfaces:**
+- Consumes: clap (Task 1 Step 1).
+- Produces: `md::cli::{Cli, Command, RunArgs}` with `pub fn main() -> i32`
+  dispatching to `todo!()` stubs; the contract flag defaults live here and
+  later tasks replace the stubs (`Run` in Task 8, `Check` in Task 10,
+  `Video` in Task 13).
+
+- [ ] **Step 1: Write the CLI skeleton**
+
+`week2/md/src/cli.rs`:
+
+```rust
+//! Command-line interface: one `md` binary with run / check / video.
+
+use clap::{Parser, Subcommand};
+use std::path::PathBuf;
+
+/// Parameters accepted by `md run`. Defaults are the course contract values.
+#[derive(Debug, Parser)]
+pub struct RunArgs {
+    /// Number of atoms; must be a perfect square.
+    #[arg(long, default_value_t = 100)]
+    pub n: usize,
+    /// Number density in reduced units.
+    #[arg(long, default_value_t = 0.8)]
+    pub rho: f64,
+    /// Target temperature in reduced units.
+    #[arg(long, default_value_t = 0.5)]
+    pub temperature: f64,
+    /// Time step.
+    #[arg(long, default_value_t = 0.01)]
+    pub dt: f64,
+    /// Equilibration steps (thermostat on).
+    #[arg(long, default_value_t = 2000)]
+    pub eq_steps: usize,
+    /// Production steps (thermostat off).
+    #[arg(long, default_value_t = 10000)]
+    pub steps: usize,
+    /// Save every this many production steps.
+    #[arg(long, default_value_t = 50)]
+    pub sample_every: usize,
+    /// RNG seed for the initial Gaussian velocities.
+    #[arg(long, default_value_t = 2026)]
+    pub seed: u64,
+    /// Output directory (relative to the working directory).
+    #[arg(long, default_value = "artifacts")]
+    pub out: PathBuf,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Command {
+    /// Simulate and record an equilibrium Lennard-Jones fluid.
+    Run(RunArgs),
+    /// Independently recompute the physics of a saved run.
+    Check {
+        /// Directory containing run.json and traj.jsonl.
+        artifacts: PathBuf,
+    },
+    /// Render the trajectory and g(r) to an MP4 via ffmpeg.
+    Video {
+        /// Directory containing run.json and traj.jsonl.
+        artifacts: PathBuf,
+        /// Output MP4 path (required explicitly).
+        #[arg(long)]
+        out: PathBuf,
+    },
+}
+
+#[derive(Debug, Parser)]
+#[command(name = "md", about = "Week 2 molecular dynamics CLI")]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Command,
+}
+
+/// CLI entry point. Returns the process exit code.
+pub fn main() -> i32 {
+    let cli = Cli::parse();
+    match cli.command {
+        Command::Run(_) => todo!("md run (Task 8)"),
+        Command::Check { .. } => todo!("md check (Task 10)"),
+        Command::Video { .. } => todo!("md video (Task 13)"),
+    }
+}
+```
+
+`week2/md/src/main.rs` becomes:
+
+```rust
+fn main() {
+    std::process::exit(md::cli::main());
+}
+```
+
+`week2/md/src/lib.rs` gains (and only gains) these lines:
+
+```rust
+mod cli;
+pub use cli::{Cli, Command, RunArgs};
+```
+
+- [ ] **Step 2: Verify the crate still builds and existing tests pass**
+
+Run: `cargo test --manifest-path md/Cargo.toml --lib --test lj --test dimer`
+Expected: PASS (the new `tests/*.rs` files from Task 1 remain RED — that
+is expected and correct; they are turned green by Tasks 2–11.)
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add week2/md/src/cli.rs week2/md/src/main.rs week2/md/src/lib.rs
+git commit -m "feat: add md CLI skeleton with contract subcommands"
 ```
 
 ---
@@ -2101,7 +2132,12 @@ Run: `cargo test --manifest-path md/Cargo.toml --test contract`
 Expected: PASS — the default run produces 200 frames, steps 50..=10000,
 and `check_artifacts` returns all three bounds passing.
 
-If a bound fails, do NOT loosen the bound. Debug in this order:
+There is exactly one set of physics acceptance criteria, identical in
+debug and release: secular drift < 2e-3; |T_speed - 0.5| < 0.05 for the
+default contract; chi2_22 < 2. The bounds are never loosened, changed,
+or re-derived per build profile.
+
+If a bound fails, do NOT loosen the bound. Investigate in this order:
 (a) drift — verify the thermostat is off in production and that
 `fluid_potential_energy` uses minimum image; (b) T_speed — verify the last
 equilibration rescale happens at step `eq_steps`; (c) chi2 — verify bin
@@ -2110,9 +2146,11 @@ edges use T_speed, not 0.5.
 - [ ] **Step 2: Run the whole suite**
 
 Run: `cargo test --manifest-path md/Cargo.toml`
-Expected: all tests PASS except `tests/cli.rs` (already green from Task 8)
-— everything green. (Debug-build contract run may take tens of seconds;
-that is acceptable mid-development.)
+Expected: everything PASS (Part 2/3 regression, all Part 4 unit and
+integration tests, including the already-green `tests/cli.rs` and
+`tests/checker.rs`). (A debug-build contract run may take tens of
+seconds; that is acceptable mid-development and does not alter the
+acceptance criteria.)
 
 - [ ] **Step 3: Commit (if any fix was needed)**
 
@@ -2200,8 +2238,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "needs ffmpeg; run manually with --ignored when installed"]
-    fn encode_video_of_tiny_run_produces_small_mp4() {
+    fn encode_video_of_tiny_run_produces_small_mp4_when_ffmpeg_present() {
+        // Runtime availability handling: if ffmpeg is unavailable the
+        // external-video portion is skipped gracefully; if available the
+        // MP4 is actually generated and size-checked. The < 2 MB bound
+        // itself is unconditional — only the external-binary step is
+        // conditional.
+        if !ffmpeg_available() {
+            eprintln!("skipping: ffmpeg not installed");
+            return;
+        }
         let dir = std::env::temp_dir().join(format!("md-video-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let config = crate::simulate::SimConfig {
@@ -2219,12 +2265,12 @@ mod tests {
 }
 ```
 
-Design deviation note: unlike the contract test, the mp4-size test is
-`#[ignore]`d because the course does not require ffmpeg for the release
-test suite (`make reproduce` excludes video); developers with ffmpeg run
-it explicitly with `cargo test -- --ignored`. This is the graceful-skip
-behavior the design specifies, adapted so the release suite never depends
-on an absent external binary.
+Design note: the mp4-size test is a normal (non-`#[ignore]`) test with
+runtime availability handling — when ffmpeg is absent it skips the
+external-video portion gracefully; when ffmpeg is installed (the manual
+verification environment) it actually runs the MP4 generation and the
+< 2 MB size check. The course does not require ffmpeg for the release
+test suite (`make reproduce` excludes video).
 
 - [ ] **Step 2: RED**
 
@@ -2355,7 +2401,7 @@ Add to `lib.rs`: `mod render; pub use render::{Canvas, render_frame}; mod video;
 
 Run: `cargo test --manifest-path md/Cargo.toml render video`
 Expected: render tests PASS; `ffmpeg_available_detects_binary` PASS
-(either branch); the mp4 test skipped (`ignored`).
+(either branch); the mp4 test skips gracefully when ffmpeg is absent.
 
 - [ ] **Step 5: Commit**
 
@@ -2376,7 +2422,8 @@ git commit -m "feat: add RGBA renderer and ffmpeg video pipe"
 - Produces: working `md video <ARTIFACTS> --out <PATH>`.
 
 - [ ] **Step 1: RED** — there is no dedicated acceptance test beyond the
-`#[ignore]`d mp4 test (ffmpeg is an external prerequisite). Behavior to
+mp4-size test with runtime availability handling (ffmpeg is an external
+prerequisite). Behavior to
 verify by hand in Step 3; the missing-ffmpeg error path is testable:
 
 Add to `tests/cli.rs`:
@@ -2515,7 +2562,13 @@ git commit -m "feat: add week2 Makefile reproduce target for the contract run"
 - Part 2/3 preservation → Global Constraints + regression runs in Tasks 4,
   14.
 - No cell lists, no Python, ffmpeg external → Global Constraints.
-- Course-required tests present in the first RED stage → Task 1 Step 3/4.
+- Course-required tests present in the first RED stage → Task 1 Steps 2–4
+  (tests written, RED observed, failing tests committed; CLI skeleton only
+  afterwards in Task 1b).
+- ffmpeg/video test uses runtime availability handling, not `#[ignore]`
+  (Task 12).
+- One set of physics acceptance criteria, identical in debug and release
+  (Task 11).
 
 **Placeholder scan:** the two intentional "expanded pseudocode" notes in
 Tasks 6 and 10 explicitly instruct replacing condensed snippets with the
