@@ -32,6 +32,9 @@ pub use integrator::{Euler, Integrator, VelocityVerlet};
 pub mod cli;
 pub use cli::{Cli, Command, RunArgs};
 
+pub mod system;
+pub use system::{Box2, lattice_constants, lattice_state, minimum_image, side, wrap};
+
 #[cfg(test)]
 mod tests {
     use super::*;
