@@ -234,6 +234,10 @@ user-facing forms are Course Requirements:
 Non-perfect-square N, malformed input, failed checks, and a missing ffmpeg
 executable produce a clear error message and a nonzero exit status.
 
+`steps` must be a positive multiple of `sample_every` (so the saved sequence
+`sample_every, 2*sample_every, ...` ends exactly on `steps`); violations are
+rejected at argument parsing with a nonzero exit [Suggestion].
+
 ## File formats [Course Requirement]
 
 `run.json` (single JSON object) must contain:
