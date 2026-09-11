@@ -35,6 +35,9 @@ pub use cli::{Cli, Command, RunArgs};
 pub mod system;
 pub use system::{Box2, lattice_constants, lattice_state, minimum_image, side, wrap};
 
+pub mod pair;
+pub use pair::{RC, shifted_energy, shifted_force};
+
 #[cfg(test)]
 mod tests {
     use super::*;

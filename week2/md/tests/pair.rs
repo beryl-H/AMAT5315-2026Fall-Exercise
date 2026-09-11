@@ -9,11 +9,18 @@ use md::pair::{RC, shifted_energy, shifted_force};
 
 #[test]
 fn shifted_potential_is_continuous_approaching_rc_from_below() {
-    // Probing just inside rc, the value approaches 0.
+    // Continuity at rc: U_cut(r) -> 0 as r -> rc^-.
+    // The slope U'(rc) is finite, so the gap shrinks linearly with eps.
+    let mut prev = f64::INFINITY;
     for eps in [1e-1, 1e-2, 1e-3, 1e-6, 1e-9] {
         let u = shifted_energy(RC - eps);
-        assert!(u.abs() < 1e-6, "U_cut({}) = {u}, expected ~0", RC - eps);
+        assert!(u.is_finite());
+        assert!(u.abs() < prev, "U_cut must shrink monotonically toward rc");
+        prev = u.abs();
     }
+    // Values just inside rc are effectively zero.
+    assert!(shifted_energy(RC - 1e-6).abs() < 1e-6);
+    assert!(shifted_energy(RC - 1e-9).abs() < 1e-6);
     assert_eq!(shifted_energy(RC), 0.0);
     assert_eq!(shifted_energy(RC + 1.0), 0.0);
 }
