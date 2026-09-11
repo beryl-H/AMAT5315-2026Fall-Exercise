@@ -1,3 +1,3 @@
 fn main() {
-    println!("{}", md::greeting());
+    std::process::exit(md::cli::main());
 }

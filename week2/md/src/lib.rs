@@ -29,6 +29,9 @@ pub use experiment::{
 mod integrator;
 pub use integrator::{Euler, Integrator, VelocityVerlet};
 
+pub mod cli;
+pub use cli::{Cli, Command, RunArgs};
+
 #[cfg(test)]
 mod tests {
     use super::*;
