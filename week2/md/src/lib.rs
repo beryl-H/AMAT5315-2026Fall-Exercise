@@ -50,6 +50,9 @@ pub use simulate::{Frame, SimConfig, THERMOSTAT_INTERVAL, run_simulation, thermo
 pub mod io;
 pub use io::{RunConfig, read_artifacts, write_artifacts};
 
+mod metrics;
+pub use metrics::{bin_edges, chi2_22, frame_total_energies, pooled_speeds, radial_distribution, secular_drift, t_speed};
+
 #[cfg(test)]
 mod tests {
     use super::*;
