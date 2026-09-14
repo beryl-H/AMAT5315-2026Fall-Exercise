@@ -78,3 +78,68 @@ fn run_rejects_non_square_n_and_non_divisible_steps() {
     assert!(!output.status.success());
     let _ = std::fs::remove_dir_all(&out);
 }
+
+#[test]
+fn video_reports_missing_ffmpeg_or_succeeds() {
+    // Course Requirement: one binary, md video artifacts --out PATH.
+    // If ffmpeg is absent, exit nonzero with a clear message [design].
+    let out = temp_dir("video");
+    let artifacts = temp_dir("video-src");
+    let run = run_md(&["run", "--n", "16", "--eq-steps", "50", "--steps", "100",
+                       "--sample-every", "50", "--out", artifacts.to_str().unwrap()]);
+    assert!(run.status.success());
+    let video = run_md(&["video", artifacts.to_str().unwrap(),
+                         "--out", out.join("run.mp4").to_str().unwrap()]);
+    if md::video::ffmpeg_available() {
+        assert!(video.status.success(), "md video failed: {}", String::from_utf8_lossy(&video.stderr));
+        assert!(out.join("run.mp4").exists());
+    } else {
+        assert!(!video.status.success());
+    }
+    // --out is required: omitting it must fail to parse.
+    let no_out = run_md(&["video", artifacts.to_str().unwrap()]);
+    assert!(!no_out.status.success());
+    let _ = std::fs::remove_dir_all(&out);
+    let _ = std::fs::remove_dir_all(&artifacts);
+}
+
+#[test]
+fn default_contract_video_encodes_all_frames_under_two_mb() {
+    // Course Requirement: the final MP4 is < 2 MB with every one of the 200
+    // saved trajectory frames encoded (no subsampling).
+    if !md::video::ffmpeg_available() {
+        eprintln!("skipping: ffmpeg not installed");
+        return;
+    }
+    let out = temp_dir("video-ctr");
+    let artifacts = temp_dir("video-ctr-src");
+    let run = run_md(&["run", "--out", artifacts.to_str().unwrap()]);
+    assert!(run.status.success(), "contract run failed");
+    let traj = std::fs::read_to_string(artifacts.join("traj.jsonl")).unwrap();
+    let saved = traj.lines().filter(|l| !l.trim().is_empty()).count();
+    assert_eq!(saved, 200, "default contract must save exactly 200 frames");
+
+    let mp4 = out.join("run.mp4");
+    let video = run_md(&["video", artifacts.to_str().unwrap(), "--out", mp4.to_str().unwrap()]);
+    assert!(video.status.success(), "md video failed: {}", String::from_utf8_lossy(&video.stderr));
+    assert!(mp4.exists());
+    let size = std::fs::metadata(&mp4).unwrap().len();
+    assert!(size > 0, "mp4 must be non-empty");
+    assert!(size < 2_000_000, "mp4 is {size} bytes, must be < 2 MB");
+
+    // Count encoded frames with ffprobe (if present): must equal the saved count.
+    if let Ok(probe) = std::process::Command::new("ffprobe")
+        .args(["-v", "error", "-select_streams", "v:0", "-count_frames",
+               "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0"])
+        .arg(&mp4)
+        .output()
+    {
+        if probe.status.success() {
+            let text = String::from_utf8_lossy(&probe.stdout);
+            let encoded: usize = text.trim().parse().expect("ffprobe frame count");
+            assert_eq!(encoded, saved, "must encode every saved frame");
+        }
+    }
+    let _ = std::fs::remove_dir_all(&out);
+    let _ = std::fs::remove_dir_all(&artifacts);
+}

@@ -75,7 +75,13 @@ pub fn main() -> i32 {
             }
         },
         Command::Check { artifacts } => crate::checker::run_check(&artifacts),
-        Command::Video { .. } => todo!("md video (Task 13)"),
+        Command::Video { artifacts, out } => match crate::video::encode_video(&artifacts, &out) {
+            Ok(()) => 0,
+            Err(msg) => {
+                eprintln!("error: {msg}");
+                3
+            }
+        },
     }
 }
 

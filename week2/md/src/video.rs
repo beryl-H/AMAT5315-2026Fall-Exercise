@@ -28,6 +28,15 @@ pub fn encode_video(dir: &Path, out_mp4: &Path) -> Result<(), String> {
     if !ffmpeg_available() {
         return Err("ffmpeg executable not found; install ffmpeg to use md video".into());
     }
+    // Create the output's parent directory (like md run's write_artifacts)
+    // so a fresh --out path works; without it ffmpeg aborts silently and
+    // the pipe reports a misleading "Broken pipe".
+    if let Some(parent) = out_mp4.parent() {
+        if !parent.as_os_str().is_empty() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| format!("cannot create output directory: {e}"))?;
+        }
+    }
     let (run, frames) = read_artifacts(dir).map_err(|e| format!("cannot read artifacts: {e}"))?;
     let bx = Box2 {
         lx: run.box_dim[0],
