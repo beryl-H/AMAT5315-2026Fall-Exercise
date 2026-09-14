@@ -44,6 +44,9 @@ pub use fluid::{fluid_accelerations, fluid_potential_energy};
 mod thermostat;
 pub use thermostat::{gaussian_velocities, remove_com_velocity, rescale_to, thermodynamic_temperature};
 
+pub mod simulate;
+pub use simulate::{Frame, SimConfig, THERMOSTAT_INTERVAL, run_simulation, thermostat_events};
+
 #[cfg(test)]
 mod tests {
     use super::*;
