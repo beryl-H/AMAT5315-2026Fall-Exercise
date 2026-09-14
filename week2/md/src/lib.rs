@@ -56,6 +56,12 @@ pub use metrics::{bin_edges, chi2_22, frame_total_energies, pooled_speeds, radia
 pub mod checker;
 pub use checker::{CheckError, CheckReport, check_artifacts, run_check};
 
+mod render;
+pub use render::{Canvas, render_frame};
+
+pub mod video;
+pub use video::{encode_video, ffmpeg_available};
+
 #[cfg(test)]
 mod tests {
     use super::*;
