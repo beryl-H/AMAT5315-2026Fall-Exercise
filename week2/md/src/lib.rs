@@ -41,6 +41,9 @@ pub use pair::{RC, shifted_energy, shifted_force};
 pub mod fluid;
 pub use fluid::{fluid_accelerations, fluid_potential_energy};
 
+mod thermostat;
+pub use thermostat::{gaussian_velocities, remove_com_velocity, rescale_to, thermodynamic_temperature};
+
 #[cfg(test)]
 mod tests {
     use super::*;
