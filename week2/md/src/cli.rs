@@ -1,6 +1,8 @@
 //! Command-line interface: one `md` binary with run / check / video.
 
 use clap::{Parser, Subcommand};
+use crate::io::RunConfig;
+use crate::simulate::SimConfig;
 use std::path::PathBuf;
 
 /// Parameters accepted by `md run`. Defaults are the course contract values.
@@ -65,8 +67,64 @@ pub struct Cli {
 pub fn main() -> i32 {
     let cli = Cli::parse();
     match cli.command {
-        Command::Run(_) => todo!("md run (Task 8)"),
+        Command::Run(args) => match run_command(&args) {
+            Ok(()) => 0,
+            Err(msg) => {
+                eprintln!("error: {msg}");
+                2
+            }
+        },
         Command::Check { .. } => todo!("md check (Task 10)"),
         Command::Video { .. } => todo!("md video (Task 13)"),
     }
+}
+
+/// Validate arguments and run the production driver, reusing the existing
+/// simulation and I/O modules (no logic duplicated here).
+fn run_command(args: &RunArgs) -> Result<(), String> {
+    // [Suggestion] per design: clear validation errors instead of panics.
+    if crate::system::side(args.n).is_none() {
+        return Err(format!("--n must be a perfect square, got {}", args.n));
+    }
+    if args.rho <= 0.0 {
+        return Err(format!("--rho must be positive, got {}", args.rho));
+    }
+    if args.temperature <= 0.0 {
+        return Err(format!("--temperature must be positive, got {}", args.temperature));
+    }
+    if args.dt <= 0.0 {
+        return Err(format!("--dt must be positive, got {}", args.dt));
+    }
+    if args.sample_every == 0 {
+        return Err(format!("--sample-every must be positive, got {}", args.sample_every));
+    }
+    if args.steps == 0 {
+        return Err(format!("--steps must be positive, got {}", args.steps));
+    }
+    if args.steps % args.sample_every != 0 {
+        return Err(format!(
+            "--steps ({}) must be a multiple of --sample-every ({}) so the final saved frame is exactly steps",
+            args.steps, args.sample_every
+        ));
+    }
+
+    let config = SimConfig {
+        n: args.n,
+        rho: args.rho,
+        temperature: args.temperature,
+        dt: args.dt,
+        eq_steps: args.eq_steps,
+        steps: args.steps,
+        sample_every: args.sample_every,
+        seed: args.seed,
+    };
+    let frames = crate::simulate::run_simulation(&config);
+    crate::io::write_artifacts(&args.out, &RunConfig::from(&config), &frames)
+        .map_err(|e| format!("cannot write artifacts: {e}"))?;
+    println!(
+        "wrote {} frames to {}",
+        frames.len(),
+        args.out.join("traj.jsonl").display()
+    );
+    Ok(())
 }
