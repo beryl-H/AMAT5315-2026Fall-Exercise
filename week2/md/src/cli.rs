@@ -74,7 +74,7 @@ pub fn main() -> i32 {
                 2
             }
         },
-        Command::Check { .. } => todo!("md check (Task 10)"),
+        Command::Check { artifacts } => crate::checker::run_check(&artifacts),
         Command::Video { .. } => todo!("md video (Task 13)"),
     }
 }

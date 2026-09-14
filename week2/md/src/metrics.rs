@@ -6,6 +6,22 @@ use crate::state::State;
 use crate::system::{Box2, minimum_image};
 use crate::Vec2;
 
+/// Recomputed shifted E_pot + E_kin for one frame from raw positions and
+/// velocities (minimum image), independent of the stored E_pot/E_kin.
+pub(crate) fn recompute_energies(frame: &Frame, bx: &Box2) -> (f64, f64) {
+    let state = State {
+        positions: frame.pos.clone(),
+        velocities: frame.vel.clone(),
+    };
+    let e_pot = fluid_potential_energy(&state, bx);
+    let e_kin = frame
+        .vel
+        .iter()
+        .map(|v| 0.5 * (v[0] * v[0] + v[1] * v[1]))
+        .sum::<f64>();
+    (e_pot, e_kin)
+}
+
 /// Recomputed total energies per frame: shifted E_pot from raw wrapped
 /// positions (minimum image) + E_kin from raw velocities. Independent of the
 /// stored E_pot/E_kin in each frame.
@@ -13,15 +29,8 @@ pub fn frame_total_energies(frames: &[Frame], bx: &Box2) -> Vec<f64> {
     frames
         .iter()
         .map(|f| {
-            let state = State {
-                positions: f.pos.clone(),
-                velocities: f.vel.clone(),
-            };
-            fluid_potential_energy(&state, bx)
-                + f.vel
-                    .iter()
-                    .map(|v| 0.5 * (v[0] * v[0] + v[1] * v[1]))
-                    .sum::<f64>()
+            let (e_pot, e_kin) = recompute_energies(f, bx);
+            e_pot + e_kin
         })
         .collect()
 }
