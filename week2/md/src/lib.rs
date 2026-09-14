@@ -38,6 +38,9 @@ pub use system::{Box2, lattice_constants, lattice_state, minimum_image, side, wr
 pub mod pair;
 pub use pair::{RC, shifted_energy, shifted_force};
 
+pub mod fluid;
+pub use fluid::{fluid_accelerations, fluid_potential_energy};
+
 #[cfg(test)]
 mod tests {
     use super::*;

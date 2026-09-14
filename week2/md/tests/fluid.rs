@@ -31,11 +31,15 @@ fn total_internal_force_vanishes_on_lattice() {
 #[test]
 fn total_internal_force_vanishes_on_perturbed_configuration() {
     // Deterministic perturbation (no RNG needed): displace every other atom.
+    // The displacement magnitude is kept small so nearest-neighbour pairs stay
+    // at r > 1 where the LJ force is O(1): a 0.37*x displacement would bring
+    // atoms 8 and 9 to r ~ 0.474 (force ~ 7.5e5), where double-precision
+    // rounding makes |sum F| < 1e-10 unreachable. FORCE_TOL is unchanged.
     let mut state = lattice_state(100, 0.8);
     let bx = Box2::new(100, 0.8);
     for (i, p) in state.positions.iter_mut().enumerate() {
         if i % 2 == 0 {
-            p[0] = wrap(p[0] + 0.37 * (i as f64 % 3.0), bx.lx);
+            p[0] = wrap(p[0] + 0.05 * (i as f64 % 3.0), bx.lx);
             p[1] = wrap(p[1] + 0.11, bx.ly);
         }
     }
@@ -55,7 +59,10 @@ fn minimum_image_displacement_matches_definition() {
 #[test]
 fn wrap_puts_positions_in_half_open_box_and_leaves_velocities() {
     assert_eq!(wrap(-0.2, 1.0), 0.8);
-    assert_eq!(wrap(1.2, 1.0), 0.2);
+    // 1.2f64 is 1.1999999999999999556, so the exact modulus is
+    // 0.1999999999999999556 (nearest f64 0.19999999999999996), not 0.2:
+    // use a tight relative tolerance rather than exact equality.
+    assert!((wrap(1.2, 1.0) - 0.2).abs() < 1e-12);
     assert_eq!(wrap(0.0, 1.0), 0.0);
     assert!(wrap(1.0, 1.0) < 1.0 && wrap(1.0, 1.0) >= 0.0);
 }
