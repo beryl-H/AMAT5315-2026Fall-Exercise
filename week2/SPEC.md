@@ -35,149 +35,170 @@ work; the following remain in force unchanged and are not re-specified here:
 - `docs/superpowers/specs/2026-09-15-week2-md-cell-list-design.md`
   (Part 5 cell-list force: `--force naive|cells`, `cells` is the default).
 
-Statements are labeled **[Course Requirement]** where they come from the
-course instructions and **[Suggestion]** where they are this spec's choices.
-Points the course wording does not determine are marked **[Need
-confirmation]** with a proposed interpretation given as **[Suggestion]**.
+Statements are labeled **[Course Requirement]** only where the course
+learning sheet states them. **[Suggestion]** marks this spec's choices, and
+**[Need confirmation]** marks details the sheet does not determine.
 
-## Heating contract [Course Requirement]
+## Heating contract
+
+**[Course Requirement]**
 
 1. `md run` gains an optional flag `--ramp-to <temperature>`.
 2. Without `--ramp-to`, the current equilibrium-fluid behavior is preserved
-   exactly: equilibration thermostat (Schedule B) unchanged; production
-   thermostat OFF; the default contract run and its energy-drift check
-   unchanged.
-3. With `--ramp-to`, during PRODUCTION the velocities are periodically
-   rescaled as a heating thermostat.
-4. The production thermostat acts every 50 production steps.
-5. Its target temperature rises linearly from `--temperature` at production
-   step 0 to `--ramp-to` at the final production step.
-6. `ramp_to` is recorded in run.json for heating runs.
-7. Heating deliberately adds energy, so:
-   - the existing unheated energy-conservation contract is not redefined;
-   - the existing secular-drift bound is not weakened;
-   - heating output is kept separate from the normal `artifacts/` contract
-     run.
-8. The final force-method behavior is preserved: `cells` is the default;
+   exactly: equilibration rescales velocities initially and every 50
+   equilibration steps; ordinary production has the thermostat OFF; the
+   default contract run and its energy-drift check are unchanged.
+3. With `--ramp-to`, during PRODUCTION the velocities are rescaled as a
+   heating thermostat toward a target that rises linearly with the
+   production step.
+4. The target runs from `--temperature` at production step 0 to `--ramp-to`
+   at the last production step.
+5. `ramp_to` is recorded in run.json for heating runs.
+6. Heating deliberately injects energy, so the unheated energy-conservation
+   criterion is not applied to heated runs; the existing secular-drift bound
+   is not weakened; heating output is kept separate from the normal
+   `artifacts/` contract run.
+7. The final force-method behavior is preserved: `cells` is the default;
    `--force naive` remains available.
-9. All existing Part 2–4 tests and scientific tolerances are preserved.
+8. All existing Part 2–4 tests and scientific tolerances are preserved.
 
-## Mathematical ramp schedule
+Note: the course does **not** say that the heating-production thermostat
+rescales every 50 production steps. The production-heating cadence is
+therefore **[Need confirmation]** and an interpretation is proposed below as
+**[Suggestion]**. (The every-50 cadence in the sheet applies to
+*equilibration*, which is unchanged.)
+
+## Ramp target (the course-derived function) [Course Requirement]
 
 Let `T0 = --temperature`, `T1 = --ramp-to`, `S = --steps` (production
-integrates steps `1..=S`; "final production step" is therefore `S`).
+integrates steps `1..=S`; "last production step" is `S`).
 
-### Target temperature at each rescale event [Course Requirement + this spec]
-
-At production step `s` (`0 <= s <= S`) the ramp target is
+For the production coordinate `s` in `[0, S]` the ramp target is
 
 ```
 T_target(s) = T0 + (T1 - T0) * s / S
 ```
 
-so `T_target(0) = T0` and `T_target(S) = T1` — the ramp is linear and reaches
-the requested endpoint at the final production step.
+with
 
-### Rescale event schedule [Course Requirement: every 50 production steps]
+```
+T_target(0) = T0
+T_target(S) = T1
+```
 
-After production step `s` with `s % 50 == 0` and `s >= 50`, rescale the
-velocities to `T_target(s)` (uniform rescale via the existing
-`rescale_to`, mass = 1, COM preserved). There is no rescale at production
-step 0 (the velocities already sit at `T0` from the end of equilibration).
+This is the mathematical ramp target. It is separate from the thermostat
+event schedule below (the schedule decides *when* the velocity rescale to
+`T_target(s)` is applied).
 
-- `S` divisible by 50: events occur at `s = 50, 100, ..., S`; the final
-  event at `s = S` targets `T_target(S) = T1`, so the endpoint is applied.
-- `S` not divisible by 50: events occur at `s = 50, 100, ...,
-  50*floor(S/50)`; the last event targets
-  `T_target(50*floor(S/50)) < T1`, so the endpoint value is approached but
-  never exactly applied. **[Need confirmation]** whether a forced final
-  rescale at step `S` (to `T1` exactly) is required for non-divisible `S`.
-  **[Suggestion]** Keep the strict 50-step cadence (consistent with
-  equilibration's Schedule B) and do not add a forced step-`S` event; the
-  endpoint is reached exactly iff `S % 50 == 0`. Validate with tests on
-  `S % 50 == 0` (endpoint reached) and a non-divisible `S` (last event at
-  the largest multiple of 50).
+## Thermostat event schedule
 
-### Degenerate and absent cases
+The cadence of the heating-production rescale is **[Need confirmation]**.
+
+**[Suggestion] Per-step rescale.** For a heated production run, rescale after
+every production integration step `s = 1, 2, ..., S`, applying
+`T_target(s)` via the existing uniform `rescale_to` (mass = 1, COM
+preserved). There is no production rescale at step 0: step 0 is only the
+mathematical start of the ramp, and the system enters production after
+equilibration already at `T0`.
+
+Why this suggestion:
+
+- It directly satisfies the course's stated final endpoint: the last
+  rescale, at `s = S`, applies `T_target(S) = T1` exactly, for every value
+  of `S`.
+- It works for every `S`; no divisibility condition is involved.
+- It avoids inventing a special divisibility-by-50 condition for production
+  heating (the sheet specifies every-50 only for equilibration).
+
+This replaces any earlier statement that a non-multiple-of-50 run "fails to
+apply T1" — that behavior is not established by the course and is not part
+of this spec. Under the suggested per-step schedule the endpoint `T1` is
+always applied at step `S`.
+
+## Degenerate and absent cases
 
 - `--ramp-to == --temperature` (flat ramp): the schedule is constant `T0`;
-  rescaling every 50 production steps to `T0` is allowed and behaves like a
-  constant-temperature production thermostat. Not an error. **[Suggestion]**
-- `--ramp-to` absent: production thermostat remains OFF and run.json carries
-  no `ramp_to` key (see below).
-- `--ramp-to <= 0`: rejected by the same positivity rule as
-  `--temperature` **[Suggestion]**. Whether `--ramp-to < --temperature`
-  (a cooling ramp) must be rejected is **[Need confirmation]**; **[Suggestion]**
-  allow any positive `T1`, including cooling, since the course only says the
-  feature "adds energy" for the intended heating use.
+  a flat production thermostat. Allowed. **[Suggestion]** (the sheet does
+  not state this case).
+- `--ramp-to < --temperature` (cooling ramp): whether this must be rejected
+  is **[Need confirmation]**; **[Suggestion]** allow any positive `T1`,
+  including cooling.
+- `--ramp-to <= 0`: rejected by the same positivity rule as `--temperature`.
+  **[Suggestion]** (the sheet does not state a rule).
+- `--ramp-to` absent: production thermostat remains completely OFF and
+  run.json carries no `ramp_to` key (see run.json below).
 - Equilibration is never affected by `--ramp-to`; the ramp applies to
   production only **[Course Requirement: "during PRODUCTION"]**.
 
-## run.json representation
+## run.json
 
-- `SimConfig` gains `pub ramp_to: Option<f64>` (Default `None`).
-- `RunConfig` (run.json) gains `ramp_to: Option<f64>` serialized as an
-  **optional field present only when heating is used** — i.e.
-  `#[serde(skip_serializing_if = "Option::is_none")]`. Deserialization of a
-  missing `ramp_to` yields `None` (Option fields default to None in serde),
-  so old unheated run.json files still read correctly.
-- Heating runs: run.json contains `"ramp_to": <T1>` alongside the existing
-  Part 4 keys.
-- Unheated runs: run.json contains exactly the existing Part 4 key set
-  (`n, rho, box, dt, temperature, eq_steps, steps, sample_every, seed,
-  integrator`) — the existing contract is preserved byte-for-byte.
+- **[Course Requirement]** Heating runs record `ramp_to` in run.json.
+- **[Suggestion]** Representation: `SimConfig` gains
+  `pub ramp_to: Option<f64>` (Default `None`); `RunConfig` (run.json) gains
+  `ramp_to: Option<f64>` with `#[serde(skip_serializing_if =
+  "Option::is_none")]`. Heating runs therefore serialize `"ramp_to": <T1>`
+  alongside the existing Part 4 keys; unheated runs omit the key entirely so
+  the existing Part 4 run.json schema remains byte/schema compatible, and
+  old unheated run.json files still deserialize (a missing Option field
+  defaults to None).
 
-## Heating output separation
+## Heating output separation and verification
 
 - The default contract run and `make reproduce` never pass `--ramp-to`;
-  `artifacts/` remains the unheated contract output.
-- A heating run must be directed to a separate `--out` directory
-  **[Suggestion: documented convention, not a hard guard]**.
-- `md check` is unchanged: recomputation and the three bounds are as in
-  Part 4. On a heated run the secular-drift bound will legitimately FAIL
-  (energy is injected); that is expected and is not an acceptance
-  criterion. **[Need confirmation]** whether `md check` should skip the
-  drift gate when `run.json.ramp_to` is present; **[Suggestion]** do NOT
-  change the checker — the drift bound is a contract-run criterion, and
-  heated runs are verified only for structural validity (frames, steps,
-  energies, box) plus the ramp schedule itself.
+  `artifacts/` remains the unheated contract output. A heating run is
+  directed to a separate `--out` directory. **[Suggestion: documented
+  convention, not a hard guard]**
+- `md check` is unchanged and is not used as the heated-run
+  energy-conservation verifier. On a heated run the secular-drift bound will
+  legitimately FAIL (energy is injected); that is expected and not an
+  acceptance criterion. Whether `md check` should skip the drift gate when
+  `ramp_to` is present is **[Need confirmation]**; **[Suggestion]** do not
+  change the checker — heated runs are verified structurally (frames,
+  steps, energies, box) and for the ramp schedule only.
 - No energy-conservation acceptance condition is defined for heated runs
-  [Course Requirement: heating adds energy; do not redefine the unheated
-  contract].
+  [Course Requirement: heating injects energy].
 
 ## Testable correctness
 
-Tests must independently detect (proposed locations: pure unit tests for the
-schedule + `simulate`/`cli`/`io` integration tests):
+The tests below target the suggested per-step schedule. Pure unit tests
+cover the ramp function; integration tests cover the schedule, run.json, and
+the absent-flag path. Tests must independently detect:
 
 1. **Wrong linear interpolation** — unit-test the schedule helper
-   `ramp_target(t0, t1, s, S)`: `ramp_target(0.5, 1.5, 0, 100) == 0.5`,
-   `== 1.0` at `s=50`, `== 1.5` at `s=100` (exact, within 1e-15).
-2. **Off-by-one schedule errors** — test that the first production rescale
-   is at step 50 (not 0, not 1), the cadence is exactly 50, and the event
-   count for divisible `S` is `S/50`.
-3. **Thermostat accidentally active when `--ramp-to` absent** — the existing
-   `no_thermostat_rescaling_during_production` test stays; additionally
-   assert run.json has no `ramp_to` key for a no-ramp run.
-4. **Wrong 50-step cadence** — with a ramp, frames aligned at production
-   steps 50, 100, ... have thermodynamic temperature pinned to
-   `T_target(step)` (within tight tolerance), and an intermediate frame
-   (e.g. step 25) is not pinned.
-5. **Ramp endpoint not reaching the requested value** — with `S % 50 == 0`,
-   the final frame (step `S`) has thermodynamic temperature equal to
-   `--ramp-to` within the same tight tolerance (the step-`S` rescale applied
-   `T1` exactly).
-6. **run.json not recording `ramp_to`** — a heating run's run.json contains
-   `"ramp_to": <value>`; a no-ramp run's run.json does not contain the key;
-   `io` round-trip preserves `Option<f64>` (missing → None).
+   `ramp_target(t0, t1, s, S)`:
+   - `ramp_target(T0, T1, 0, S) == T0` (exact);
+   - `ramp_target(T0, T1, S, S) == T1` (exact);
+   - an interior step is the correct linear interpolation, e.g.
+     `ramp_target(0.2, 1.2, 100, 200) == 0.7` (exact, within 1e-15).
+2. **Off-by-one endpoint errors** — `ramp_target(0, S) == T0` and
+   `ramp_target(S, S) == T1` are exact endpoints; no off-by-one at the
+   boundaries.
+3. **Per-step rescale schedule** — with `--ramp-to`, every saved production
+   frame at step `s` has thermodynamic temperature pinned to
+   `T_target(s)` (within tight tolerance), including an intermediate frame
+   (e.g. step 25), so an omitted or mis-cadenced rescale is detected.
+4. **Final application uses exactly T1** — the last production frame (step
+   `S`) has thermodynamic temperature equal to `--ramp-to` within the same
+   tight tolerance, for `S` both divisible and not divisible by 50.
+5. **Accidental production thermostat when `--ramp-to` absent** — the
+   existing `no_thermostat_rescaling_during_production` test stays; no
+   `ramp_to` key appears in the unheated run.json.
+6. **Heating run.json records `ramp_to`** — a heated run's run.json contains
+   `"ramp_to": <value>`.
+7. **Unheated run.json omission (compatibility)** — **[Suggestion]** a
+   no-ramp run's run.json does not contain the `ramp_to` key, preserving the
+   Part 4 schema; the `io` round-trip preserves `Option<f64>` (missing →
+   None).
+
+Unheated scientific tolerances and the energy-drift tests are unchanged.
 
 ## Preservation guarantees [Course Requirement]
 
 - Unheated behavior identical (production thermostat off, same artifacts,
   same bounds); all existing Part 2–4/5 tests and tolerances unchanged.
 - Force methods unchanged: `cells` default, `--force naive` available.
-- The ramp reuses the existing uniform `rescale_to` thermostat primitive;
-  no new physics, no new integrator, no COM re-removal.
+- The ramp reuses the existing uniform `rescale_to` thermostat primitive; no
+  new physics, no new integrator, no COM re-removal.
 - run.json schema for unheated runs unchanged.
 
 ## Non-goals
