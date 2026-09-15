@@ -128,6 +128,56 @@ fn build_cells(positions: &[Vec2], nx: usize, ny: usize, wx: f64, wy: f64) -> Ve
     cells
 }
 
+/// Visit each unordered pair exactly once via the cell list [Course Req]:
+/// per-particle 3x3 (wrapped + deduplicated) neighborhood with a j > i guard.
+/// The callback receives (i, j) and the RAW coordinate differences; the
+/// minimum-image / shifted-LJ physics lives in pair_force / pair_energy.
+fn for_each_pair_cells<F: FnMut(usize, usize, f64, f64)>(
+    positions: &[Vec2],
+    bx: &Box2,
+    mut f: F,
+) {
+    let (nx, ny, wx, wy) = cell_geometry(bx);
+    let cells = build_cells(positions, nx, ny, wx, wy);
+    for i in 0..positions.len() {
+        let c = cell_index(positions[i][0], positions[i][1], wx, wy, nx, ny);
+        for &n in &neighbor_cells(c, nx, ny) {
+            for &j in &cells[n] {
+                if j > i {
+                    f(
+                        i,
+                        j,
+                        positions[i][0] - positions[j][0],
+                        positions[i][1] - positions[j][1],
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Cell-list accelerations (mass 1); antisymmetric +f/-f per pair.
+fn accelerations_cells(state: &State, bx: &Box2) -> Vec<Vec2> {
+    let mut acc = vec![[0.0, 0.0]; state.positions.len()];
+    for_each_pair_cells(&state.positions, bx, |i, j, dx, dy| {
+        let (fx, fy) = pair_force(dx, dy, bx);
+        acc[i][0] += fx;
+        acc[i][1] += fy;
+        acc[j][0] -= fx;
+        acc[j][1] -= fy;
+    });
+    acc
+}
+
+/// Cell-list shifted potential energy over the same unordered pair set.
+fn potential_energy_cells(state: &State, bx: &Box2) -> f64 {
+    let mut energy = 0.0;
+    for_each_pair_cells(&state.positions, bx, |_i, _j, dx, dy| {
+        energy += pair_energy(dx, dy, bx);
+    });
+    energy
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -332,5 +382,117 @@ mod tests {
         let mut all: Vec<usize> = cells.iter().flatten().copied().collect();
         all.sort_unstable();
         assert_eq!(all, (0..8).collect::<Vec<usize>>());
+    }
+
+    /// Collect the unordered pairs visited by the cell-list enumerator.
+    fn collect_pairs(positions: &[Vec2], bx: &Box2) -> Vec<(usize, usize)> {
+        let mut pairs = Vec::new();
+        for_each_pair_cells(positions, bx, |i, j, _dx, _dy| pairs.push((i, j)));
+        pairs
+    }
+
+    #[test]
+    fn pair_enumeration_normal_multicell_configuration() {
+        // 10x10 box (4x4 cells). Particles: p0 cell 0, p1 cell 15, p2 cell 1,
+        // p3 cell 15. Cell 0's wrapped 3x3 includes cell 15; cell 1 and 15 are
+        // NOT mutual neighbors, so (1,2) and (2,3) are not candidates.
+        let bx = Box2 { lx: 10.0, ly: 10.0 };
+        let pos: Vec<Vec2> = vec![[0.1, 0.1], [9.9, 9.9], [2.6, 0.2], [7.7, 7.8]];
+        let pairs = collect_pairs(&pos, &bx);
+        assert!(pairs.iter().all(|&(i, j)| i < j));
+        let mut sorted = pairs.clone();
+        sorted.sort_unstable();
+        sorted.dedup();
+        assert_eq!(sorted.len(), pairs.len(), "no pair may appear twice");
+        let mut expected: Vec<(usize, usize)> = vec![(0, 1), (0, 2), (0, 3), (1, 3)];
+        expected.sort_unstable();
+        assert_eq!(sorted, expected);
+    }
+
+    #[test]
+    fn pair_enumeration_two_cell_box_counts_each_pair_once() {
+        // 5x5 box (nx = ny = 2): wrapped offsets duplicate cells, but the
+        // deduplicated neighbor list + j > i must still yield each of the
+        // N(N-1)/2 unordered pairs exactly once.
+        let bx = Box2 { lx: 5.0, ly: 5.0 };
+        let pos: Vec<Vec2> = (0..8)
+            .map(|i| [0.7 + (i as f64 % 4.0), 0.7 + (i as f64 / 4.0)])
+            .collect();
+        let pairs = collect_pairs(&pos, &bx);
+        assert!(pairs.iter().all(|&(i, j)| i < j));
+        let mut sorted = pairs.clone();
+        sorted.sort_unstable();
+        sorted.dedup();
+        assert_eq!(sorted.len(), pairs.len(), "wrapped duplicates must not duplicate pairs");
+        assert_eq!(pairs.len(), pos.len() * (pos.len() - 1) / 2);
+    }
+
+    #[test]
+    fn pair_enumeration_one_cell_box_all_pairs_once() {
+        // [Suggestion] nx = ny = 1: all particles share the single cell, so
+        // every unordered pair is visited exactly once.
+        let bx = Box2 { lx: 1.0, ly: 1.0 };
+        let pos: Vec<Vec2> = vec![[0.1, 0.1], [0.3, 0.7], [0.5, 0.2], [0.8, 0.9], [0.2, 0.5]];
+        let pairs = collect_pairs(&pos, &bx);
+        assert!(pairs.iter().all(|&(i, j)| i < j));
+        let mut sorted = pairs.clone();
+        sorted.sort_unstable();
+        sorted.dedup();
+        assert_eq!(sorted.len(), pairs.len());
+        assert_eq!(pairs.len(), pos.len() * (pos.len() - 1) / 2);
+    }
+
+    #[test]
+    fn pair_enumeration_includes_periodic_edge_neighbors() {
+        // 10x10 box: particle 0 in cell (0,2), particle 1 in cell (3,2).
+        // Cell (3,2) is a wrapped 3x3 neighbor of cell (0,2), so the pair
+        // across the periodic boundary must be enumerated.
+        let bx = Box2 { lx: 10.0, ly: 10.0 };
+        let pos: Vec<Vec2> = vec![[0.1, 5.0], [9.9, 5.0]];
+        let pairs = collect_pairs(&pos, &bx);
+        assert!(pairs.contains(&(0, 1)), "periodic edge pair must be enumerated");
+        assert_eq!(pairs.len(), 1);
+    }
+
+    #[test]
+    fn cells_forces_sum_to_zero() {
+        // Newton's third law: antisymmetric +f/-f per pair.
+        let bx = Box2 { lx: 5.0, ly: 5.0 };
+        let state = State {
+            positions: vec![[0.7, 0.7], [1.7, 1.7], [3.3, 3.3], [4.4, 4.4], [0.7, 4.4], [4.4, 0.7]],
+            velocities: vec![[0.0, 0.0]; 6],
+        };
+        let acc = accelerations_cells(&state, &bx);
+        let mut s = [0.0, 0.0];
+        for a in &acc {
+            s[0] += a[0];
+            s[1] += a[1];
+        }
+        assert!(s[0].abs() < 1e-9 && s[1].abs() < 1e-9);
+    }
+
+    #[test]
+    fn cells_spot_check_matches_naive() {
+        // Deterministic wrapped perturbation of the 100-lattice (4x4 cells):
+        // the private cell implementation must agree with the naive reference.
+        let bx = Box2::new(100, 0.8);
+        let mut state = crate::system::lattice_state(100, 0.8);
+        for (i, p) in state.positions.iter_mut().enumerate() {
+            if i % 3 == 0 {
+                p[0] = crate::system::wrap(p[0] + 0.13, bx.lx);
+                p[1] = crate::system::wrap(p[1] + 0.07, bx.ly);
+            }
+        }
+        let na = fluid_accelerations(&state, &bx);
+        let cl = accelerations_cells(&state, &bx);
+        for k in 0..na.len() {
+            assert!(
+                (na[k][0] - cl[k][0]).abs() < 1e-9 && (na[k][1] - cl[k][1]).abs() < 1e-9,
+                "atom {k} force mismatch"
+            );
+        }
+        assert!(
+            (fluid_potential_energy(&state, &bx) - potential_energy_cells(&state, &bx)).abs() < 1e-9
+        );
     }
 }
