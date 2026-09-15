@@ -117,6 +117,17 @@ fn neighbor_cells(c: usize, nx: usize, ny: usize) -> Vec<usize> {
     out
 }
 
+/// Particle-index lists per cell, rebuilt on every evaluation [design]: each
+/// particle is pushed into the cell containing its CURRENT wrapped position,
+/// so every index appears in exactly one bin; empty cells stay empty.
+fn build_cells(positions: &[Vec2], nx: usize, ny: usize, wx: f64, wy: f64) -> Vec<Vec<usize>> {
+    let mut cells = vec![Vec::new(); nx * ny];
+    for (i, p) in positions.iter().enumerate() {
+        cells[cell_index(p[0], p[1], wx, wy, nx, ny)].push(i);
+    }
+    cells
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -240,5 +251,86 @@ mod tests {
         let n = neighbor_cells(0, 1, 1);
         assert_eq!(n.len(), 1);
         assert_eq!(n, vec![0]);
+    }
+
+    #[test]
+    fn build_cells_places_known_positions_into_known_cells() {
+        let bx = Box2 { lx: 10.0, ly: 10.0 };
+        let (nx, ny, wx, wy) = cell_geometry(&bx); // 4x4, w = 2.5
+        let pos: Vec<Vec2> = vec![
+            [0.1, 0.1], // cell 0
+            [0.2, 0.3], // cell 0, same cell as the particle above
+            [2.6, 0.2], // cell 1
+            [7.7, 7.8], // cell 15
+            [9.9, 9.9], // cell 15, same cell as the particle above
+            [5.0, 5.0], // cell 10
+        ];
+        let cells = build_cells(&pos, nx, ny, wx, wy);
+        assert_eq!(cells.len(), nx * ny, "one bin per cell");
+        assert_eq!(cells.iter().map(|c| c.len()).sum::<usize>(), pos.len());
+        for (i, p) in pos.iter().enumerate() {
+            let c = cell_index(p[0], p[1], wx, wy, nx, ny);
+            assert!(cells[c].contains(&i), "particle {i} must be in its cell {c}");
+        }
+        // multiple particles share a cell
+        assert!(cells[0].contains(&0) && cells[0].contains(&1));
+        assert!(cells[15].contains(&3) && cells[15].contains(&4));
+        // with 6 particles over 16 cells at least one cell is empty
+        assert!(cells.iter().any(|c| c.is_empty()));
+    }
+
+    #[test]
+    fn build_cells_places_particles_near_periodic_boundaries() {
+        let bx = Box2 { lx: 10.0, ly: 10.0 };
+        let (nx, ny, wx, wy) = cell_geometry(&bx);
+        let eps = 1e-9;
+        let pos: Vec<Vec2> = vec![
+            [eps, eps],                  // lower corner -> cell 0
+            [10.0 - eps, 5.0],           // near x = Lx -> cx = nx - 1
+            [5.0, 10.0 - eps],           // near y = Ly -> cy = ny - 1
+            [10.0 - eps, 10.0 - eps],    // upper corner -> last cell
+        ];
+        let cells = build_cells(&pos, nx, ny, wx, wy);
+        for (i, p) in pos.iter().enumerate() {
+            let c = cell_index(p[0], p[1], wx, wy, nx, ny);
+            assert!(cells[c].contains(&i), "boundary particle {i} in cell {c}");
+        }
+        assert_eq!(cell_index(eps, eps, wx, wy, nx, ny), 0);
+        assert_eq!(cell_index(10.0 - eps, 10.0 - eps, wx, wy, nx, ny), nx * ny - 1);
+    }
+
+    #[test]
+    fn build_cells_invariant_collects_each_index_once() {
+        // Deterministic wrapped perturbation of the lattice: every index
+        // 0..N appears exactly once across all bins, in no particular order.
+        let bx = Box2::new(100, 0.8);
+        let (nx, ny, wx, wy) = cell_geometry(&bx);
+        let state = crate::system::lattice_state(100, 0.8);
+        let mut pos = state.positions.clone();
+        for (i, p) in pos.iter_mut().enumerate() {
+            if i % 3 == 0 {
+                p[0] = crate::system::wrap(p[0] + 0.17, bx.lx);
+                p[1] = crate::system::wrap(p[1] + 0.09, bx.ly);
+            }
+        }
+        let cells = build_cells(&pos, nx, ny, wx, wy);
+        assert_eq!(cells.len(), nx * ny);
+        let mut all: Vec<usize> = cells.iter().flatten().copied().collect();
+        all.sort_unstable();
+        assert_eq!(all, (0..pos.len()).collect::<Vec<usize>>());
+    }
+
+    #[test]
+    fn build_cells_two_cell_wide_box() {
+        let bx = Box2 { lx: 5.0, ly: 5.0 }; // nx = ny = 2
+        let (nx, ny, wx, wy) = cell_geometry(&bx);
+        let pos: Vec<Vec2> = (0..8)
+            .map(|i| [0.7 + (i as f64 % 4.0), 0.7 + (i as f64 / 4.0)])
+            .collect();
+        let cells = build_cells(&pos, nx, ny, wx, wy);
+        assert_eq!(cells.len(), 4);
+        let mut all: Vec<usize> = cells.iter().flatten().copied().collect();
+        all.sort_unstable();
+        assert_eq!(all, (0..8).collect::<Vec<usize>>());
     }
 }
