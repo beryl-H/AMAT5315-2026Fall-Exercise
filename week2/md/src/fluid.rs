@@ -69,6 +69,25 @@ fn pair_energy(dx_raw: f64, dy_raw: f64, bx: &Box2) -> f64 {
     shifted_energy((dx * dx + dy * dy).sqrt())
 }
 
+/// Rectangular cell grid: nx = floor(Lx/rc), wx = Lx/nx, and similarly for y,
+/// so wx, wy >= rc [Course Requirement]. The max(1, ...) guard handles a
+/// sub-rc box and is [Suggestion] (outside the stated course rule).
+fn cell_geometry(bx: &Box2) -> (usize, usize, f64, f64) {
+    let nx = ((bx.lx / crate::pair::RC).floor() as usize).max(1);
+    let ny = ((bx.ly / crate::pair::RC).floor() as usize).max(1);
+    (nx, ny, bx.lx / nx as f64, bx.ly / ny as f64)
+}
+
+/// Axis cell index for a coordinate already wrapped into [0, n*w).
+fn cell_axis_index(coord: f64, w: f64, n: usize) -> usize {
+    ((coord / w).floor() as usize).min(n - 1)
+}
+
+/// Flat cell index c = cy * nx + cx for a wrapped position.
+fn cell_index(x: f64, y: f64, wx: f64, wy: f64, nx: usize, ny: usize) -> usize {
+    cell_axis_index(y, wy, ny) * nx + cell_axis_index(x, wx, nx)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,5 +113,45 @@ mod tests {
         assert_eq!(copied, ForceMethod::Cells);
         let dbg = format!("{:?}", ForceMethod::Naive); // Debug
         assert_eq!(dbg, "Naive");
+    }
+
+    #[test]
+    fn cell_geometry_matches_course_rule() {
+        // Default contract: Lx ~ 12.014, Ly ~ 10.404 (not multiples of rc).
+        let bx = Box2::new(100, 0.8);
+        let (nx, ny, wx, wy) = cell_geometry(&bx);
+        assert_eq!((nx, ny), (4, 4));
+        assert!(wx >= crate::pair::RC && wy >= crate::pair::RC);
+        // Profile-sized box (N = 400): Lx ~ 24.028, Ly ~ 20.809, non-divisible.
+        let bx400 = Box2::new(400, 0.8);
+        let (nx400, ny400, wx400, wy400) = cell_geometry(&bx400);
+        assert_eq!((nx400, ny400), (9, 8));
+        assert!(wx400 > crate::pair::RC && wy400 > crate::pair::RC);
+        // Two-cell-wide box (nx = ny = 2, w = rc = 2.5 exactly).
+        let small = Box2 { lx: 5.0, ly: 5.0 };
+        let (n2x, n2y, w2x, w2y) = cell_geometry(&small);
+        assert_eq!((n2x, n2y), (2, 2));
+        assert!((w2x - 2.5).abs() < 1e-12 && (w2y - 2.5).abs() < 1e-12);
+        // [Suggestion] defensive sub-rc box (L < rc): no divide-by-zero.
+        let tiny = Box2 { lx: 1.0, ly: 1.0 };
+        let (tnx, tny, twx, twy) = cell_geometry(&tiny);
+        assert_eq!((tnx, tny), (1, 1));
+        assert!((twx - 1.0).abs() < 1e-12 && (twy - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn cell_index_maps_wrapped_positions() {
+        let bx = Box2 { lx: 10.0, ly: 10.0 };
+        let (nx, ny, wx, wy) = cell_geometry(&bx); // 4x4, w = 2.5
+        // lower boundary
+        assert_eq!(cell_index(0.0, 0.0, wx, wy, nx, ny), 0);
+        assert_eq!(cell_index(2.4, 2.4, wx, wy, nx, ny), 0);
+        // just across an internal cell boundary
+        assert_eq!(cell_index(2.5, 0.0, wx, wy, nx, ny), 1);
+        assert_eq!(cell_index(0.0, 2.5, wx, wy, nx, ny), nx);
+        // upper wrapped boundary (positions are in [0, Lx) x [0, Ly))
+        assert_eq!(cell_index(9.99, 9.99, wx, wy, nx, ny), nx * ny - 1);
+        assert_eq!(cell_index(10.0 - 1e-12, 0.0, wx, wy, nx, ny), nx - 1);
+        assert_eq!(cell_index(0.0, 10.0 - 1e-12, wx, wy, nx, ny), (ny - 1) * nx);
     }
 }
