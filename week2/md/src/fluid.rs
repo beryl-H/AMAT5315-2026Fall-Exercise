@@ -15,6 +15,24 @@ pub enum ForceMethod {
     Cells,
 }
 
+impl ForceMethod {
+    /// Compute accelerations with the selected method (m = 1, a = F).
+    pub fn accelerations(self, state: &State, bx: &Box2) -> Vec<Vec2> {
+        match self {
+            ForceMethod::Naive => fluid_accelerations(state, bx),
+            ForceMethod::Cells => accelerations_cells(state, bx),
+        }
+    }
+
+    /// Compute the shifted potential energy with the selected method.
+    pub fn potential_energy(self, state: &State, bx: &Box2) -> f64 {
+        match self {
+            ForceMethod::Naive => fluid_potential_energy(state, bx),
+            ForceMethod::Cells => potential_energy_cells(state, bx),
+        }
+    }
+}
+
 /// Accelerations (mass 1) with minimum-image displacements and the
 /// shifted-cutoff force. Pair contributions are antisymmetric.
 pub fn fluid_accelerations(state: &State, bx: &Box2) -> Vec<Vec2> {
@@ -493,6 +511,24 @@ mod tests {
         }
         assert!(
             (fluid_potential_energy(&state, &bx) - potential_energy_cells(&state, &bx)).abs() < 1e-9
+        );
+    }
+
+    #[test]
+    fn force_method_dispatch_matches_references() {
+        let state = crate::system::lattice_state(36, 0.8);
+        let bx = Box2::new(36, 0.8);
+        assert_eq!(
+            ForceMethod::Naive.accelerations(&state, &bx),
+            fluid_accelerations(&state, &bx)
+        );
+        let cells = ForceMethod::Cells.accelerations(&state, &bx);
+        assert_eq!(cells.len(), 36);
+        assert!(
+            (ForceMethod::Naive.potential_energy(&state, &bx)
+                - fluid_potential_energy(&state, &bx))
+                .abs()
+                < 1e-12
         );
     }
 }
