@@ -95,6 +95,28 @@ fn cell_index(x: f64, y: f64, wx: f64, wy: f64, nx: usize, ny: usize) -> usize {
     cell_axis_index(y, wy, ny) * nx + cell_axis_index(x, wx, nx)
 }
 
+/// Wrapped + deduplicated 3x3 neighbor cell indices of `c` [Course Req]:
+/// offsets dx, dy in {-1, 0, 1} wrap periodically via rem_euclid, and when
+/// several offsets land on the same wrapped cell (e.g. a two-cell-wide box)
+/// the index is returned only once. At most 9 candidates, so a linear
+/// contains() is fine.
+fn neighbor_cells(c: usize, nx: usize, ny: usize) -> Vec<usize> {
+    let cx = c % nx;
+    let cy = c / nx;
+    let mut out = Vec::with_capacity(9);
+    for dy in [-1isize, 0, 1] {
+        for dx in [-1isize, 0, 1] {
+            let wcx = ((cx as isize + dx).rem_euclid(nx as isize)) as usize;
+            let wcy = ((cy as isize + dy).rem_euclid(ny as isize)) as usize;
+            let idx = wcy * nx + wcx;
+            if !out.contains(&idx) {
+                out.push(idx);
+            }
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,5 +185,60 @@ mod tests {
         assert_eq!(cell_index(9.99, 9.99, wx, wy, nx, ny), nx * ny - 1);
         assert_eq!(cell_index(10.0 - 1e-12, 0.0, wx, wy, nx, ny), nx - 1);
         assert_eq!(cell_index(0.0, 10.0 - 1e-12, wx, wy, nx, ny), (ny - 1) * nx);
+    }
+
+    #[test]
+    fn neighbor_cells_of_interior_cell_are_nine_unique() {
+        // 4x4 grid, interior cell 5 = (cx=1, cy=1): offsets -1..1 stay in
+        // range, so exactly 9 unique neighbors with no wrapping needed.
+        let n = neighbor_cells(5, 4, 4);
+        assert_eq!(n.len(), 9);
+        let mut expected: Vec<usize> = vec![0, 1, 2, 4, 5, 6, 8, 9, 10];
+        let mut got = n.clone();
+        got.sort_unstable();
+        expected.sort_unstable();
+        assert_eq!(got, expected);
+        // no duplicates
+        let mut s = n.clone();
+        s.sort_unstable();
+        s.dedup();
+        assert_eq!(s.len(), n.len());
+    }
+
+    #[test]
+    fn neighbor_cells_wrap_at_opposite_edges() {
+        // 4x4 grid, corner cell 0 = (cx=0, cy=0): the 3x3 window wraps onto
+        // the opposite edges, giving 9 unique cells: {0,1,3,4,5,7,12,13,15}.
+        let n = neighbor_cells(0, 4, 4);
+        assert_eq!(n.len(), 9);
+        for d in [0usize, 3, 12, 15] {
+            assert!(n.contains(&d), "cell {d} must be a wrapped neighbor of 0");
+        }
+        let mut expected: Vec<usize> = vec![0, 1, 3, 4, 5, 7, 12, 13, 15];
+        let mut got = n.clone();
+        got.sort_unstable();
+        expected.sort_unstable();
+        assert_eq!(got, expected);
+    }
+
+    #[test]
+    fn neighbor_cells_deduplicate_in_two_cell_box() {
+        // nx = ny = 2: each offset set {-1,0,1} wraps to {0,1}, so the 9
+        // candidates collapse to exactly the 4 distinct cells, none twice.
+        for c in 0..4 {
+            let n = neighbor_cells(c, 2, 2);
+            assert_eq!(n.len(), 4, "cell {c} must yield exactly 4 distinct cells");
+            for d in 0..4 {
+                assert!(n.contains(&d));
+            }
+        }
+    }
+
+    #[test]
+    fn neighbor_cells_collapse_in_one_cell_box() {
+        // [Suggestion] nx = ny = 1: all 9 offsets wrap onto the only cell.
+        let n = neighbor_cells(0, 1, 1);
+        assert_eq!(n.len(), 1);
+        assert_eq!(n, vec![0]);
     }
 }
