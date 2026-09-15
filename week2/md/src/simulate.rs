@@ -35,7 +35,7 @@ impl Default for SimConfig {
             steps: 10000,
             sample_every: 50,
             seed: 2026,
-            force_method: ForceMethod::Naive, // staging; flipped to Cells in Task 11
+            force_method: ForceMethod::Cells, // final course default
         }
     }
 }
@@ -136,7 +136,7 @@ mod tests {
         assert_eq!(c.steps, 10000);
         assert_eq!(c.sample_every, 50);
         assert_eq!(c.seed, 2026);
-        assert_eq!(c.force_method, ForceMethod::Naive); // staging; flipped in Task 11
+        assert_eq!(c.force_method, ForceMethod::Cells); // final course default
     }
 
     #[test]

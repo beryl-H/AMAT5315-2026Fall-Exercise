@@ -37,8 +37,8 @@ pub struct RunArgs {
     #[arg(long, default_value = "artifacts")]
     pub out: PathBuf,
     /// Force evaluation method: naive O(N^2) reference or the cell list.
-    /// Temporary staging default is "naive"; Task 11 flips it to "cells".
-    #[arg(long, default_value = "naive")]
+    /// Final course default is "cells".
+    #[arg(long, default_value = "cells")]
     pub force: String,
 }
 

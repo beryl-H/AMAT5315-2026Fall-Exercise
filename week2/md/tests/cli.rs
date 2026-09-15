@@ -105,6 +105,39 @@ fn run_rejects_unknown_force_method() {
 }
 
 #[test]
+fn default_run_uses_cells_force_method() {
+    // Final contract: with no --force the run must use Cells. Same seed and
+    // parameters make the no-flag trajectory bit-identical to an explicit
+    // --force cells run and different from an explicit --force naive run.
+    let out_default = temp_dir("flip-default");
+    let out_cells = temp_dir("flip-cells");
+    let out_naive = temp_dir("flip-naive");
+    let common = ["--n", "100", "--eq-steps", "0", "--steps", "100", "--sample-every", "50"];
+    for (name, out) in [("default", &out_default), ("cells", &out_cells), ("naive", &out_naive)] {
+        let extra: &[&str] = match name {
+            "default" => &[],
+            "cells" => &["--force", "cells"],
+            _ => &["--force", "naive"],
+        };
+        let mut args: Vec<&str> = vec!["run"];
+        args.extend_from_slice(extra);
+        args.extend_from_slice(&common);
+        args.push("--out");
+        args.push(out.to_str().unwrap());
+        let output = run_md(&args);
+        assert!(output.status.success(), "{name} run failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+    let def = std::fs::read_to_string(out_default.join("traj.jsonl")).unwrap();
+    let cells = std::fs::read_to_string(out_cells.join("traj.jsonl")).unwrap();
+    let naive = std::fs::read_to_string(out_naive.join("traj.jsonl")).unwrap();
+    assert_eq!(def, cells, "no-flag default must be the Cells path");
+    assert_ne!(def, naive, "the Naive path must produce a different trajectory");
+    let _ = std::fs::remove_dir_all(&out_default);
+    let _ = std::fs::remove_dir_all(&out_cells);
+    let _ = std::fs::remove_dir_all(&out_naive);
+}
+
+#[test]
 fn video_reports_missing_ffmpeg_or_succeeds() {
     // Course Requirement: one binary, md video artifacts --out PATH.
     // If ffmpeg is absent, exit nonzero with a clear message [design].
