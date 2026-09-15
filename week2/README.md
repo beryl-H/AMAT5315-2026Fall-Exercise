@@ -43,3 +43,20 @@ Hotspot (cell list): `md::fluid::accelerations_cells`
 
 ![Naive profile flamegraph](profile-naive.png)
 ![Cell-list profile flamegraph](profile-cells.png)
+
+## Benchmark (release, wall-clock; --eq-steps 100 --steps 500 = 600 steps/run)
+
+| N | Naive median (range) | Cells median (range) | Speedup |
+| ---: | ---: | ---: | ---: |
+| 100 | 0.030 (0.028–0.040) | 0.028 (0.026–0.035) | 1.07 |
+| 400 | 0.383 (0.370–0.404) | 0.113 (0.099–0.137) | 3.40 |
+| 1600 | 4.823 (4.804–5.006) | 0.449 (0.443–0.472) | 10.75 |
+
+Seconds per integration step (median / 600) are plotted against N on a
+log–log scale:
+
+![Cell-list scaling](scaling.png)
+
+The slopes reflect the pair-search algorithms: naive considers O(N²)
+candidate pairs, while at fixed density and cutoff the cell-list candidate
+work approaches O(N).
