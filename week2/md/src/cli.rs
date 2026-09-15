@@ -36,6 +36,10 @@ pub struct RunArgs {
     /// Output directory (relative to the working directory).
     #[arg(long, default_value = "artifacts")]
     pub out: PathBuf,
+    /// Force evaluation method: naive O(N^2) reference or the cell list.
+    /// Temporary staging default is "naive"; Task 11 flips it to "cells".
+    #[arg(long, default_value = "naive")]
+    pub force: String,
 }
 
 #[derive(Debug, Subcommand)]
@@ -124,7 +128,10 @@ fn run_command(args: &RunArgs) -> Result<(), String> {
         steps: args.steps,
         sample_every: args.sample_every,
         seed: args.seed,
-        force_method: ForceMethod::Naive, // temporary; replaced by args.force in Task 10
+        force_method: args
+            .force
+            .parse::<ForceMethod>()
+            .map_err(|e| format!("invalid --force: {e}"))?,
     };
     let frames = crate::simulate::run_simulation(&config);
     crate::io::write_artifacts(&args.out, &RunConfig::from(&config), &frames)

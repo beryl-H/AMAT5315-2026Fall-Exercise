@@ -1,6 +1,5 @@
 //! ffmpeg pipe: render every saved frame and encode to MP4.
 
-use crate::fluid::ForceMethod;
 use crate::io::read_artifacts;
 use crate::metrics::radial_distribution;
 use crate::render::render_frame;
@@ -81,6 +80,7 @@ pub fn encode_video(dir: &Path, out_mp4: &Path) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::fluid::ForceMethod;
 
     #[test]
     fn ffmpeg_available_detects_binary() {

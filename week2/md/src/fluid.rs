@@ -33,6 +33,20 @@ impl ForceMethod {
     }
 }
 
+impl std::str::FromStr for ForceMethod {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "naive" => Ok(ForceMethod::Naive),
+            "cells" => Ok(ForceMethod::Cells),
+            other => Err(format!(
+                "unknown force method '{other}' (expected 'naive' or 'cells')"
+            )),
+        }
+    }
+}
+
 /// Accelerations (mass 1) with minimum-image displacements and the
 /// shifted-cutoff force. Pair contributions are antisymmetric.
 pub fn fluid_accelerations(state: &State, bx: &Box2) -> Vec<Vec2> {
@@ -530,5 +544,12 @@ mod tests {
                 .abs()
                 < 1e-12
         );
+    }
+
+    #[test]
+    fn force_method_parses_from_str() {
+        assert_eq!("naive".parse::<ForceMethod>().unwrap(), ForceMethod::Naive);
+        assert_eq!("cells".parse::<ForceMethod>().unwrap(), ForceMethod::Cells);
+        assert!("bogus".parse::<ForceMethod>().is_err());
     }
 }

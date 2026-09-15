@@ -80,6 +80,31 @@ fn run_rejects_non_square_n_and_non_divisible_steps() {
 }
 
 #[test]
+fn run_accepts_both_force_methods_and_keeps_run_json_schema() {
+    for m in ["naive", "cells"] {
+        let out = temp_dir(&format!("force-{m}"));
+        let output = run_md(&["run", "--n", "16", "--eq-steps", "0", "--steps", "100",
+                              "--sample-every", "50", "--force", m, "--out", out.to_str().unwrap()]);
+        assert!(output.status.success(), "{m} run failed: {}", String::from_utf8_lossy(&output.stderr));
+        let traj = std::fs::read_to_string(out.join("traj.jsonl")).unwrap();
+        assert_eq!(traj.lines().filter(|l| !l.trim().is_empty()).count(), 2);
+        let run: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(out.join("run.json")).unwrap()).unwrap();
+        // run.json schema is unchanged: no force_method key.
+        assert!(run.get("force_method").is_none(), "run.json must not contain force_method");
+        let _ = std::fs::remove_dir_all(&out);
+    }
+}
+
+#[test]
+fn run_rejects_unknown_force_method() {
+    let out = temp_dir("force-bad");
+    let output = run_md(&["run", "--n", "16", "--force", "bogus", "--out", out.to_str().unwrap()]);
+    assert!(!output.status.success());
+    let _ = std::fs::remove_dir_all(&out);
+}
+
+#[test]
 fn video_reports_missing_ffmpeg_or_succeeds() {
     // Course Requirement: one binary, md video artifacts --out PATH.
     // If ffmpeg is absent, exit nonzero with a clear message [design].
