@@ -69,9 +69,16 @@ fn pair_energy(dx_raw: f64, dy_raw: f64, bx: &Box2) -> f64 {
     shifted_energy((dx * dx + dy * dy).sqrt())
 }
 
-/// Rectangular cell grid: nx = floor(Lx/rc), wx = Lx/nx, and similarly for y,
-/// so wx, wy >= rc [Course Requirement]. The max(1, ...) guard handles a
-/// sub-rc box and is [Suggestion] (outside the stated course rule).
+/// Rectangular cell grid: nx = floor(Lx/rc), wx = Lx/nx, and similarly for y.
+///
+/// [Course Requirement] For L >= rc: n = floor(L / rc), so n <= L / rc and
+/// therefore w = L / n >= rc. This is the invariant that makes the 3x3
+/// neighbor search complete.
+///
+/// [Suggestion] For L < rc the max(1, ...) guard gives n = 1 and w = L,
+/// which may be < rc. Completeness in that defensive one-cell case does NOT
+/// follow from w >= rc; it holds because the single cell spans the whole
+/// axis, so all particles on that axis belong to that same cell.
 fn cell_geometry(bx: &Box2) -> (usize, usize, f64, f64) {
     let nx = ((bx.lx / crate::pair::RC).floor() as usize).max(1);
     let ny = ((bx.ly / crate::pair::RC).floor() as usize).max(1);
@@ -132,7 +139,10 @@ mod tests {
         let (n2x, n2y, w2x, w2y) = cell_geometry(&small);
         assert_eq!((n2x, n2y), (2, 2));
         assert!((w2x - 2.5).abs() < 1e-12 && (w2y - 2.5).abs() < 1e-12);
-        // [Suggestion] defensive sub-rc box (L < rc): no divide-by-zero.
+        // [Suggestion] defensive sub-rc box (L < rc): the max(1, ...) guard
+        // yields n = 1 and w = L = 1.0 < rc. w >= rc is intentionally NOT
+        // asserted here; completeness comes from the single cell spanning the
+        // whole axis.
         let tiny = Box2 { lx: 1.0, ly: 1.0 };
         let (tnx, tny, twx, twy) = cell_geometry(&tiny);
         assert_eq!((tnx, tny), (1, 1));
