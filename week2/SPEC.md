@@ -3,6 +3,26 @@
 Date: 2026-09-15
 Status: Draft (SPEC only; no implementation plan yet)
 
+## Current status (observed)
+
+Heating is not implemented yet. The flag is absent from `RunArgs`, so the
+intended heating command
+
+```
+md run --n 400 --temperature 0.2 --ramp-to 1.2 --steps 20000 \
+  --sample-every 100 --out docs
+```
+
+currently fails with
+
+```
+error: unexpected argument '--ramp-to' found
+```
+
+This failure is expected before implementation: this SPEC defines the target
+behavior (flag accepted, linear heating ramp applied), and the flag is added
+in a later implementation step.
+
 ## Scope and references
 
 This document is the Week 2 spec. It extends the already-approved Week 2
