@@ -7,6 +7,14 @@ use crate::state::State;
 use crate::system::{Box2, minimum_image};
 use crate::Vec2;
 
+/// Force evaluation method: the naive O(N^2) reference or the cell list.
+/// A pure runtime/performance selection; never serialized to run.json.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ForceMethod {
+    Naive,
+    Cells,
+}
+
 /// Accelerations (mass 1) with minimum-image displacements and the
 /// shifted-cutoff force. Pair contributions are antisymmetric.
 pub fn fluid_accelerations(state: &State, bx: &Box2) -> Vec<Vec2> {
@@ -74,5 +82,17 @@ mod tests {
         assert!((fx - (f_over_r * -0.5)).abs() < 1e-15);
         assert!((fy - 0.0).abs() < 1e-15);
         assert!((pair_energy(9.5, 0.0, &bx) - crate::pair::shifted_energy(0.5)).abs() < 1e-15);
+    }
+
+    #[test]
+    fn force_method_has_both_variants_and_minimal_traits() {
+        // Minimal runtime-selection enum: Clone/Copy/Debug/PartialEq/Eq only.
+        assert_eq!(ForceMethod::Naive, ForceMethod::Naive);
+        assert_eq!(ForceMethod::Cells, ForceMethod::Cells);
+        assert_ne!(ForceMethod::Naive, ForceMethod::Cells);
+        let copied = ForceMethod::Cells; // Copy
+        assert_eq!(copied, ForceMethod::Cells);
+        let dbg = format!("{:?}", ForceMethod::Naive); // Debug
+        assert_eq!(dbg, "Naive");
     }
 }
