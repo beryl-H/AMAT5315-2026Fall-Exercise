@@ -24,16 +24,22 @@ Observations (medians):
 | Version | Force share (%) | Elapsed time (s) |
 | --- | ---: | ---: |
 | Naive | 97.0 | 0.635 |
-| Cell list | … | … |
+| Cell list | 92.0 | 0.208 |
 
-The naive profile was recorded with:
+Both profiles used the same course-form case:
 
 ```
 samply record md run --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof
 ```
 
-Hotspot: `md::fluid::fluid_accelerations`
+- The profiled cell-list run is about **3.05× faster** than the naive
+  profiled run (0.635 / 0.208).
+- Force evaluation remains the dominant workload (cell-list force share
+  92%).
+- The cell-list elapsed time (0.208 s) is below the naive elapsed time
+  (0.635 s).
 
-Inclusive sample share: **97%**
+Hotspot (cell list): `md::fluid::accelerations_cells`
 
 ![Naive profile flamegraph](profile-naive.png)
+![Cell-list profile flamegraph](profile-cells.png)
