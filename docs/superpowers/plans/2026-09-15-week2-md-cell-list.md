@@ -1165,36 +1165,43 @@ Remove `/tmp/ctr-cells`, `/tmp/ctr-naive`. If any step failed, fix the cause and
 ### Task 13: Profile `cells` (N=400) + `profile-cells.png`
 
 **Files:**
-- Modify: `week2/README.md` (fill the Cell-list row of the Profile table).
+- Modify: `week2/README.md` (fill the Cell-list row of the Profile table with measured values).
 - Create: `week2/profile-cells.png`.
 
 **Interfaces:**
-- Consumes: the release binary. Naive evidence for comparison: force share **97.0%**, elapsed **0.635 s** (recorded in `week2/README.md` / `profile-naive.png`).
+- Consumes: the installed release `md` binary (profiling build), samply 0.12.0. Naive evidence for comparison: force share **97.0%**, elapsed **0.635 s** (from `week2/profile-naive.png` and the Part 5 measurement).
 
-- [ ] **Step 1: Build release and check samply**
+Prerequisite: Task 11 must have completed, so the default force method is already `Cells`; the evidence command therefore does NOT pass `--force`.
 
-```bash
-cargo build --manifest-path md/Cargo.toml --release
-samply --version   # if not found, try `cargo install samply` (offline => note it)
-```
+- [ ] **Step 1: Reinstall the CURRENT optimized md with profiling symbols**
 
-- [ ] **Step 2: Profile the cells run (samply available)**
+Run from `week2/`:
 
 ```bash
-samply record md/target/release/md run --force cells --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof-cells
+CARGO_PROFILE_RELEASE_DEBUG=true cargo install --path md --force
 ```
 
-Open the samply URL, capture the flamegraph as `week2/profile-cells.png`; record the **inclusive force share %** (`md::fluid::fluid_accelerations` and its cells internals) and the **elapsed time (s)** from the profile run.
+This rebuilds and reinstalls the current (post-flip) `md` binary on PATH with release debug symbols so the flamegraph is meaningful.
 
-If samply is unavailable and cannot be installed: record elapsed wall-clock only via
+- [ ] **Step 2: Record the cells profile with the course-form command**
+
+Run from any directory (uses the installed `md` on PATH):
 
 ```bash
-/usr/bin/time -f "%e s" md/target/release/md run --force cells --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof-cells
+samply record md run --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof
 ```
 
-and record the force share as **not captured (samply unavailable)** — do NOT invent a number.
+Do NOT pass `--force cells`: at this stage the default itself must already be `Cells`.
 
-- [ ] **Step 3: Compare against naive evidence and update README**
+- [ ] **Step 3: Capture the flamegraph and record the measured evidence**
+
+Open the samply URL, save the flamegraph screenshot as `week2/profile-cells.png`, and record:
+- **cell-list force inclusive share %** (`md::fluid::fluid_accelerations` plus its cells internals);
+- **cell-list elapsed time (s)** from the profile run.
+
+- [ ] **Step 4: Compare against naive evidence and fill the README Profile table**
+
+Naive evidence: force share = **97.0%**, elapsed = **0.635 s**.
 
 Update `week2/README.md` Profile table:
 
@@ -1205,17 +1212,19 @@ Update `week2/README.md` Profile table:
 | Cell list | <measured force share> | <measured elapsed> |
 ```
 
-Add a line under the profile command documenting the cells command:
+Add a line under the profile command documenting the evidence command:
 
 ```markdown
 The cells profile was recorded with:
 
-    samply record md run --force cells --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof-cells
+    samply record md run --n 400 --eq-steps 200 --steps 1000 --out /tmp/md-prof
 ```
 
-and reference `profile-cells.png` next to `profile-naive.png`. Report measured values only; do not assert an invented speedup.
+and reference `profile-cells.png` next to `profile-naive.png`.
 
-- [ ] **Step 4: Commit**
+Interpretation: the cells elapsed time must be below the naive elapsed time (0.635 s); the force sample share does NOT have to decrease. Report the measured values only; do not assert an invented speedup.
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add week2/README.md week2/profile-cells.png
@@ -1227,46 +1236,61 @@ git commit -m "feat: record Part 5 cells profile"
 ### Task 14: Scaling benchmarks N = 100, 400, 1600
 
 **Files:**
-- Modify: `week2/README.md` (add a scaling table).
+- Modify: `week2/README.md` (add a Benchmark table).
+- Create: `week2/scaling.png`.
 
 **Interfaces:**
-- Consumes: the release binary.
+- Consumes: the release `md` binary.
 
-- [ ] **Step 1: Run the measured wall-clock benchmarks (both methods, 3 repeats, median)**
+- [ ] **Step 1: Run the course-required scaling benchmark**
+
+Course-required parameters: `--n 100, 400, 1600`; `--eq-steps 100`; `--steps 500`; all other run parameters at their defaults; **three runs** for each force method and each N, timed with wall-clock elapsed time.
 
 ```bash
 cargo build --manifest-path md/Cargo.toml --release
-for m in naive cells; do
+for method in naive cells; do
   for N in 100 400 1600; do
-    echo "== $m N=$N =="
     for r in 1 2 3; do
-      /usr/bin/time -f "%e" md/target/release/md run --force "$m" --n "$N" \
-        --eq-steps 200 --steps 1000 --sample-every 100 --out "/tmp/bench-$N-$m" 2>&1 | tail -1
+      /usr/bin/time -f "elapsed %e" md/target/release/md run \
+        --force "$method" --n "$N" \
+        --eq-steps 100 --steps 500 \
+        --out "/tmp/bench-${method}-${N}" 2>&1 | tail -1
     done
   done
 done
 ```
 
-Record the median wall-clock per (N, method). The workload (`eq 200, steps 1000, sample 100`) is a [Suggestion] measurement choice; it is identical for both methods so the comparison is fair. Do not invent any expected timing or speedup.
+Record the **median and the min–max range** of the three wall-clock times for each (method, N). Do not invent results.
 
-- [ ] **Step 2: Record results in `week2/README.md`**
+- [ ] **Step 2: Produce `week2/scaling.png`**
 
-Add a scaling section with the measured medians:
+Each timed run performs 100 + 500 = **600 integration steps**, so convert every measured elapsed time to **seconds per integration step** (elapsed / 600). Plot seconds/step against N with two labelled lines (naive, cells) that match the Benchmark table values.
+
+- [ ] **Step 3: Record results in `week2/README.md`**
+
+Add a Benchmark section with the measured medians, ranges, and speedups:
 
 ```markdown
-## Scaling (release, measured wall-clock median, eq 200 / steps 1000)
+## Benchmark (release, measured wall-clock, 3 runs, --eq-steps 100 --steps 500)
 
-| N | Naive median (s) | Cells median (s) |
-| --- | ---: | ---: |
-| 100 | <measured> | <measured> |
-| 400 | <measured> | <measured> |
-| 1600 | <measured> | <measured> |
+| N | naive median (s) [range] | cells median (s) [range] | speedup (naive / cells) |
+| --- | ---: | ---: | ---: |
+| 100 | <measured> | <measured> | <measured / measured> |
+| 400 | <measured> | <measured> | <measured / measured> |
+| 1600 | <measured> | <measured> | <measured / measured> |
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Final scaling verification**
+
+- The speedup (naive median / cells median) should grow with N.
+- The speedup at N = 1600 must exceed 2.
+- `week2/scaling.png` must contain two labelled lines matching the table.
+- If the measured data do not resolve the expected advantage, extend the timed runs (more repeats and/or more steps) and inspect the profile instead of claiming a speedup.
+
+- [ ] **Step 5: Commit**
 
 ```bash
-git add week2/README.md
+git add week2/README.md week2/scaling.png
 git commit -m "feat: record Part 5 scaling benchmarks"
 ```
 
