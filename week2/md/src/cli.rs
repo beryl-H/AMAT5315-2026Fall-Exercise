@@ -1,6 +1,7 @@
 //! Command-line interface: one `md` binary with run / check / video.
 
 use clap::{Parser, Subcommand};
+use crate::fluid::ForceMethod;
 use crate::io::RunConfig;
 use crate::simulate::SimConfig;
 use std::path::PathBuf;
@@ -123,6 +124,7 @@ fn run_command(args: &RunArgs) -> Result<(), String> {
         steps: args.steps,
         sample_every: args.sample_every,
         seed: args.seed,
+        force_method: ForceMethod::Naive, // temporary; replaced by args.force in Task 10
     };
     let frames = crate::simulate::run_simulation(&config);
     crate::io::write_artifacts(&args.out, &RunConfig::from(&config), &frames)

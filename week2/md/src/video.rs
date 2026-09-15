@@ -1,5 +1,6 @@
 //! ffmpeg pipe: render every saved frame and encode to MP4.
 
+use crate::fluid::ForceMethod;
 use crate::io::read_artifacts;
 use crate::metrics::radial_distribution;
 use crate::render::render_frame;
@@ -125,6 +126,7 @@ mod tests {
             steps: 100,
             sample_every: 50,
             seed: 2026,
+            force_method: ForceMethod::Naive,
         };
         let frames = crate::simulate::run_simulation(&config);
         crate::io::write_artifacts(&dir, &crate::io::RunConfig::from(&config), &frames).unwrap();

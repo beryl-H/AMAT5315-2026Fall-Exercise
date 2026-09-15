@@ -3,6 +3,7 @@
 
 use md::checker::{check_artifacts, run_check};
 use md::fluid_potential_energy;
+use md::fluid::ForceMethod;
 use md::io::{RunConfig, write_artifacts};
 use md::simulate::{Frame, SimConfig};
 use md::system::Box2;
@@ -57,6 +58,7 @@ fn write_synthetic(tag: &str, frames: &[Frame], run: Option<RunConfig>) -> PathB
             steps: 100,
             sample_every: 50,
             seed: 2026,
+            force_method: ForceMethod::Naive,
         })
     });
     write_artifacts(&dir, &run, frames).unwrap();
@@ -79,6 +81,7 @@ fn wrong_integrator_fails() {
         steps: 100,
         sample_every: 50,
         seed: 2026,
+        force_method: ForceMethod::Naive,
     });
     run.integrator = "euler".into();
     let dir = write_synthetic("integrator", &synthetic_frames(vec![[0.1, 0.1]; 4]), Some(run));
@@ -97,6 +100,7 @@ fn wrong_frame_count_or_steps_fail() {
         steps: 150,
         sample_every: 50,
         seed: 2026,
+        force_method: ForceMethod::Naive,
     });    // 2 frames written but steps says 3 should be saved.
     let dir = write_synthetic("count", &synthetic_frames(vec![[0.1, 0.1]; 4]), Some(run));
     assert!(check_artifacts(&dir).is_err());
@@ -195,6 +199,7 @@ fn end_to_end_corrupted_trajectory_fails() {
         steps: 100,
         sample_every: 50,
         seed: 2026,
+        force_method: ForceMethod::Naive,
     };
     let frames = md::simulate::run_simulation(&config);
     write_artifacts(&dir, &RunConfig::from(&config), &frames).unwrap();

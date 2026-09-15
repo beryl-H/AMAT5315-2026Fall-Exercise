@@ -1,6 +1,6 @@
 //! Equilibration + production driver for the periodic fluid.
 
-use crate::fluid::{fluid_accelerations, fluid_potential_energy};
+use crate::fluid::ForceMethod;
 use crate::integrator::{Integrator, VelocityVerlet};
 use crate::state::State;
 use crate::system::{Box2, lattice_state, wrap};
@@ -21,6 +21,7 @@ pub struct SimConfig {
     pub steps: usize,
     pub sample_every: usize,
     pub seed: u64,
+    pub force_method: ForceMethod,
 }
 
 impl Default for SimConfig {
@@ -34,6 +35,7 @@ impl Default for SimConfig {
             steps: 10000,
             sample_every: 50,
             seed: 2026,
+            force_method: ForceMethod::Naive, // staging; flipped to Cells in Task 11
         }
     }
 }
@@ -66,7 +68,7 @@ pub fn run_simulation(config: &SimConfig) -> Vec<Frame> {
     remove_com_velocity(&mut state.velocities);
     rescale_to(&mut state.velocities, config.temperature);
 
-    let accelerations = |s: &State| fluid_accelerations(s, &bx);
+    let accelerations = |s: &State| config.force_method.accelerations(s, &bx);
     let mut verlet = VelocityVerlet::default();
     verlet.initialize(&state, &accelerations);
 
@@ -90,7 +92,7 @@ pub fn run_simulation(config: &SimConfig) -> Vec<Frame> {
                 t: step as f64 * config.dt,
                 pos: state.positions.clone(),
                 vel: state.velocities.clone(),
-                e_pot: fluid_potential_energy(&state, &bx),
+                e_pot: config.force_method.potential_energy(&state, &bx),
                 e_kin: crate::kinetic_energy(&state),
             });
         }
@@ -119,6 +121,7 @@ mod tests {
             steps: 200,
             sample_every: 25,
             seed: 2026,
+            force_method: ForceMethod::Naive,
         }
     }
 
@@ -133,6 +136,18 @@ mod tests {
         assert_eq!(c.steps, 10000);
         assert_eq!(c.sample_every, 50);
         assert_eq!(c.seed, 2026);
+        assert_eq!(c.force_method, ForceMethod::Naive); // staging; flipped in Task 11
+    }
+
+    #[test]
+    fn run_simulation_works_with_both_force_methods() {
+        for m in [ForceMethod::Naive, ForceMethod::Cells] {
+            let mut c = small_config();
+            c.force_method = m;
+            let frames = run_simulation(&c);
+            assert_eq!(frames.len(), 8);
+            assert!(frames.iter().all(|f| f.e_pot.is_finite() && f.e_kin.is_finite()));
+        }
     }
 
     #[test]
