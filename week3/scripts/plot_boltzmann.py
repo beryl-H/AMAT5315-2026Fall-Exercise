@@ -84,26 +84,61 @@ def main() -> None:
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     out_png = EVIDENCE / "boltzmann.png"
 
-    fig, ax = plt.subplots(figsize=(7.0, 5.0))
-    ax.plot(x, y, "o", color="tab:blue", label="measured  ln(P$_{3.1}$/P$_{3.0}$)")
+    fig, (hist_ax, ratio_ax) = plt.subplots(
+        2,
+        1,
+        figsize=(7.0, 7.5),
+        sharex=True,
+    )
+    fig.suptitle(
+        f"Boltzmann verification, {L}x{L} Metropolis Ising\n"
+        f"({len(x)} ratio bins with >= {MIN_COUNT} counts in both runs)",
+        fontsize=11,
+    )
+
+    # Top panel: total-energy histograms at the two temperatures.
+    hist_ax.hist(
+        energies[T0],
+        bins=edges,
+        color="tab:blue",
+        alpha=0.6,
+        label=f"T = {T0:.1f}",
+    )
+    hist_ax.hist(
+        energies[T1],
+        bins=edges,
+        histtype="step",
+        color="tab:orange",
+        linewidth=1.8,
+        label=f"T = {T1:.1f}",
+    )
+    hist_ax.set_ylabel("observations")
+    hist_ax.set_title(
+        f"total-energy histograms, {BIN_WIDTH:g}-unit bins "
+        f"(2000 measured sweeps each)",
+        fontsize=10,
+    )
+    hist_ax.legend(loc="upper left")
+    hist_ax.grid(True, alpha=0.3)
+
+    # Bottom panel: Boltzmann log ratio with the theoretical slope.
+    ratio_ax.plot(
+        x, y, "o", color="tab:blue", label="measured  ln(P$_{3.1}$/P$_{3.0}$)"
+    )
     xs = np.linspace(edges[0], edges[-1], 200)
-    ax.plot(
+    ratio_ax.plot(
         xs,
         anchor_y + slope * xs,
         "-",
         color="tab:red",
         label=(f"Boltzmann slope 1/{T0:g} - 1/{T1:g} = {slope:.9f}"),
     )
-    ax.set_xlabel("total energy  $E$  (units of $J$)")
-    ax.set_ylabel(r"$\ln\,\left(P_{3.1}(E)\,/\,P_{3.0}(E)\right)$")
-    ax.set_title(
-        f"Boltzmann verification, {L}x{L} Metropolis Ising\n"
-        f"({len(x)} bins with >= {MIN_COUNT} counts in both runs)",
-        fontsize=11,
-    )
-    ax.legend(loc="best")
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
+    ratio_ax.set_xlabel("total energy  $E$  (units of $J$)")
+    ratio_ax.set_ylabel(r"$\ln\,\left(P_{3.1}(E)\,/\,P_{3.0}(E)\right)$")
+    ratio_ax.legend(loc="upper left")
+    ratio_ax.grid(True, alpha=0.3)
+
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     fig.savefig(out_png, dpi=150)
 
     print(f"samples: T={T0}: {len(energies[T0])}, T={T1}: {len(energies[T1])}")
