@@ -47,7 +47,7 @@ impl Lattice {
         let xp = (x + l - 1) % l;
         let ym = ((y + 1) % l) * l;
         let yp = ((y + l - 1) % l) * l;
-        [ym + xm, ym + xp, yp + x, y * l + x]
+        [y * l + xm, y * l + xp, ym + x, yp + x]
     }
 
     /// Total energy E = -sum over nearest-neighbour pairs s_i s_j
