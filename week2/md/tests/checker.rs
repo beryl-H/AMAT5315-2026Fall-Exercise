@@ -59,6 +59,7 @@ fn write_synthetic(tag: &str, frames: &[Frame], run: Option<RunConfig>) -> PathB
             sample_every: 50,
             seed: 2026,
             force_method: ForceMethod::Naive,
+            ramp_to: None,
         })
     });
     write_artifacts(&dir, &run, frames).unwrap();
@@ -82,6 +83,7 @@ fn wrong_integrator_fails() {
         sample_every: 50,
         seed: 2026,
         force_method: ForceMethod::Naive,
+        ramp_to: None,
     });
     run.integrator = "euler".into();
     let dir = write_synthetic("integrator", &synthetic_frames(vec![[0.1, 0.1]; 4]), Some(run));
@@ -101,6 +103,7 @@ fn wrong_frame_count_or_steps_fail() {
         sample_every: 50,
         seed: 2026,
         force_method: ForceMethod::Naive,
+        ramp_to: None,
     });    // 2 frames written but steps says 3 should be saved.
     let dir = write_synthetic("count", &synthetic_frames(vec![[0.1, 0.1]; 4]), Some(run));
     assert!(check_artifacts(&dir).is_err());
@@ -200,6 +203,7 @@ fn end_to_end_corrupted_trajectory_fails() {
         sample_every: 50,
         seed: 2026,
         force_method: ForceMethod::Naive,
+        ramp_to: None,
     };
     let frames = md::simulate::run_simulation(&config);
     write_artifacts(&dir, &RunConfig::from(&config), &frames).unwrap();

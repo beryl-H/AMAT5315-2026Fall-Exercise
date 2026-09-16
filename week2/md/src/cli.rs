@@ -132,6 +132,7 @@ fn run_command(args: &RunArgs) -> Result<(), String> {
             .force
             .parse::<ForceMethod>()
             .map_err(|e| format!("invalid --force: {e}"))?,
+        ramp_to: None,
     };
     let frames = crate::simulate::run_simulation(&config);
     crate::io::write_artifacts(&args.out, &RunConfig::from(&config), &frames)

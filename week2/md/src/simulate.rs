@@ -22,6 +22,7 @@ pub struct SimConfig {
     pub sample_every: usize,
     pub seed: u64,
     pub force_method: ForceMethod,
+    pub ramp_to: Option<f64>,
 }
 
 impl Default for SimConfig {
@@ -36,6 +37,7 @@ impl Default for SimConfig {
             sample_every: 50,
             seed: 2026,
             force_method: ForceMethod::Cells, // final course default
+            ramp_to: None,
         }
     }
 }
@@ -129,6 +131,7 @@ mod tests {
             sample_every: 25,
             seed: 2026,
             force_method: ForceMethod::Naive,
+            ramp_to: None,
         }
     }
 
@@ -144,6 +147,7 @@ mod tests {
         assert_eq!(c.sample_every, 50);
         assert_eq!(c.seed, 2026);
         assert_eq!(c.force_method, ForceMethod::Cells); // final course default
+        assert!(c.ramp_to.is_none(), "unheated default has no ramp target");
     }
 
     #[test]

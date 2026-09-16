@@ -127,6 +127,7 @@ mod tests {
             sample_every: 50,
             seed: 2026,
             force_method: ForceMethod::Naive,
+            ramp_to: None,
         };
         let frames = crate::simulate::run_simulation(&config);
         crate::io::write_artifacts(&dir, &crate::io::RunConfig::from(&config), &frames).unwrap();
