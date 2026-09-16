@@ -1,0 +1,19 @@
+Week 3 Part 3: block-bootstrap sampling error of Tc = 2*T_peak(64) - T_peak(32)
+data: window-l32/window-l64 (13 temperatures, 100000 sweeps each); seed 20260303
+500 replicates per block length; complete consecutive blocks only
+sampling error contains bootstrap noise only (no finite-size or fit bias)
+
+block length  2000 sweeps (50 blocks per series):
+  failed fits: L=32 0/500, L=64 0/500  ->  500/500 valid Tc replicates
+  Tc bootstrap SE = 0.0105
+
+block length  4000 sweeps (25 blocks per series):
+  failed fits: L=32 0/500, L=64 0/500  ->  500/500 valid Tc replicates
+  Tc bootstrap SE = 0.0127
+
+block length  8000 sweeps (12 blocks per series):
+  failed fits: L=32 0/500, L=64 0/500  ->  500/500 valid Tc replicates
+  Tc bootstrap SE = 0.0117
+
+stability rule (spread <= 10% of mean): spread = 0.0022, mean = 0.0116
+sampling error UNRESOLVED: block-length error estimates do not agree
