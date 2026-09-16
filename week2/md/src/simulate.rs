@@ -219,4 +219,14 @@ mod tests {
             });
         assert!(!pinned, "temperature stayed pinned to target in production");
     }
+
+    #[test]
+    fn ramp_target_matches_linear_schedule() {
+        // T_target(0) = T0, T_target(S) = T1, interior linear [Course Req].
+        assert!((ramp_target(0.2, 1.2, 0, 200) - 0.2).abs() < 1e-15);
+        assert!((ramp_target(0.2, 1.2, 200, 200) - 1.2).abs() < 1e-15);
+        assert!((ramp_target(0.2, 1.2, 100, 200) - 0.7).abs() < 1e-15);
+        // works for any S (no divisibility condition)
+        assert!((ramp_target(0.2, 1.2, 125, 125) - 1.2).abs() < 1e-15);
+    }
 }

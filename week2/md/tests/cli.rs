@@ -201,3 +201,42 @@ fn default_contract_video_encodes_all_frames_under_two_mb() {
     let _ = std::fs::remove_dir_all(&out);
     let _ = std::fs::remove_dir_all(&artifacts);
 }
+
+#[test]
+fn run_accepts_ramp_to_and_records_it() {
+    let out = temp_dir("ramp-ok");
+    let output = run_md(&["run", "--n", "16", "--eq-steps", "0", "--steps", "100",
+                          "--sample-every", "50", "--temperature", "0.2", "--ramp-to", "1.2",
+                          "--out", out.to_str().unwrap()]);
+    assert!(output.status.success(), "ramp run failed: {}", String::from_utf8_lossy(&output.stderr));
+    let run: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(out.join("run.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(run["ramp_to"], 1.2);
+    let _ = std::fs::remove_dir_all(&out);
+}
+
+#[test]
+fn run_rejects_nonpositive_ramp_to() {
+    for bad in ["0", "-0.5"] {
+        let out = temp_dir("ramp-bad");
+        let output = run_md(&["run", "--n", "16", "--ramp-to", bad, "--out", out.to_str().unwrap()]);
+        assert!(!output.status.success(), "--ramp-to {bad} must be rejected");
+        let _ = std::fs::remove_dir_all(&out);
+    }
+}
+
+#[test]
+fn run_without_ramp_to_omits_key() {
+    let out = temp_dir("ramp-none");
+    let output = run_md(&["run", "--n", "16", "--eq-steps", "0", "--steps", "100",
+                          "--sample-every", "50", "--out", out.to_str().unwrap()]);
+    assert!(output.status.success());
+    let run: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(out.join("run.json")).unwrap(),
+    )
+    .unwrap();
+    assert!(run.get("ramp_to").is_none());
+    let _ = std::fs::remove_dir_all(&out);
+}
