@@ -6,13 +6,13 @@ use rand::SeedableRng;
 use std::path::PathBuf;
 
 use crate::io::{RunConfig, write_artifacts};
-use crate::ramp::run_ramp;
+use crate::ramp::{Update, run_ramp};
 
-/// Sample the Ising model along a temperature ramp (Part 1: metropolis).
+/// Sample the Ising model along a temperature ramp (metropolis or wolff).
 #[derive(Debug, Parser)]
-#[command(name = "ising", about = "Week 3 Ising model sampler (Part 1: metropolis)")]
+#[command(name = "ising", about = "Week 3 Ising model sampler (metropolis | wolff)")]
 pub struct Args {
-    /// Update scheme: "metropolis" (Part 1) or "wolff" (Part 4, not yet implemented).
+    /// Update scheme: "metropolis" (l*l-proposal sweeps) or "wolff" (cluster flips).
     #[arg(long)]
     pub update: String,
     /// Lattice side length L (l*l spins).
@@ -79,13 +79,7 @@ pub fn temperature_grid(t_from: f64, t_to: f64, t_step: f64) -> Result<Vec<f64>,
 /// Validate every argument; Err(msg) on the first problem found.
 pub fn validate(args: &Args) -> Result<(), String> {
     match args.update.as_str() {
-        "metropolis" => {}
-        "wolff" => {
-            return Err(
-                "--update wolff is not implemented yet (Part 1 implements metropolis only; wolff arrives in Part 4)"
-                    .to_string(),
-            )
-        }
+        "metropolis" | "wolff" => {}
         other => {
             return Err(format!(
                 "unknown --update {other:?} (expected \"metropolis\" or \"wolff\")"
@@ -116,25 +110,43 @@ pub fn main() -> i32 {
 fn run_command(args: &Args) -> Result<(), String> {
     validate(args)?;
     let grid = temperature_grid(args.t_from, args.t_to, args.t_step)?;
+    let update = match args.update.as_str() {
+        "metropolis" => Update::Metropolis,
+        _ => Update::Wolff,
+    };
 
     let mut rng = StdRng::seed_from_u64(args.seed);
-    let results = run_ramp(args.l, &grid, args.discard, args.measure, args.every, &mut rng);
+    let results = run_ramp(
+        args.l,
+        update,
+        &grid,
+        args.discard,
+        args.measure,
+        args.every,
+        &mut rng,
+    );
 
     let run = RunConfig {
         l: args.l,
-        update: "metropolis".to_string(),
+        update: args.update.clone(),
         t_grid: grid,
         discard: args.discard,
         measure: args.measure,
         seed: args.seed,
         sample_every: 1,
-        time_unit: "sweep".to_string(),
+        time_unit: update.time_unit().to_string(),
     };
     write_artifacts(&args.out, &run, &results).map_err(|e| format!("cannot write artifacts: {e}"))?;
 
-    println!("T\tmean_abs_M\tacceptance");
+    // The third column is the acceptance rate (metropolis) or the mean
+    // cluster size (wolff), per the design contract.
+    let header = match update {
+        Update::Metropolis => "T\tmean_abs_M\tacceptance",
+        Update::Wolff => "T\tmean_abs_M\tmean_cluster_size",
+    };
+    println!("{header}");
     for r in &results {
-        println!("{:.6}\t{:.6}\t{:.6}", r.t, r.mean_abs_m, r.acceptance);
+        println!("{:.6}\t{:.6}\t{:.6}", r.t, r.mean_abs_m, r.stat);
     }
     Ok(())
 }
@@ -190,13 +202,13 @@ mod tests {
     }
 
     #[test]
-    fn validate_accepts_metropolis_only() {
+    fn validate_accepts_metropolis_and_wolff() {
         let args = base_args();
         assert!(validate(&args).is_ok());
 
         let mut wolff = base_args();
         wolff.update = "wolff".to_string();
-        assert!(validate(&wolff).unwrap_err().contains("not implemented"));
+        assert!(validate(&wolff).is_ok());
 
         let mut unknown = base_args();
         unknown.update = "swendsen".to_string();

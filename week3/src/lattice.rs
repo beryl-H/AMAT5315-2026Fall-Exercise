@@ -37,6 +37,19 @@ impl Lattice {
         at(1, 0) + at(-1, 0) + at(0, 1) + at(0, -1)
     }
 
+    /// The four periodic neighbour indices of site `i`:
+    /// (x+1,y), (x-1,y), (x,y+1), (x,y-1), wrapping at both boundaries.
+    pub fn neighbours(&self, i: usize) -> [usize; 4] {
+        let l = self.l;
+        let x = i % l;
+        let y = i / l;
+        let xm = (x + 1) % l;
+        let xp = (x + l - 1) % l;
+        let ym = ((y + 1) % l) * l;
+        let yp = ((y + l - 1) % l) * l;
+        [ym + xm, ym + xp, yp + x, y * l + x]
+    }
+
     /// Total energy E = -sum over nearest-neighbour pairs s_i s_j
     /// (each unordered pair counted once).
     pub fn energy(&self) -> f64 {

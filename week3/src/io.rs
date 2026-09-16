@@ -46,15 +46,28 @@ pub fn write_artifacts(
     let mut series = fs::File::create(dir.join("series.jsonl"))?;
     for r in results {
         for row in &r.series {
-            writeln!(
-                series,
-                r#"{{"L":{},"T":{},"sweep":{},"M":{:.6},"E":{:.6}}}"#,
-                run.l,
-                serde_json::to_string(&row.t).unwrap(),
-                row.sweep,
-                six(row.m),
-                six(row.e),
-            )?;
+            match row.cluster_size {
+                // Wolff rows add cluster_size, the spins flipped in that move.
+                Some(cs) => writeln!(
+                    series,
+                    r#"{{"L":{},"T":{},"sweep":{},"M":{:.6},"E":{:.6},"cluster_size":{}}}"#,
+                    run.l,
+                    serde_json::to_string(&row.t).unwrap(),
+                    row.sweep,
+                    six(row.m),
+                    six(row.e),
+                    cs,
+                )?,
+                None => writeln!(
+                    series,
+                    r#"{{"L":{},"T":{},"sweep":{},"M":{:.6},"E":{:.6}}}"#,
+                    run.l,
+                    serde_json::to_string(&row.t).unwrap(),
+                    row.sweep,
+                    six(row.m),
+                    six(row.e),
+                )?,
+            }
         }
     }
 
