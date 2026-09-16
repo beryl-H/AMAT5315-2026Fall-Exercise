@@ -24,6 +24,11 @@ pub struct RunConfig {
     pub sample_every: usize,
     pub seed: u64,
     pub integrator: String,
+    /// Heating target; present in run.json only for heating runs
+    /// [Course Requirement: heating runs record ramp_to; Suggestion:
+    /// omitted when None so the unheated schema is unchanged].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ramp_to: Option<f64>,
 }
 
 impl From<SimConfig> for RunConfig {
@@ -40,6 +45,7 @@ impl From<SimConfig> for RunConfig {
             sample_every: c.sample_every,
             seed: c.seed,
             integrator: "velocity-verlet".to_string(),
+            ramp_to: c.ramp_to,
         }
     }
 }
@@ -235,5 +241,31 @@ mod tests {
         std::fs::write(dir.join("traj.jsonl"), "").unwrap();
         assert!(read_artifacts(&dir).is_err());
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn ramp_to_round_trips_and_omits_when_none() {
+        let dir = temp("ramp");
+        // heated: Some(1.2) serialized and read back
+        let mut c = crate::simulate::SimConfig::default();
+        c.ramp_to = Some(1.2);
+        let run = RunConfig::from(c);
+        write_artifacts(&dir, &run, &sample_frames()).unwrap();
+        let text = std::fs::read_to_string(dir.join("run.json")).unwrap();
+        let v: serde_json::Value = serde_json::from_str(&text).unwrap();
+        assert_eq!(v["ramp_to"], 1.2);
+        let (run2, _) = read_artifacts(&dir).unwrap();
+        assert_eq!(run2.ramp_to, Some(1.2));
+        // unheated: key absent, reads back as None
+        let dir2 = temp("ramp2");
+        let run3 = RunConfig::from(crate::simulate::SimConfig::default());
+        assert_eq!(run3.ramp_to, None);
+        write_artifacts(&dir2, &run3, &sample_frames()).unwrap();
+        let text2 = std::fs::read_to_string(dir2.join("run.json")).unwrap();
+        assert!(!text2.contains("ramp_to"));
+        let (run4, _) = read_artifacts(&dir2).unwrap();
+        assert_eq!(run4.ramp_to, None);
+        let _ = std::fs::remove_dir_all(&dir);
+        let _ = std::fs::remove_dir_all(&dir2);
     }
 }
