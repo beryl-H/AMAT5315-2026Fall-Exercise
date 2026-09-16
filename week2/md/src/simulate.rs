@@ -58,6 +58,13 @@ pub fn thermostat_events(eq_steps: usize) -> usize {
     1 + eq_steps / THERMOSTAT_INTERVAL
 }
 
+/// Linear ramp target at production step `s` of a total of `s_total`:
+/// T_target(s) = t0 + (t1 - t0) * s / s_total [Course Requirement].
+/// Callers guarantee s_total >= 1 (production steps are validated > 0).
+pub(crate) fn ramp_target(t0: f64, t1: f64, s: usize, s_total: usize) -> f64 {
+    t0 + (t1 - t0) * (s as f64) / (s_total as f64)
+}
+
 /// Run equilibration (thermostat every 50 steps, Schedule B) then
 /// thermostat-free production, saving every `sample_every` steps
 /// (step 0 never saved).
