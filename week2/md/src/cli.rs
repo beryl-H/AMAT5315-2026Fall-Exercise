@@ -40,6 +40,10 @@ pub struct RunArgs {
     /// Final course default is "cells".
     #[arg(long, default_value = "cells")]
     pub force: String,
+    /// Heating target temperature; with it, production rescales every step
+    /// toward a linear ramp ending here. [Suggestion] optional.
+    #[arg(long, allow_negative_numbers = true)]
+    pub ramp_to: Option<f64>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -103,6 +107,11 @@ fn run_command(args: &RunArgs) -> Result<(), String> {
     if args.temperature <= 0.0 {
         return Err(format!("--temperature must be positive, got {}", args.temperature));
     }
+    if let Some(ramp_to) = args.ramp_to {
+        if ramp_to <= 0.0 {
+            return Err(format!("--ramp-to must be positive, got {ramp_to}"));
+        }
+    }
     if args.dt <= 0.0 {
         return Err(format!("--dt must be positive, got {}", args.dt));
     }
@@ -132,7 +141,7 @@ fn run_command(args: &RunArgs) -> Result<(), String> {
             .force
             .parse::<ForceMethod>()
             .map_err(|e| format!("invalid --force: {e}"))?,
-        ramp_to: None,
+        ramp_to: args.ramp_to,
     };
     let frames = crate::simulate::run_simulation(&config);
     crate::io::write_artifacts(&args.out, &RunConfig::from(&config), &frames)
