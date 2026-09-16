@@ -90,11 +90,17 @@ pub fn run_simulation(config: &SimConfig) -> Vec<Frame> {
         }
     }
 
-    // Production: thermostat OFF, time starts at zero.
+    // Production: thermostat OFF unless --ramp-to is set, time starts at zero.
     let mut frames = Vec::with_capacity(config.steps / config.sample_every);
     for step in 1..=config.steps {
         verlet.step(&mut state, config.dt, &accelerations);
         wrap_state(&mut state, &bx);
+        // [Suggestion] per-step heating: rescale after every production
+        // integration step toward the linear ramp target (no step-0 event).
+        if let Some(ramp_to) = config.ramp_to {
+            let target = ramp_target(config.temperature, ramp_to, step, config.steps);
+            rescale_to(&mut state.velocities, target);
+        }
         if step % config.sample_every == 0 {
             frames.push(Frame {
                 step,
@@ -239,5 +245,23 @@ mod tests {
         assert!((ramp_target(0.2, 1.2, 100, 200) - 0.7).abs() < 1e-15);
         // works for any S (no divisibility condition)
         assert!((ramp_target(0.2, 1.2, 125, 125) - 1.2).abs() < 1e-15);
+    }
+
+    #[test]
+    fn heated_production_rescales_every_step_toward_linear_target() {
+        // Per-step [Suggestion]: the thermodynamic temperature after each
+        // production step equals the linear ramp target for that step.
+        let mut c = small_config();
+        c.temperature = 0.2;
+        c.ramp_to = Some(1.2);
+        let frames = run_simulation(&c); // steps = 200, sample_every = 25
+        for f in &frames {
+            let expected = ramp_target(0.2, 1.2, f.step, c.steps);
+            let t = crate::thermostat::thermodynamic_temperature(&f.vel);
+            assert!((t - expected).abs() < 1e-9, "step {}: T {t} != {expected}", f.step);
+        }
+        let last = frames.last().unwrap();
+        assert_eq!(last.step, c.steps);
+        assert!((crate::thermostat::thermodynamic_temperature(&last.vel) - 1.2).abs() < 1e-9);
     }
 }
