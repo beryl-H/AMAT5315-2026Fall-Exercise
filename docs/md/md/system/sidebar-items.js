@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["lattice_constants","lattice_state","minimum_image","side","wrap"],"struct":["Box2"]};

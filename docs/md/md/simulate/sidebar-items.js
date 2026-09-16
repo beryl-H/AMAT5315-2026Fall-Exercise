@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["THERMOSTAT_INTERVAL"],"fn":["run_simulation","thermostat_events"],"struct":["Frame","SimConfig"]};

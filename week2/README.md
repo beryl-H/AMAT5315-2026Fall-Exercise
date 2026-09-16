@@ -72,6 +72,11 @@ four views of the N = 400 heating trajectory: particles colored by speed,
 the speed histogram against the 2-D Maxwell–Boltzmann distribution, the
 pair structure g(r), and temperature / relative energy through time.
 
+The crate API documentation (generated with `cargo doc --no-deps`) is
+published at:
+
+https://beryl-h.github.io/AMAT5315-2026Fall-Exercise/md/
+
 ## Heating trajectory (Part 5)
 
 From the repository root, the official course heating run:

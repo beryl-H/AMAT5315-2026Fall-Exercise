@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"md":[["impl <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.229/serde_core/ser/trait.Serialize.html\" title=\"trait serde_core::ser::Serialize\">Serialize</a> for <a class=\"struct\" href=\"md/io/struct.RunConfig.html\" title=\"struct md::io::RunConfig\">RunConfig</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

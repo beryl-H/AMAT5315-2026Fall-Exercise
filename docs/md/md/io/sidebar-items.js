@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["read_artifacts","write_artifacts"],"struct":["RunConfig"]};

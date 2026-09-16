@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["RC"],"fn":["shifted_energy","shifted_force"]};
