@@ -268,3 +268,127 @@ fn same_seed_reproduces_identical_artifacts() {
     let _ = std::fs::remove_dir_all(&out1);
     let _ = std::fs::remove_dir_all(&out2);
 }
+
+#[test]
+fn wolff_low_temperature_flips_whole_lattice_each_step() {
+    let out = temp_dir("wolff-lt");
+    let mut args = base_args(&out);
+    set(&mut args, "--update", "wolff");
+    // T = 1e-9: p_add = 1 - exp(-2/T) = 1 exactly, so the cluster is the
+    // whole same-spin connected component: size l*l, |M| = 1, E = -2 per
+    // site, and the lattice flips all-up/all-down every step.
+    set(&mut args, "--t-from", "0.000000001");
+    set(&mut args, "--t-to", "0.000000001");
+    set(&mut args, "--t-step", "1.0");
+    set(&mut args, "--measure", "6");
+    let output = run_ising(&args);
+    assert!(
+        output.status.success(),
+        "ising failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let row = stdout.lines().nth(1).unwrap();
+    let fields: Vec<&str> = row.split('\t').collect();
+    assert_eq!(fields[0], "0.000000");
+    assert_eq!(fields[1], "1.000000", "mean |M| stays 1 at T=1e-9");
+    let mean_cluster: f64 = fields[2].parse().unwrap();
+    assert_eq!(mean_cluster, 16.0, "every cluster is the whole l*l lattice");
+
+    let series = read_jsonl(&out.join("series.jsonl"));
+    assert_eq!(series.len(), 6);
+    let ms: Vec<f64> = series.iter().map(|r| r["M"].as_f64().unwrap()).collect();
+    for m in &ms {
+        assert!((m.abs() - 1.0).abs() < 1e-12, "|M| must stay 1: {ms:?}");
+    }
+    for (i, m) in ms.iter().enumerate() {
+        let expected = if i % 2 == 0 { -1.0 } else { 1.0 };
+        assert_eq!(*m, expected, "lattice flips all-down/all-up: {ms:?}");
+        let e = series[i]["E"].as_f64().unwrap();
+        assert!((e + 2.0).abs() < 1e-12, "E stays -2 per site: {e}");
+        assert_eq!(series[i]["cluster_size"].as_u64().unwrap(), 16);
+    }
+    let _ = std::fs::remove_dir_all(&out);
+}
+
+#[test]
+fn wolff_high_temperature_makes_single_spin_clusters() {
+    let out = temp_dir("wolff-ht");
+    let mut args = base_args(&out);
+    set(&mut args, "--update", "wolff");
+    // T = 1e12: p_add = 1 - exp(-2/T) ~ 2e-12 ~ 0, so no neighbour is ever
+    // added and every cluster is the seed site alone.
+    set(&mut args, "--t-from", "1000000000000");
+    set(&mut args, "--t-to", "1000000000000");
+    set(&mut args, "--t-step", "1.0");
+    set(&mut args, "--measure", "20");
+    let output = run_ising(&args);
+    assert!(
+        output.status.success(),
+        "ising failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let series = read_jsonl(&out.join("series.jsonl"));
+    assert_eq!(series.len(), 20);
+    for row in &series {
+        assert_eq!(row["cluster_size"].as_u64().unwrap(), 1);
+        assert!(row["M"].as_f64().unwrap().abs() <= 1.0);
+        assert!(row["E"].as_f64().unwrap() >= -2.0);
+    }
+    // Single-spin flips mean mean |M| stays well below the ordered value.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let fields: Vec<&str> = stdout.lines().nth(1).unwrap().split('\t').collect();
+    let mean_abs_m: f64 = fields[1].parse().unwrap();
+    assert!(mean_abs_m < 0.6, "high-T |M| should be small: {mean_abs_m}");
+    let _ = std::fs::remove_dir_all(&out);
+}
+
+#[test]
+fn wolff_critical_temperature_disorders_lattice() {
+    let out = temp_dir("wolff-tc");
+    let mut args = base_args(&out);
+    set(&mut args, "--update", "wolff");
+    set(&mut args, "--l", "16");
+    set(&mut args, "--t-from", "3.0");
+    set(&mut args, "--t-to", "3.0");
+    set(&mut args, "--t-step", "1.0");
+    set(&mut args, "--discard", "500");
+    set(&mut args, "--measure", "4000");
+    let output = run_ising(&args);
+    assert!(
+        output.status.success(),
+        "ising failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let fields: Vec<&str> = stdout.lines().nth(1).unwrap().split('\t').collect();
+    let mean_abs_m: f64 = fields[1].parse().unwrap();
+    assert!(mean_abs_m < 0.4, "T=3.0 |M| should be small: {mean_abs_m}");
+    let _ = std::fs::remove_dir_all(&out);
+}
+
+#[test]
+fn wolff_same_seed_reproduces_identical_artifacts() {
+    let out1 = temp_dir("wolff-seed1");
+    let out2 = temp_dir("wolff-seed2");
+    let mut args = base_args(&out1);
+    let mut args2 = base_args(&out2);
+    set(&mut args, "--update", "wolff");
+    set(&mut args, "--measure", "10");
+    set(&mut args, "--every", "2");
+    set(&mut args2, "--update", "wolff");
+    set(&mut args2, "--measure", "10");
+    set(&mut args2, "--every", "2");
+    assert!(run_ising(&args).status.success());
+    assert!(run_ising(&args2).status.success());
+    for name in ["run.json", "series.jsonl", "spins.jsonl"] {
+        let a = std::fs::read(out1.join(name)).unwrap();
+        let b = std::fs::read(out2.join(name)).unwrap();
+        assert_eq!(a, b, "{name} differs between identical-seed wolff runs");
+    }
+    let _ = std::fs::remove_dir_all(&out1);
+    let _ = std::fs::remove_dir_all(&out2);
+}

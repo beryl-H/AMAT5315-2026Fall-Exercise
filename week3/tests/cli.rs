@@ -43,17 +43,57 @@ fn remove(args: &mut Vec<String>, flag: &str) {
     args.drain(pos..=pos + 1);
 }
 
+fn read_jsonl(path: &PathBuf) -> Vec<serde_json::Value> {
+    let text = std::fs::read_to_string(path).expect("jsonl file missing");
+    text.lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| serde_json::from_str(l).expect("jsonl line malformed"))
+        .collect()
+}
+
+fn sorted_keys(v: &serde_json::Value) -> Vec<String> {
+    let mut keys: Vec<String> = v.as_object().unwrap().keys().cloned().collect();
+    keys.sort();
+    keys
+}
+
 #[test]
-fn wolff_rejected_cleanly_as_not_implemented() {
+fn wolff_runs_and_writes_contract_artifacts() {
     let out = temp_dir("wolff");
     let mut args = base_args(&out);
     set(&mut args, "--update", "wolff");
     let output = run_ising(&args);
-    assert_eq!(output.status.code(), Some(2), "expected clean exit code 2");
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("not implemented"), "stderr: {stderr}");
-    assert!(!stderr.contains("panicked"), "clean error expected, got: {stderr}");
-    assert!(!out.join("series.jsonl").exists(), "no artifacts on error");
+    assert!(
+        output.status.success(),
+        "ising failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    // run.json records the wolff update and its cluster_flip time unit.
+    let run: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(out.join("run.json")).expect("run.json missing"),
+    )
+    .expect("run.json malformed");
+    assert_eq!(run["update"], "wolff");
+    assert_eq!(run["time_unit"], "cluster_flip");
+
+    // series.jsonl: wolff rows add cluster_size (>= 1, at least the seed).
+    let series = read_jsonl(&out.join("series.jsonl"));
+    assert_eq!(series.len(), 5, "one row per measured cluster flip");
+    for row in &series {
+        assert_eq!(
+            sorted_keys(row),
+            ["E", "L", "M", "T", "cluster_size", "sweep"]
+        );
+        assert!(row["cluster_size"].as_u64().unwrap() >= 1);
+    }
+
+    // stdout header names the wolff third column.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert_eq!(
+        stdout.lines().next().unwrap(),
+        "T\tmean_abs_M\tmean_cluster_size"
+    );
     let _ = std::fs::remove_dir_all(&out);
 }
 
