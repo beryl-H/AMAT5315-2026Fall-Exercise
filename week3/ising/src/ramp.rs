@@ -42,6 +42,12 @@ pub struct TemperatureResult {
 }
 
 /// Run the whole temperature ramp on one RNG stream.
+///
+/// The first temperature starts from an all-up lattice; each later
+/// temperature starts from the final lattice of the preceding one. At each
+/// temperature `discard` sweeps are run and discarded, then `measure` sweeps
+/// are measured. Frames are recorded when `every > 0` and the measured-step
+/// index is divisible by `every`.
 pub fn run_ramp<G: Rng>(
     l: usize,
     grid: &[f64],
@@ -50,8 +56,41 @@ pub fn run_ramp<G: Rng>(
     every: usize,
     rng: &mut G,
 ) -> Vec<TemperatureResult> {
-    let _ = (l, grid, discard, measure, every, rng);
-    Vec::new() // RED stub
+    let mut lattice = Lattice::all_up(l);
+    let mut results = Vec::with_capacity(grid.len());
+    for (k, &t) in grid.iter().enumerate() {
+        for _ in 0..discard {
+            metropolis::sweep(&mut lattice, rng, t);
+        }
+        let mut total_abs_m = 0.0;
+        let mut accepted = 0usize;
+        let mut series = Vec::with_capacity(measure);
+        let mut frames = Vec::new();
+        for j in 1..=measure {
+            let stats = metropolis::sweep(&mut lattice, rng, t);
+            accepted += stats.accepted;
+            let m = lattice.magnetization();
+            let e = lattice.energy_per_site();
+            total_abs_m += m.abs();
+            series.push(SeriesRow { t, sweep: j, m, e });
+            if every > 0 && j % every == 0 {
+                frames.push(SpinFrame {
+                    t,
+                    global_sweep: k * measure + j,
+                    m,
+                    spins: lattice.spins.clone(),
+                });
+            }
+        }
+        results.push(TemperatureResult {
+            t,
+            mean_abs_m: total_abs_m / measure as f64,
+            acceptance: accepted as f64 / (measure * l * l) as f64,
+            series,
+            frames,
+        });
+    }
+    results
 }
 
 #[cfg(test)]

@@ -18,19 +18,24 @@ pub struct SweepStats {
 /// given a uniform random draw in [0, 1): accept with probability
 /// min(1, exp(-delta_e / t)).
 pub fn should_accept(delta_e: f64, t: f64, draw: f64) -> bool {
-    let _ = (delta_e, t, draw);
-    false // RED stub
+    if delta_e <= 0.0 {
+        return true;
+    }
+    draw < (-delta_e / t).exp()
 }
 
 /// One Metropolis sweep: exactly l*l random-site proposals.
 pub fn sweep<G: Rng>(lattice: &mut Lattice, rng: &mut G, t: f64) -> SweepStats {
-    let _ = (rng, t);
     let l2 = lattice.l * lattice.l;
-    // RED stub: flips every site and counts every proposal as accepted.
-    for i in 0..l2 {
-        lattice.flip(i);
+    let mut accepted = 0;
+    for _ in 0..l2 {
+        let i = rng.gen_range(0..l2);
+        if should_accept(lattice.delta_e(i), t, rng.gen::<f64>()) {
+            lattice.flip(i);
+            accepted += 1;
+        }
     }
-    SweepStats { accepted: l2 }
+    SweepStats { accepted }
 }
 
 #[cfg(test)]

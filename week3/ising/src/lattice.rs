@@ -40,22 +40,27 @@ impl Lattice {
     /// Total energy E = -sum over nearest-neighbour pairs s_i s_j
     /// (each unordered pair counted once).
     pub fn energy(&self) -> f64 {
-        0.0 // RED stub; real value is -0.5 * sum_i s_i * neighbour_sum(i)
+        let l = self.l;
+        let mut ordered_pairs = 0.0;
+        for i in 0..l * l {
+            ordered_pairs += (self.spins[i] as f64) * (self.neighbour_sum(i) as f64);
+        }
+        -0.5 * ordered_pairs
     }
 
     /// Energy per site.
     pub fn energy_per_site(&self) -> f64 {
-        0.0 // RED stub
+        self.energy() / (self.l * self.l) as f64
     }
 
     /// Magnetisation per spin M = sum(s_i) / L^2 in [-1, 1].
     pub fn magnetization(&self) -> f64 {
-        0.0 // RED stub
+        self.spins.iter().map(|&s| s as f64).sum::<f64>() / (self.l * self.l) as f64
     }
 
     /// Energy change of flipping spin i: 2 * s_i * (s1+s2+s3+s4).
-    pub fn delta_e(&self, _i: usize) -> f64 {
-        0.0 // RED stub
+    pub fn delta_e(&self, i: usize) -> f64 {
+        2.0 * (self.spins[i] as f64) * (self.neighbour_sum(i) as f64)
     }
 }
 

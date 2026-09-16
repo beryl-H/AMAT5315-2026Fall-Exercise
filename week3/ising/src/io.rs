@@ -10,6 +10,7 @@ use crate::ramp::{SpinFrame, TemperatureResult};
 /// run.json metadata; field order matches the design contract.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct RunConfig {
+    #[serde(rename = "L")]
     pub l: usize,
     pub update: String,
     pub t_grid: Vec<f64>,
