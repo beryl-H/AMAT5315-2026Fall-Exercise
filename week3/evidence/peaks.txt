@@ -1,0 +1,20 @@
+Week 3 Ising Metropolis: susceptibility peaks and finite-size T_c
+chi(T) = L^2 * (mean(M^2) - mean(|M|)^2) / T; quadratic vertex of 5 centered points
+critical-window runs: window-l32, window-l64
+
+L = 32:
+  largest window chi: 20.02 at T = 2.35
+  5-point quadratic fit (T, chi): (2.25, 10.56), (2.30, 18.85), (2.35, 20.02), (2.40, 15.48), (2.45, 11.77)
+  T_peak = 2.3489 +- 0.0049  (jackknife, 20 blocks)
+
+L = 64:
+  largest window chi: 65.61 at T = 2.30
+  5-point quadratic fit (T, chi): (2.20, 4.48), (2.25, 33.97), (2.30, 65.61), (2.35, 40.96), (2.40, 19.72)
+  T_peak = 2.3083 +- 0.0034  (jackknife, 20 blocks)
+
+T_c = 2 * T_peak(64) - T_peak(32) = 2.2677 +- 0.0084
+Onsager exact T_c = 2.2692
+
+mean |M| at the lowest temperature (coarse runs, T = 1.5):
+  L = 32: |M| = 0.9865 +- 0.0001 at T = 1.50
+  L = 64: |M| = 0.9865 +- 0.0001 at T = 1.50
