@@ -149,4 +149,28 @@ mod tests {
         assert_eq!(lat.neighbour_sum(0), 2);
         assert_eq!(lat.delta_e(0), 4.0); // 2 * s_i * (1+1+1-1)
     }
+
+    #[test]
+    fn neighbours_are_exactly_the_four_orthogonal_sites() {
+        // Corner (0,0) of a 3x3 lattice: right (1,0)=1, left wraps to
+        // (2,0)=2, down (0,1)=3, up wraps to (0,2)=6.
+        let lat = Lattice::all_up(3);
+        let mut n = lat.neighbours(0);
+        n.sort();
+        assert_eq!(n, [1, 2, 3, 6]);
+    }
+
+    #[test]
+    fn neighbour_spins_match_neighbour_sum_for_every_site() {
+        // On a mixed lattice, the spins at neighbours(i) must sum exactly
+        // to neighbour_sum(i) for every site: same four sites.
+        let mut lat = Lattice::all_up(6);
+        for i in (0..36).step_by(3) {
+            lat.flip(i);
+        }
+        for i in 0..36 {
+            let sum: i8 = lat.neighbours(i).iter().map(|&j| lat.get(j)).sum();
+            assert_eq!(sum, lat.neighbour_sum(i), "site {i}");
+        }
+    }
 }

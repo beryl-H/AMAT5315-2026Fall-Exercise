@@ -110,7 +110,30 @@ mod tests {
     }
 
     #[test]
-    fn two_temperature_grid_runs_and_stays_bounded() {
+    fn wolff_energy_at_t_c_matches_onsager() {
+        // Exact anchor: at Tc the Onsager internal energy is E/site =
+        // -sqrt(2) = -1.414214 for J = 1, independent of lattice size.
+        // A kernel with the wrong neighbour geometry cannot reproduce it.
+        let mut rng = rand::rngs::StdRng::seed_from_u64(2026);
+        let mut lat = Lattice::all_up(32);
+        let t = 2.0 / (1.0f64 + 2.0f64.sqrt()).ln();
+        for _ in 0..20000 {
+            cluster_flip(&mut lat, &mut rng, t);
+        }
+        let mut total_e = 0.0;
+        for _ in 0..20000 {
+            cluster_flip(&mut lat, &mut rng, t);
+            total_e += lat.energy_per_site();
+        }
+        let mean_e = total_e / 20000.0;
+        assert!(
+            (mean_e + 2.0f64.sqrt()).abs() < 0.02,
+            "wolff E/site at Tc = {mean_e:.6}, expected -1.414214"
+        );
+    }
+
+    #[test]
+    fn wolff_two_temperature_grid_runs_and_stays_bounded() {
         // Statistical smoke test: wolff ramp on 8x8 over a wide T range.
         let mut rng = rand::rngs::StdRng::seed_from_u64(2026);
         let results = crate::ramp::run_ramp(
