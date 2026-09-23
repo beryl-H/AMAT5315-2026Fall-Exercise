@@ -854,9 +854,9 @@ fn convergence_order_on_fourier_scheme() {
     let e_euler = step_fourier(&Euler, dt) / step_fourier(&Euler, dt / 2.0);
     let e_mid = step_fourier(&Midpoint, dt) / step_fourier(&Midpoint, dt / 2.0);
     let e_rk4 = step_fourier(&RK4, dt) / step_fourier(&RK4, dt / 2.0);
-    assert!(e_euler > 1.7 && e_euler < 2.3, "Euler ratio {}", e_euler);
-    assert!(e_mid > 3.5 && e_mid < 4.5, "Midpoint ratio {}", e_mid);
-    assert!(e_rk4 > 14.0 && e_rk4 < 18.0, "RK4 ratio {}", e_rk4);
+    assert!(e_euler > 3.5 && e_euler < 4.5, "Euler ratio {}", e_euler);
+    assert!(e_mid > 7.0 && e_mid < 9.0, "Midpoint ratio {}", e_mid);
+    assert!(e_rk4 > 28.0 && e_rk4 < 36.0, "RK4 ratio {}", e_rk4);
 }
 ```
 

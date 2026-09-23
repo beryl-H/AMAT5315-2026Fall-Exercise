@@ -138,9 +138,10 @@ Parameters unless stated: `n = 32`, `c = 1.0`, `nu = 0.1`, `k0 = 2`,
    with `|lambda| dt ~ 0.1`, these bounds sit roughly one and three orders
    above the expected local errors.
 4. **Convergence order** (all 3 integrators on the Fourier scheme, complex
-   one-step errors at `dt` and `dt/2`): error ratio must fall in
-   Euler (1.7, 2.3), Midpoint (3.5, 4.5), RK4 (14, 18) — a wrong-order
-   implementation cannot pass.
+   one-step errors at `dt` and `dt/2`): a one-step error is the **local**
+   truncation error, scaling `dt^(p+1)`, so halving `dt` must shrink it by
+   `2^(p+1)`. Error ratio must fall in Euler (3.5, 4.5), Midpoint (7, 9),
+   RK4 (28, 36) — a wrong-order implementation cannot pass.
 
 ## Verification
 
