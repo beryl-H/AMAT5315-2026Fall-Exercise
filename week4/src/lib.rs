@@ -5,5 +5,5 @@
 pub mod integrators;
 pub mod scalar;
 
-pub use integrators::{Euler, Integrator};
+pub use integrators::{Euler, Integrator, Midpoint};
 pub use scalar::Scalar;

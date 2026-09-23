@@ -27,3 +27,22 @@ impl Integrator for Euler {
         y.iter().zip(k1).map(|(yi, k1i)| *yi + k1i * dt).collect()
     }
 }
+/// Explicit midpoint (RK2): k1 = f(y); y + dt * f(y + dt/2 k1).
+pub struct Midpoint;
+
+impl Integrator for Midpoint {
+    fn step<F, S>(&self, f: F, dt: f64, y: &[S]) -> Vec<S>
+    where
+        F: Fn(&[S]) -> Vec<S>,
+        S: Scalar,
+    {
+        let k1 = f(y);
+        let y_mid: Vec<S> = y
+            .iter()
+            .zip(k1)
+            .map(|(yi, k1i)| *yi + k1i * (dt / 2.0))
+            .collect();
+        let k2 = f(&y_mid);
+        y.iter().zip(k2).map(|(yi, k2i)| *yi + k2i * dt).collect()
+    }
+}
