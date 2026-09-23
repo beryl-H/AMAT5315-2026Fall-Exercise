@@ -79,10 +79,11 @@ fn nyquist_mode_does_not_travel_only_diffuses() {
     let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
     u_hat[nyq] = Complex::new(1.5, -0.5);
     let r = scheme.rate(&u_hat);
-    // No advective (imaginary) part: exactly -nu (n/2)^2 * u_hat.
-    assert_eq!(r[nyq].im, 0.0, "Nyquist mode must not travel");
-    let expected_re = -scheme.nu * (nyq as f64) * (nyq as f64) * u_hat[nyq].re;
-    assert!((r[nyq].re - expected_re).abs() < 1e-12);
+    // Exactly -nu (n/2)^2 * u_hat: a real damping coefficient, no advective
+    // (i c k) term. A defect that lets the mode travel changes the complex
+    // product and fails this comparison.
+    let expected = Complex::new(-scheme.nu * (nyq as f64) * (nyq as f64), 0.0) * u_hat[nyq];
+    assert_eq!(r[nyq], expected, "Nyquist mode must not travel");
 }
 
 #[test]
