@@ -26,6 +26,16 @@ fn midpoint_one_step_matches_exact_polynomial() {
     assert!((y[0] - expected).abs() < 1e-12, "got {}, want {}", y[0], expected);
 }
 
+use advdiff::RK4;
+
+#[test]
+fn rk4_one_step_matches_exact_polynomial() {
+    let dt = 0.1_f64;
+    let y = RK4.step(decay, dt, &[1.0]);
+    let expected = 1.0 - dt + dt * dt / 2.0 - dt.powi(3) / 6.0 + dt.powi(4) / 24.0;
+    assert!((y[0] - expected).abs() < 1e-12, "got {}, want {}", y[0], expected);
+}
+
 #[test]
 fn euler_works_for_complex_state() {
     let y = Euler.step(
