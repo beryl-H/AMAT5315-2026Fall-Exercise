@@ -36,6 +36,75 @@ fn rk4_one_step_matches_exact_polynomial() {
     assert!((y[0] - expected).abs() < 1e-12, "got {}, want {}", y[0], expected);
 }
 
+use advdiff::{dft, FourierAdvDiff, idft};
+
+fn fourier_scheme() -> FourierAdvDiff {
+    FourierAdvDiff { c: 1.0, nu: 0.1, n: 32 }
+}
+
+#[test]
+fn fourier_derivative_of_constant_field_is_zero() {
+    let scheme = fourier_scheme();
+    // Constant field: only the k = 0 mode is excited; i * 0 = 0.
+    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
+    u_hat[0] = Complex::new(3.7, 0.0);
+    assert!(scheme.derivative(&u_hat).iter().all(|&d| d == Complex::new(0.0, 0.0)));
+}
+
+#[test]
+fn fourier_derivative_of_single_mode_is_ik() {
+    let scheme = fourier_scheme();
+    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
+    u_hat[2] = Complex::new(1.0, 0.0);
+    let d = scheme.derivative(&u_hat);
+    // d/dx e^{i k x} = i k e^{i k x}, k = 2
+    assert!((d[2] - Complex::new(0.0, 2.0)).norm() < 1e-14);
+    assert!(d.iter().enumerate().all(|(j, &v)| j == 2 || v.norm() < 1e-14));
+}
+
+#[test]
+fn fourier_rate_of_single_mode_is_neg_ick_neg_nu_k2() {
+    let scheme = fourier_scheme();
+    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
+    u_hat[2] = Complex::new(1.0, 0.0);
+    let r = scheme.rate(&u_hat);
+    // (-i c k - nu k^2) u = (-2i - 0.4) at k = 2
+    assert!((r[2] - Complex::new(-0.4, -2.0)).norm() < 1e-14);
+}
+
+#[test]
+fn nyquist_mode_does_not_travel_only_diffuses() {
+    let scheme = fourier_scheme(); // n = 32, Nyquist index 16
+    let nyq = scheme.n / 2;
+    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
+    u_hat[nyq] = Complex::new(1.5, -0.5);
+    let r = scheme.rate(&u_hat);
+    // No advective (imaginary) part: exactly -nu (n/2)^2 * u_hat.
+    assert_eq!(r[nyq].im, 0.0, "Nyquist mode must not travel");
+    let expected_re = -scheme.nu * (nyq as f64) * (nyq as f64) * u_hat[nyq].re;
+    assert!((r[nyq].re - expected_re).abs() < 1e-12);
+}
+
+#[test]
+fn dft_idft_round_trip_recovers_sine() {
+    let n = 32usize;
+    let k0 = 2.0_f64;
+    let u: Vec<f64> = (0..n)
+        .map(|j| {
+            let x = std::f64::consts::TAU * j as f64 / n as f64;
+            (k0 * x).sin()
+        })
+        .collect();
+    let u_hat = dft(&u);
+    // sin(k0 x) = (e^{i k0 x} - e^{-i k0 x}) / (2i): u_hat[k0] = -i/2, u_hat[n - k0] = i/2
+    assert!((u_hat[2] - Complex::new(0.0, -0.5)).norm() < 1e-12);
+    assert!((u_hat[30] - Complex::new(0.0, 0.5)).norm() < 1e-12);
+    let back = idft(&u_hat);
+    for (a, b) in back.iter().zip(&u) {
+        assert!((a - b).abs() < 1e-12, "round trip mismatch {} vs {}", a, b);
+    }
+}
+
 #[test]
 fn euler_works_for_complex_state() {
     let y = Euler.step(
