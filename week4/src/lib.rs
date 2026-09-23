@@ -6,8 +6,10 @@ pub mod fd;
 pub mod fourier;
 pub mod integrators;
 pub mod scalar;
+pub mod stepper;
 
 pub use fd::CentredFD;
 pub use fourier::{dft, idft, FourierAdvDiff};
 pub use integrators::{Euler, Integrator, Midpoint, RK4};
 pub use scalar::Scalar;
+pub use stepper::advance;

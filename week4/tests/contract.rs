@@ -313,7 +313,8 @@ fn advance_works_for_complex_state() {
         &[Complex::new(1.0, 0.0)],
     );
     assert_eq!(history.len(), 2);
-    assert!((history[1].1[0] - Complex::new(0.9, 0.0)).norm() < 1e-12);
+    assert!((history[0].1[0] - Complex::new(0.9, 0.0)).norm() < 1e-12);
+    assert!((history[1].1[0] - Complex::new(0.81, 0.0)).norm() < 1e-12);
 }
 
 #[test]
