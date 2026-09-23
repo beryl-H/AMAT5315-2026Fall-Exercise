@@ -153,7 +153,7 @@ fn linear_rate_advances_toward_the_exact_exponential() {
     let final_state = advance(
         &RK4,
         |s| advdiff_rate(n, cx, cy, nu, s),
-        0.01,
+        0.001, // fine steps: RK4 error ~5e-12, far below the 1e-10 bound
         1.0,
         &u_hat0,
     )
@@ -188,3 +188,4 @@ fn taylor_green_generator_matches_its_formula() {
         }
     }
 }
+
