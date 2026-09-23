@@ -59,6 +59,9 @@ mod tests {
             0.1,
             &[Complex::new(2.0, -1.0)],
         );
-        assert!((history[1].1[0] - Complex::new(1.9, -0.95)).norm() < 1e-12);
+        assert_eq!(history.len(), 2);
+        // Two Euler steps of 0.05 on y' = -y: factor (1 - 0.05) each step.
+        assert!((history[0].1[0] - Complex::new(1.9, -0.95)).norm() < 1e-12);
+        assert!((history[1].1[0] - Complex::new(1.805, -0.9025)).norm() < 1e-12);
     }
 }
