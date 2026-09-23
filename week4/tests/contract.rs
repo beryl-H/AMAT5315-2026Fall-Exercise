@@ -280,6 +280,42 @@ fn convergence_order_on_fourier_scheme() {
     assert!(e_rk4 > 28.0 && e_rk4 < 36.0, "RK4 ratio {}", e_rk4);
 }
 
+// --- Step driver ------------------------------------------------------------
+use advdiff::advance;
+
+#[test]
+fn advance_lands_on_t_final_with_full_plus_partial_steps() {
+    let history = advance(&Euler, decay, 0.3_f64, 1.0, &[1.0]);
+    let times: Vec<f64> = history.iter().map(|(t, _)| *t).collect();
+    let expected = [0.3, 0.6, 0.9, 1.0];
+    assert_eq!(times.len(), expected.len());
+    for (i, &t) in times.iter().enumerate() {
+        assert!((t - expected[i]).abs() < 1e-12, "times[{}] = {}", i, t);
+    }
+    assert_eq!(*times.last().expect("non-empty"), 1.0);
+}
+
+#[test]
+fn advance_with_dt_beyond_t_final_takes_one_short_step() {
+    let history = advance(&Euler, decay, 2.0, 0.5, &[1.0]);
+    assert_eq!(history.len(), 1);
+    assert_eq!(history[0].0, 0.5);
+    assert!((history[0].1[0] - (1.0 - 0.5)).abs() < 1e-12);
+}
+
+#[test]
+fn advance_works_for_complex_state() {
+    let history = advance(
+        &Euler,
+        |s: &[Complex<f64>]| s.iter().map(|v| -*v).collect(),
+        0.1,
+        0.2,
+        &[Complex::new(1.0, 0.0)],
+    );
+    assert_eq!(history.len(), 2);
+    assert!((history[1].1[0] - Complex::new(0.9, 0.0)).norm() < 1e-12);
+}
+
 #[test]
 fn euler_works_for_complex_state() {
     let y = Euler.step(

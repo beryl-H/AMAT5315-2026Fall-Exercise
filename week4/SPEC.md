@@ -55,6 +55,20 @@ Three unit structs implement it:
 - `Midpoint` — explicit midpoint (RK2): `k1 = f(y)`, `y + dt * f(y + dt/2 * k1)`
 - `RK4` — classical: `k1..k4` with weights `1/6, 1/3, 1/3, 1/6`
 
+### Step driver (`src/stepper.rs`)
+
+```rust
+pub fn advance<I, F, S>(
+    integrator: &I, f: F, dt: f64, t_final: f64, y0: &[S],
+) -> Vec<(f64, Vec<S>)>
+where
+    I: Integrator, F: Fn(&[S]) -> Vec<S>, S: Scalar;
+```
+
+Takes full steps of `dt` from t = 0 plus one shorter final step so the
+final time is hit exactly; returns `(t, state)` after every step. Works for
+any `Integrator` and any `Scalar` state (real or complex).
+
 No other stepping helper; callers loop `step` as needed.
 
 ### Fourier rate function (`src/fourier.rs`)
