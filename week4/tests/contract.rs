@@ -317,6 +317,28 @@ fn advance_works_for_complex_state() {
     assert!((history[1].1[0] - Complex::new(0.81, 0.0)).norm() < 1e-12);
 }
 
+use advdiff::RK4Equal;
+
+#[test]
+fn rk4_equal_weights_one_step_hand_computed() {
+    // Stages of dy/dt = -y from y0 = 1, dt = 0.1:
+    //   k1 = -1, k2 = -0.95, k3 = -0.9525, k4 = -0.90475
+    // y1 = 1 + dt/4 (k1+k2+k3+k4) = 0.90481875
+    let y = RK4Equal.step(decay, 0.1, &[1.0]);
+    assert!((y[0] - 0.90481875).abs() < 1e-14, "got {}", y[0]);
+}
+
+#[test]
+fn rk4_equal_weights_converges_at_second_order_one_step() {
+    // Local error O(dt^3): halving dt shrinks the one-step error by ~8.
+    let e = |dt: f64| {
+        let y = RK4Equal.step(decay, dt, &[1.0]);
+        (y[0] - (-dt).exp()).abs()
+    };
+    let ratio = e(0.02) / e(0.01);
+    assert!(ratio > 7.0 && ratio < 9.0, "ratio {}", ratio);
+}
+
 #[test]
 fn euler_works_for_complex_state() {
     let y = Euler.step(
