@@ -106,6 +106,179 @@ fn dft_idft_round_trip_recovers_sine() {
     }
 }
 
+use advdiff::CentredFD;
+use std::f64::consts::TAU;
+
+fn fd_scheme() -> CentredFD {
+    CentredFD { c: 1.0, nu: 0.1, n: 32 }
+}
+
+/// Grid values of cos(k0 x), k0 = 2.
+fn cos_wave(n: usize, k0: f64) -> Vec<f64> {
+    (0..n)
+        .map(|j| {
+            let x = TAU * j as f64 / n as f64;
+            (k0 * x).cos()
+        })
+        .collect()
+}
+
+#[test]
+fn fd_derivative_of_constant_field_is_zero() {
+    let scheme = fd_scheme();
+    let u = vec![3.7; scheme.n];
+    assert!(scheme.derivative(&u).iter().all(|&d| d == 0.0));
+    assert!(scheme.rate(&u).iter().all(|&r| r.abs() < 1e-15));
+}
+
+#[test]
+fn fd_derivative_of_single_mode_matches_modified_wavenumber() {
+    let scheme = fd_scheme();
+    let h = TAU / scheme.n as f64;
+    let k0 = 2.0_f64;
+    let u = cos_wave(scheme.n, k0);
+    let d = scheme.derivative(&u);
+    // D cos(k0 x_j) = -(sin(k0 h)/h) sin(k0 x_j) exactly for centred differences.
+    for (j, &dj) in d.iter().enumerate() {
+        let x = TAU * j as f64 / scheme.n as f64;
+        let expected = -(k0 * h).sin() / h * (k0 * x).sin();
+        assert!((dj - expected).abs() < 1e-12, "j = {}: {} vs {}", j, dj, expected);
+    }
+}
+
+#[test]
+fn fd_rate_matches_modified_wavenumber_eigenvalues() {
+    let scheme = fd_scheme();
+    let h = TAU / scheme.n as f64;
+    let k0 = 2.0_f64;
+    let amp = 1.3;
+    let mut u = cos_wave(scheme.n, k0);
+    for v in u.iter_mut() {
+        *v *= amp;
+    }
+    let r = scheme.rate(&u);
+    // Advective eigenvalue -i c sin(k0 h)/h, diffusive -4 nu sin^2(k0 h/2)/h^2.
+    let gamma = -4.0 * scheme.nu * (0.5 * k0 * h).sin().powi(2) / (h * h);
+    let omega = scheme.c * (k0 * h).sin() / h;
+    for (j, &rj) in r.iter().enumerate() {
+        let x = TAU * j as f64 / scheme.n as f64;
+        let expected = amp * (gamma * (k0 * x).cos() + omega * (k0 * x).sin());
+        assert!((rj - expected).abs() < 1e-12, "j = {}: {} vs {}", j, rj, expected);
+    }
+}
+
+/// Max abs difference between two vectors.
+fn max_err(a: &[f64], b: &[f64]) -> f64 {
+    a.iter().zip(b).map(|(x, y)| (x - y).abs()).fold(0.0, f64::max)
+}
+
+/// Max abs difference between two complex vectors.
+fn max_err_c(a: &[Complex<f64>], b: &[Complex<f64>]) -> f64 {
+    a.iter().zip(b).map(|(x, y)| (x - y).norm()).fold(0.0, f64::max)
+}
+
+/// Initial spectrum of sin(k0 x): u_hat[k0] = -i/2, u_hat[n - k0] = i/2.
+fn sine_spectrum(n: usize, k0: usize) -> Vec<Complex<f64>> {
+    let mut u_hat = vec![Complex::new(0.0, 0.0); n];
+    u_hat[k0] = Complex::new(0.0, -0.5);
+    u_hat[n - k0] = Complex::new(0.0, 0.5);
+    u_hat
+}
+
+/// Exact one-step reference for the Fourier scheme: each mode grows by
+/// exp((-i c k - nu k^2) dt) (single wave, spatially exact).
+fn fourier_reference(scheme: &FourierAdvDiff, u_hat: &[Complex<f64>], dt: f64) -> Vec<Complex<f64>> {
+    u_hat.iter()
+        .enumerate()
+        .map(|(j, &u)| {
+            let k = scheme.wavenumber(j);
+            let lambda = Complex::new(-scheme.nu * k * k, -scheme.c * k);
+            u * (lambda * dt).exp()
+        })
+        .collect()
+}
+
+/// Grid values of sin(k0 x).
+fn sine_wave(n: usize, k0: f64) -> Vec<f64> {
+    (0..n)
+        .map(|j| {
+            let x = TAU * j as f64 / n as f64;
+            (k0 * x).sin()
+        })
+        .collect()
+}
+
+/// Exact one-step reference for the centred-difference scheme: the
+/// semi-discrete single wave travels with modified speed c sin(k0 h)/h and
+/// decays at rate 4 nu sin^2(k0 h/2)/h^2.
+fn fd_reference(scheme: &CentredFD, dt: f64, k0: f64) -> Vec<f64> {
+    let h = TAU / scheme.n as f64;
+    let damp = (-4.0 * scheme.nu * (0.5 * k0 * h).sin().powi(2) * dt / (h * h)).exp();
+    let speed = scheme.c * (k0 * h).sin() / h;
+    (0..scheme.n)
+        .map(|j| {
+            let x = TAU * j as f64 / scheme.n as f64;
+            damp * (k0 * x - speed * dt).sin()
+        })
+        .collect()
+}
+
+fn step_fourier<I: Integrator>(int: &I, dt: f64) -> f64 {
+    let scheme = fourier_scheme();
+    let u_hat = sine_spectrum(scheme.n, 2);
+    let y1 = int.step(|s| scheme.rate(s), dt, &u_hat);
+    max_err_c(&y1, &fourier_reference(&scheme, &u_hat, dt))
+}
+
+fn step_fd<I: Integrator>(int: &I, dt: f64) -> f64 {
+    let scheme = fd_scheme();
+    let u = sine_wave(scheme.n, 2.0);
+    let y1 = int.step(|s| scheme.rate(s), dt, &u);
+    max_err(&y1, &fd_reference(&scheme, dt, 2.0))
+}
+
+#[test]
+fn one_step_fourier_euler_within_bound() {
+    assert!(step_fourier(&Euler, 0.05) < 1e-2);
+}
+
+#[test]
+fn one_step_fourier_midpoint_within_bound() {
+    assert!(step_fourier(&Midpoint, 0.05) < 1e-3);
+}
+
+#[test]
+fn one_step_fourier_rk4_within_bound() {
+    assert!(step_fourier(&RK4, 0.05) < 1e-6);
+}
+
+#[test]
+fn one_step_fd_euler_within_bound() {
+    assert!(step_fd(&Euler, 0.05) < 1e-2);
+}
+
+#[test]
+fn one_step_fd_midpoint_within_bound() {
+    assert!(step_fd(&Midpoint, 0.05) < 1e-3);
+}
+
+#[test]
+fn one_step_fd_rk4_within_bound() {
+    assert!(step_fd(&RK4, 0.05) < 1e-6);
+}
+
+/// One-step error must shrink at the method's order when dt halves.
+#[test]
+fn convergence_order_on_fourier_scheme() {
+    let dt = 0.05_f64;
+    let e_euler = step_fourier(&Euler, dt) / step_fourier(&Euler, dt / 2.0);
+    let e_mid = step_fourier(&Midpoint, dt) / step_fourier(&Midpoint, dt / 2.0);
+    let e_rk4 = step_fourier(&RK4, dt) / step_fourier(&RK4, dt / 2.0);
+    assert!(e_euler > 1.7 && e_euler < 2.3, "Euler ratio {}", e_euler);
+    assert!(e_mid > 3.5 && e_mid < 4.5, "Midpoint ratio {}", e_mid);
+    assert!(e_rk4 > 14.0 && e_rk4 < 18.0, "RK4 ratio {}", e_rk4);
+}
+
 #[test]
 fn euler_works_for_complex_state() {
     let y = Euler.step(
