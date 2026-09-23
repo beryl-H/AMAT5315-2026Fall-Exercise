@@ -5,10 +5,12 @@ A complex n*n spectral state on the periodic [0, 2pi)^2 grid; Fourier
 derivatives per axis; the two-thirds rule applied to the field itself and to
 every product; row-column DFTs; and any rate function advanced by the shared
 Integrator trait. The library also provides the initial-condition generators
-(single mode, Taylor-Green vortex) consumed by fluid. The field binary itself
-is the verification helper: it integrates linear two-dimensional
-advection-diffusion of a single Fourier mode, whose exact solution is
-exp((-i (cx kx + cy ky) - nu (kx^2 + ky^2)) t), and writes the max abs error."""
+(Hermitian single mode, Taylor-Green vortex) consumed by fluid. The field
+binary itself is the verification helper: it integrates linear
+two-dimensional advection-diffusion of a single Hermitian Fourier mode
+(physical field 2 cos(kx x + ky y) at t = 0), whose exact solution is the
+same pair scaled by exp((-i (cx kx + cy ky) - nu (kx^2 + ky^2)) t), and
+writes the max abs spectral error."""
 
 [library]
 state = """vec<complex<f64>> of length n*n, row-major: index j*n + i;
@@ -24,7 +26,12 @@ index (n even, x-index = n/2) has zero d/dx coefficient while its d/dy
 coefficient follows its y wavenumber, and symmetrically for the y-Nyquist
 index in d/dy"""
 
-derivatives = "d/dx multiplies by i kx, d/dy by i ky, laplacian by -(kx^2 + ky^2)"
+derivatives = """d/dx multiplies by i kx, d/dy by i ky, laplacian by
+-(kx^2 + ky^2); the no-travel rule applies to the FIRST derivatives
+independently per axis (d/dx zero at the x-Nyquist index, d/dy zero at the
+y-Nyquist index); the laplacian is not a travel operator and keeps the full
+kappa^2 (moot in practice: the two-thirds rule never leaves content on a
+Nyquist index)"""
 
 dealias = """two-thirds rule: zero every mode with |kx| > floor(n/3) or
 |ky| > floor(n/3); applied to the field itself and after every product
@@ -61,5 +68,6 @@ method, dt, steps, max abs error against the exact single-mode solution"""
 
 "<out>/run.json" = "n, kx, ky, cx, cy, method, nu, t_final, dt, steps"
 
-"<out>/final.json" = """t, the final field in physical space as n*n numbers
-(row-major), and max abs error"""
+"<out>/final.json" = """t, the final physical field as n*n numbers
+(row-major, real part; the Hermitian state makes it real), and max abs
+spectral error"""
