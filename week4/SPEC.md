@@ -2,6 +2,14 @@
 
 Crate: `advdiff` (library, edition 2021, Rust 1.75). Dependency: `num-complex = "0.4"`.
 
+## Scope
+
+This SPEC describes a **numerical-method foundation crate**: one `Integrator`
+trait with three explicit one-step methods, two rate functions for the
+periodic advection–diffusion equation, and their tests. It is **not** the
+complete fluid model; it is the building block a later fluid solver would be
+built on. Nothing here solves a coupled or nonlinear fluid problem.
+
 ## Problem
 
 Solve $u_t + c\,u_x = \nu\,u_{xx}$ on a periodic $[0, 2\pi)$ grid of $n$ points,
@@ -20,6 +28,15 @@ pub trait Scalar: Copy + Add<Output = Self> + Sub<Output = Self> + Mul<f64, Outp
 
 Implemented for `f64` and `num_complex::Complex<f64>`. All integrator arithmetic
 goes through this trait, so one trait serves both real and complex state vectors.
+
+**Scaling convention:** integrators never multiply two state or rate elements
+together. The only arithmetic they perform is element-wise addition and
+subtraction of vectors, and scaling a vector by a **real** `f64` step-size
+coefficient (`dt`, `dt/2`, `1/6`, `1/3`), always written with the state on
+the left: `y * a` — that is exactly the `Mul<f64, Output = Self>` bound above.
+Complex multiplication appears only inside rate functions, never inside an
+integrator, so `Euler`, `Midpoint`, and `RK4` are agnostic to whether `S` is
+`f64` or `Complex<f64>`.
 
 ### Integrator trait (`src/integrators.rs`)
 
@@ -50,13 +67,23 @@ impl FourierAdvDiff {
 }
 ```
 
-State: spectral coefficients `u_hat[k]`, `k = 0..n`. Wavenumbers
-`k_j = j` for `j < n/2`, `k_j = j - n` for `j > n/2`, and the Nyquist mode
-`j = n/2` has wavenumber treated as `k = n/2` **with first-derivative
-coefficient forced to zero** — the Nyquist mode does not travel; only its
-diffusion acts (`rate` for that mode is `-nu * (n/2)^2 * u_hat[n/2]`).
+State: spectral coefficients `u_hat`, a slice of length `n` indexed
+`0..n-1`, where `u_hat[j]` multiplies `e^{i k_j x}` on the grid
+`x_m = 2 pi m / n`, `m = 0..n-1`. Wavenumber by index:
 
-Rate: `du_hat[k]/dt = (-i c k - nu k^2) u_hat[k]`, except Nyquist as above.
+- `k_j = j` for `0 <= j < n/2`;
+- for even `n`, index `j = n/2` is the **Nyquist index**: wavenumber
+  magnitude `n/2`, with its first-derivative coefficient forced to zero —
+  the Nyquist mode does not travel; only its diffusion acts (`rate` for that
+  mode is `-nu * (n/2)^2 * u_hat[n/2]`);
+- `k_j = j - n` for `n/2 < j <= n-1`.
+
+For odd `n` there is no Nyquist index and the split is `k_j = j` for
+`j <= (n-1)/2`, `k_j = j - n` otherwise. This week's tests and scripts use
+even `n`.
+
+Rate: `du_hat[k]/dt = (-i c k - nu k^2) u_hat[k]`, except the Nyquist index
+as above.
 
 Also `fn dft(u: &[f64]) -> Vec<Complex<f64>>` and
 `fn idft(u_hat: &[Complex<f64>]) -> Vec<f64>` (plain O(n^2), conventions
@@ -98,9 +125,10 @@ Parameters unless stated: `n = 32`, `c = 1.0`, `nu = 0.1`, `k0 = 2`,
    field is zero; Fourier derivative of a single mode equals
    `(-i c k0 - nu k0^2) u_hat` applied mode-wise; FD derivative of a single
    mode equals the modified-wavenumber eigenvalues above.
-2. **Nyquist rule** (Fourier scheme): with only the `k = n/2` mode excited,
-   `rate[n/2]` must equal `-nu (n/2)^2 u_hat[n/2]` exactly — no advective
-   (imaginary) part. A defect that lets the Nyquist mode travel must fail this.
+2. **Nyquist rule** (Fourier scheme): with only the Nyquist index `j = n/2`
+   excited, `rate[n/2]` must equal `-nu (n/2)^2 u_hat[n/2]` exactly — no
+   advective (imaginary) part. A defect that lets the Nyquist mode travel
+   must fail this.
 3. **One-step accuracy, all 3 integrators x both rate functions** (6 cases):
    after one `step` from the initial condition, the state must match the
    corresponding exact reference within:
