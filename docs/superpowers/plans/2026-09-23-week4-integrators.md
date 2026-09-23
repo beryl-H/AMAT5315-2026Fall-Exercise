@@ -17,7 +17,8 @@
 - Integrators perform only element-wise add/subtract and real scaling written `y * a` (`Mul<f64, Output = Self>`); no state element multiplication inside integrators (spec: Scaling convention).
 - Spectral state has length `n`, indices `0..n-1`; for even `n` the Nyquist index is `j = n/2`, wavenumber magnitude `n/2`, first-derivative coefficient zero (spec: Fourier state indexing).
 - Verification command: `cargo test` run from `week4/`; output must be green and warning-free.
-- Commit style follows repo history: `test: ... (red)` then `feat: ... (green)`; every test is watched failing before its implementation is written.
+- History order is strict for every task: SPEC → failing test (RED commit) → implementation → passing test (GREEN commit). No implementation is written before its test has been watched failing. In Rust a compile failure on an unresolved (not-yet-existing) API is the expected RED for a missing feature.
+- Commit style follows repo history: `test: ... (red)` then `feat: ... (green)`.
 - Any run/comparison/plot script goes in `week4/scripts/` and is run from there.
 
 ---
@@ -461,6 +462,15 @@ fn fourier_scheme() -> FourierAdvDiff {
 }
 
 #[test]
+fn fourier_derivative_of_constant_field_is_zero() {
+    let scheme = fourier_scheme();
+    // Constant field: only the k = 0 mode is excited; i * 0 = 0.
+    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
+    u_hat[0] = Complex::new(3.7, 0.0);
+    assert!(scheme.derivative(&u_hat).iter().all(|&d| d == Complex::new(0.0, 0.0)));
+}
+
+#[test]
 fn fourier_derivative_of_single_mode_is_ik() {
     let scheme = fourier_scheme();
     let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
@@ -469,15 +479,6 @@ fn fourier_derivative_of_single_mode_is_ik() {
     // d/dx e^{i k x} = i k e^{i k x}, k = 2
     assert!((d[2] - Complex::new(0.0, 2.0)).norm() < 1e-14);
     assert!(d.iter().enumerate().all(|(j, &v)| j == 2 || v.norm() < 1e-14));
-}
-
-#[test]
-fn fourier_derivative_of_constant_field_is_zero() {
-    let scheme = fourier_scheme();
-    // Constant field: only the k = 0 mode is excited; i * 0 = 0.
-    let mut u_hat = vec![Complex::new(0.0, 0.0); scheme.n];
-    u_hat[0] = Complex::new(3.7, 0.0);
-    assert!(scheme.derivative(&u_hat).iter().all(|&d| d == Complex::new(0.0, 0.0)));
 }
 
 #[test]
@@ -667,24 +668,18 @@ git add week4/src/fourier.rs week4/src/lib.rs
 git commit -m "feat: implement Fourier advection-diffusion rate with zeroed Nyquist derivative (green)"
 ```
 
-### Task 6: Centred finite-difference rate function
+### Task 6: Remaining tests — FD unit tests, exact single-wave acceptance, convergence order (all RED)
 
 **Files:**
-- Create: `week4/src/fd.rs`
-- Modify: `week4/src/lib.rs`
 - Test: `week4/tests/contract.rs`
 
 **Interfaces:**
-- Consumes: nothing beyond `std`.
-- Produces:
-  - `struct CentredFD { pub c: f64, pub nu: f64, pub n: usize }`
-  - `fn derivative(&self, u: &[f64]) -> Vec<f64>` (periodic centred difference `(u_{j+1} - u_{j-1}) / (2h)`)
-  - `fn rate(&self, u: &[f64]) -> Vec<f64>` (`-c * derivative + nu * (u_{j+1} - 2 u_j + u_{j-1}) / h^2`)
-  - re-export `advdiff::CentredFD`.
+- Consumes: `Euler`, `Midpoint`, `RK4`, `Integrator`, `FourierAdvDiff`, `dft`, `idft` (already green from Tasks 1–5) and `advdiff::CentredFD`, which does not exist yet — the unresolved import is what makes every new test in this commit fail.
+- Produces: the complete contract test suite; nothing new in `src/`.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write the failing tests**
 
-Append to `week4/tests/contract.rs`:
+Append to `week4/tests/contract.rs` — first the centred-difference unit tests:
 
 ```rust
 use advdiff::CentredFD;
@@ -749,106 +744,7 @@ fn fd_rate_matches_modified_wavenumber_eigenvalues() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify RED**
-
-Run: `cargo test` from `week4/`.
-Expected: compile error — `CentredFD` unresolved.
-
-- [ ] **Step 3: Commit the failing test**
-
-```bash
-git add week4/tests/contract.rs
-git commit -m "test: add failing centred finite-difference rate tests (red)"
-```
-
-- [ ] **Step 4: Write minimal implementation**
-
-Create `week4/src/fd.rs`:
-
-```rust
-//! Centred finite differences for u_t + c u_x = nu u_xx on the periodic
-//! grid x_j = 2 pi j / n, j = 0..n-1, h = 2 pi / n.
-
-use std::f64::consts::TAU;
-
-pub struct CentredFD {
-    pub c: f64,
-    pub nu: f64,
-    pub n: usize,
-}
-
-impl CentredFD {
-    fn h(&self) -> f64 {
-        TAU / self.n as f64
-    }
-
-    /// Periodic centred first difference (u_{j+1} - u_{j-1}) / (2h).
-    pub fn derivative(&self, u: &[f64]) -> Vec<f64> {
-        assert_eq!(u.len(), self.n, "state length must equal n");
-        let h = self.h();
-        (0..self.n)
-            .map(|j| {
-                let up = u[(j + 1) % self.n];
-                let um = u[(j + self.n - 1) % self.n];
-                (up - um) / (2.0 * h)
-            })
-            .collect()
-    }
-
-    /// Rate of change: -c u_x + nu u_xx with centred periodic differences.
-    pub fn rate(&self, u: &[f64]) -> Vec<f64> {
-        assert_eq!(u.len(), self.n, "state length must equal n");
-        let h = self.h();
-        (0..self.n)
-            .map(|j| {
-                let up = u[(j + 1) % self.n];
-                let um = u[(j + self.n - 1) % self.n];
-                -self.c * (up - um) / (2.0 * h)
-                    + self.nu * (up - 2.0 * u[j] + um) / (h * h)
-            })
-            .collect()
-    }
-}
-```
-
-Modify `week4/src/lib.rs`:
-
-```rust
-pub mod fd;
-pub mod fourier;
-pub mod integrators;
-pub mod scalar;
-
-pub use fd::CentredFD;
-pub use fourier::{dft, idft, FourierAdvDiff};
-pub use integrators::{Euler, Integrator, Midpoint, RK4};
-pub use scalar::Scalar;
-```
-
-- [ ] **Step 5: Run tests to verify GREEN**
-
-Run: `cargo test` from `week4/`.
-Expected: all tests pass, no warnings.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add week4/src/fd.rs week4/src/lib.rs
-git commit -m "feat: implement centred finite-difference rate function (green)"
-```
-
-### Task 7: Exact single-wave acceptance tests and convergence order
-
-**Files:**
-- Test: `week4/tests/contract.rs`
-
-**Interfaces:**
-- Consumes: `Euler`, `Midpoint`, `RK4`, `Integrator`, `FourierAdvDiff`, `CentredFD`, `num_complex::Complex`.
-- Produces: nothing new; this task pins the spec's one-step accuracy bounds and convergence-order ratios.
-
-- [ ] **Step 1: Write the tests**
-
-Append to `week4/tests/contract.rs` (these exercise only already-implemented API, so they are acceptance tests: if any fails, a previous task's implementation is wrong — fix that, never the tolerance):
+Then the exact single-wave acceptance tests and the convergence-order test:
 
 ```rust
 /// Max abs difference between two vectors.
@@ -920,11 +816,7 @@ fn step_fd<I: Integrator>(int: &I, dt: f64) -> f64 {
     let y1 = int.step(|s| scheme.rate(s), dt, &u);
     max_err(&y1, &fd_reference(&scheme, dt, 2.0))
 }
-```
 
-Then the six accuracy tests and the convergence-order test:
-
-```rust
 #[test]
 fn one_step_fourier_euler_within_bound() {
     assert!(step_fourier(&Euler, 0.05) < 1e-2);
@@ -955,6 +847,7 @@ fn one_step_fd_rk4_within_bound() {
     assert!(step_fd(&RK4, 0.05) < 1e-6);
 }
 
+/// One-step error must shrink at the method's order when dt halves.
 #[test]
 fn convergence_order_on_fourier_scheme() {
     let dt = 0.05;
@@ -967,16 +860,106 @@ fn convergence_order_on_fourier_scheme() {
 }
 ```
 
+- [ ] **Step 2: Run tests to verify RED**
+
+Run: `cargo test` from `week4/`.
+Expected: compile error — `CentredFD` unresolved (feature missing). Every test in this commit depends on the not-yet-existing type, so the whole suite cannot compile.
+
+- [ ] **Step 3: Commit the failing tests**
+
+```bash
+git add week4/tests/contract.rs
+git commit -m "test: add failing centred-difference, single-wave acceptance, and convergence-order tests (red)"
+```
+
+### Task 7: Centred finite-difference rate function (GREEN for the whole suite)
+
+**Files:**
+- Create: `week4/src/fd.rs`
+- Modify: `week4/src/lib.rs`
+
+**Interfaces:**
+- Consumes: nothing beyond `std`.
+- Produces:
+  - `struct CentredFD { pub c: f64, pub nu: f64, pub n: usize }`
+  - `fn derivative(&self, u: &[f64]) -> Vec<f64>` (periodic centred difference `(u_{j+1} - u_{j-1}) / (2h)`)
+  - `fn rate(&self, u: &[f64]) -> Vec<f64>` (`-c * derivative + nu * (u_{j+1} - 2 u_j + u_{j-1}) / h^2`)
+  - re-export `advdiff::CentredFD`.
+
+- [ ] **Step 1: Write the implementation**
+
+Create `week4/src/fd.rs`:
+
+```rust
+//! Centred finite differences for u_t + c u_x = nu u_xx on the periodic
+//! grid x_j = 2 pi j / n, j = 0..n-1, h = 2 pi / n.
+
+use std::f64::consts::TAU;
+
+pub struct CentredFD {
+    pub c: f64,
+    pub nu: f64,
+    pub n: usize,
+}
+
+impl CentredFD {
+    fn h(&self) -> f64 {
+        TAU / self.n as f64
+    }
+
+    /// Periodic centred first difference (u_{j+1} - u_{j-1}) / (2h).
+    pub fn derivative(&self, u: &[f64]) -> Vec<f64> {
+        assert_eq!(u.len(), self.n, "state length must equal n");
+        let h = self.h();
+        (0..self.n)
+            .map(|j| {
+                let up = u[(j + 1) % self.n];
+                let um = u[(j + self.n - 1) % self.n];
+                (up - um) / (2.0 * h)
+            })
+            .collect()
+    }
+
+    /// Rate of change: -c u_x + nu u_xx with centred periodic differences.
+    pub fn rate(&self, u: &[f64]) -> Vec<f64> {
+        assert_eq!(u.len(), self.n, "state length must equal n");
+        let h = self.h();
+        (0..self.n)
+            .map(|j| {
+                let up = u[(j + 1) % self.n];
+                let um = u[(j + self.n - 1) % self.n];
+                -self.c * (up - um) / (2.0 * h)
+                    + self.nu * (up - 2.0 * u[j] + um) / (h * h)
+            })
+            .collect()
+    }
+}
+```
+
+Modify `week4/src/lib.rs`:
+
+```rust
+pub mod fd;
+pub mod fourier;
+pub mod integrators;
+pub mod scalar;
+
+pub use fd::CentredFD;
+pub use fourier::{dft, idft, FourierAdvDiff};
+pub use integrators::{Euler, Integrator, Midpoint, RK4};
+pub use scalar::Scalar;
+```
+
 - [ ] **Step 2: Run tests to verify GREEN**
 
 Run: `cargo test` from `week4/`.
-Expected: all tests pass (these are acceptance tests over green components; a failure here means an earlier task's implementation is wrong — fix that implementation, never the tolerance).
+Expected: all tests pass — the Task 6 RED tests turn green here, including the six one-step accuracy cases and the convergence-order test. No warnings.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add week4/tests/contract.rs
-git commit -m "test: add exact single-wave acceptance and convergence-order tests (green)"
+git add week4/src/fd.rs week4/src/lib.rs
+git commit -m "feat: implement centred finite-difference rate function (green)"
 ```
 
 ### Task 8: Negative controls (sabotage) and final verification
