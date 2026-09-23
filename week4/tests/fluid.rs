@@ -112,3 +112,21 @@ fn taylor_green_energy_and_enstrophy_match_the_analytic_values() {
     assert!((energy(n, &omega) - 0.25).abs() < 1e-12);
     assert!((enstrophy(n, &omega) - 0.5).abs() < 1e-12);
 }
+
+/// Measured inviscid energy drift (fluid.design.toml: the bound comes from
+/// measurement, not assumption). The verification run --nu 0 --n 32
+/// --dt 0.01 --t-final 0.5 (runs/inviscid-drift) showed a relative drift of
+/// exactly 0.0; the bound below sits at float-noise scale with margin.
+#[test]
+fn inviscid_energy_drift_stays_at_measured_bound() {
+    let n = 32;
+    let omega0 = taylor_green_spectral(n);
+    let e0 = energy(n, &omega0);
+    let final_state = advance(&RK4, |s| rate(n, 0.0, s), 0.01, 0.5, &omega0)
+        .last()
+        .expect("non-empty")
+        .1
+        .clone();
+    let drift = (energy(n, &final_state) - e0) / e0;
+    assert!(drift.abs() < 1e-14, "relative energy drift {}", drift);
+}
