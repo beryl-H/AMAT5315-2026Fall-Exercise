@@ -4,7 +4,9 @@ description = """two-dimensional spectral field machinery and its verification.
 A complex n*n spectral state on the periodic [0, 2pi)^2 grid; Fourier
 derivatives per axis; the two-thirds rule applied to the field itself and to
 every product; row-column DFTs; and any rate function advanced by the shared
-Integrator trait. The binary integrates linear two-dimensional
+Integrator trait. The library also provides the initial-condition generators
+(single mode, Taylor-Green vortex) consumed by fluid. The field binary itself
+is the verification helper: it integrates linear two-dimensional
 advection-diffusion of a single Fourier mode, whose exact solution is
 exp((-i (cx kx + cy ky) - nu (kx^2 + ky^2)) t), and writes the max abs error."""
 
@@ -17,8 +19,10 @@ u(x_i, y_j) = sum_{kx, ky} u_hat[kx, ky] e^{i (kx x_i + ky y_j)},
 u_hat[kx, ky] = (1/n^2) sum_{i, j} u[i, j] e^{-i (kx x_i + ky y_j)}"""
 
 wavenumbers = """kx, ky = index for index <= n/2 else index - n, per axis;
-a Nyquist index (n even, index = n/2) never travels: its derivative
-coefficient is zero (same rule as the one-dimensional scheme)"""
+the no-travel rule applies independently in each direction: the x-Nyquist
+index (n even, x-index = n/2) has zero d/dx coefficient while its d/dy
+coefficient follows its y wavenumber, and symmetrically for the y-Nyquist
+index in d/dy"""
 
 derivatives = "d/dx multiplies by i kx, d/dy by i ky, laplacian by -(kx^2 + ky^2)"
 
@@ -27,6 +31,11 @@ dealias = """two-thirds rule: zero every mode with |kx| > floor(n/3) or
 in physical space"""
 
 rate = "any F(state) -> state over the shared Integrator trait; euler, midpoint, rk4 all apply unchanged to the complex 2d state"
+
+initial-conditions = """the library exposes generators consumed by fluid and
+field: a single dealiased Fourier mode of given (kx, ky, amplitude) and the
+Taylor-Green vortex omega = 2 sin(x) sin(y) transformed to the dealiased
+spectral state"""
 
 [tests]
 derivative = "single mode: d/dx gives i kx, d/dy gives i ky, laplacian gives -(kx^2+ky^2); Nyquist index derivative is zero"

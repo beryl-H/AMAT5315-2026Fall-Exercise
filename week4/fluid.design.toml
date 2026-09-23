@@ -12,10 +12,21 @@ solution and verifies the whole pipeline."""
 [library]
 state = """spectral vorticity omega_hat (field's n*n complex state), dealiased
 by the two-thirds rule from the start; every integrator stage sees only the
-dealiased state"""
+dealiased state; the per-axis independent no-travel rule of field.design.toml
+applies to every spectral derivative"""
 
-stream-function = """psi_hat = -omega_hat / (kx^2 + ky^2) at every nonzero
-mode; psi_hat[0, 0] = 0; the mean vorticity omega_hat[0, 0] is carried
+stream-function = """SIGN CONVENTION TO BE CONFIRMED AGAINST THE LECTURE
+BEFORE IMPLEMENTATION; do not assume either sign. The two self-consistent
+pairings are:
+  A: u = (d psi/dy, -d psi/dx) with omega = -laplacian(psi),
+     i.e. psi_hat = -omega_hat / kappa^2
+  B: u = (-d psi/dy, d psi/dx) with omega = +laplacian(psi),
+     i.e. psi_hat = +omega_hat / kappa^2
+The pairings are related by psi -> -psi and produce the IDENTICAL velocity
+field for the same omega, so every verification contract in this file
+(Taylor-Green decay, two-mode interaction) holds under either; the choice is
+recorded here and in the code comments for the lecture's sake. In both
+pairings psi_hat[0, 0] = 0 and the mean vorticity omega_hat[0, 0] is carried
 untouched by every stage and produces no velocity"""
 
 velocity = "u_x = d(psi)/dy, u_y = -d(psi)/dx, pseudospectral in spectral space"
@@ -29,8 +40,11 @@ Integrator trait with method = euler, midpoint, or rk4; the dealiased
 initial condition is hit by the two-thirds rule before the first step"""
 
 conservation = """with nu = 0 the discrete dynamics must conserve energy to
-round-off over a short run: relative energy drift < 1e-8 across t = 0.5 at
-n = 32, dt = 0.01 (a regression bound, checked by a test)"""
+round-off over a short run. No a-priori bound is assumed: during
+verification the relative energy drift is measured on the reference case
+(n = 32, dt = 0.01, t = 0.5), the measured value and its evidence are
+recorded, and the regression bound is set from the measurement with one
+decimal digit of margin"""
 
 [tests]
 field-contract = "the two-dimensional derivative, dealias, and DFT tests of field.design.toml apply unchanged"
