@@ -14,6 +14,44 @@ pub trait Integrator {
         S: Scalar;
 }
 
+/// RK4 stage structure (nodes 0, 1/2, 1/2, 1) with equal weights 1/4.
+/// Second order: sum b_i = 1 and sum b_i c_i = 1/2 hold, but
+/// sum b_i c_i^2 = 3/8 != 1/3, so the third-order condition fails.
+pub struct RK4Equal;
+
+impl Integrator for RK4Equal {
+    fn step<F, S>(&self, f: F, dt: f64, y: &[S]) -> Vec<S>
+    where
+        F: Fn(&[S]) -> Vec<S>,
+        S: Scalar,
+    {
+        let k1 = f(y);
+        let y2: Vec<S> = y
+            .iter()
+            .zip(&k1)
+            .map(|(yi, k1i)| *yi + *k1i * (dt / 2.0))
+            .collect();
+        let k2 = f(&y2);
+        let y3: Vec<S> = y
+            .iter()
+            .zip(&k2)
+            .map(|(yi, k2i)| *yi + *k2i * (dt / 2.0))
+            .collect();
+        let k3 = f(&y3);
+        let y4: Vec<S> = y.iter().zip(&k3).map(|(yi, k3i)| *yi + *k3i * dt).collect();
+        let k4 = f(&y4);
+        y.iter()
+            .zip(k1)
+            .zip(k2)
+            .zip(k3)
+            .zip(k4)
+            .map(|((((yi, k1i), k2i), k3i), k4i)| {
+                *yi + (k1i + k2i + k3i + k4i) * (dt / 4.0)
+            })
+            .collect()
+    }
+}
+
 /// Forward Euler: y + dt * f(y).
 pub struct Euler;
 
