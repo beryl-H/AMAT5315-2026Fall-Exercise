@@ -16,8 +16,8 @@ fn stream_function_has_the_confirmed_negative_sign_and_zero_mean() {
     let mut omega = vec![c(0.0, 0.0); n * n];
     omega[2 * n + 1] = c(1.0, 0.0); // ky = 2, kx = 1, kappa^2 = 5
     let psi = stream_function(n, &omega);
-    // pairing A: psi_hat = -omega_hat / kappa^2
-    assert!((psi[2 * n + 1] - c(-1.0 / 5.0, 0.0)).norm() < 1e-14);
+    // pairing A: psi_hat = +omega_hat / kappa^2 (omega = -laplacian(psi))
+    assert!((psi[2 * n + 1] - c(1.0 / 5.0, 0.0)).norm() < 1e-14);
     assert_eq!(psi[0], c(0.0, 0.0));
 }
 
@@ -60,13 +60,13 @@ fn two_mode_interaction_matches_the_paper_spectrum() {
     omega[at(3, 1)] = c(0.0, 2.0);
     omega[at(29, 31)] = c(0.0, -2.0);
     let nl = nonlinear_term(n, &omega);
-    // paper values (fluid.design.toml): -i on the sum and difference modes,
-    // +i on their conjugates, zero everywhere else
+    // reference spectrum (fluid.design.toml, numpy cross-implementation):
+    // +i on the sum and difference modes, -i on their conjugates
     let expected = [
-        (at(4, 3), c(0.0, -1.0)),   // k1 + k2
-        (at(n - 4, n - 3), c(0.0, 1.0)),
-        (at(n - 2, 1), c(0.0, -1.0)), // k1 - k2
-        (at(2, n - 1), c(0.0, 1.0)),
+        (at(4, 3), c(0.0, 1.0)),    // k1 + k2
+        (at(n - 4, n - 3), c(0.0, -1.0)),
+        (at(n - 2, 1), c(0.0, 1.0)),  // k1 - k2
+        (at(2, n - 1), c(0.0, -1.0)),
     ];
     for (q, &v) in nl.iter().enumerate() {
         if let Some(&(_, e)) = expected.iter().find(|(qe, _)| *qe == q) {

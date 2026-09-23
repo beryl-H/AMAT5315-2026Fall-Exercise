@@ -4,6 +4,7 @@
 
 pub mod fd;
 pub mod field;
+pub mod fluid;
 pub mod fourier;
 pub mod integrators;
 pub mod scalar;
@@ -14,6 +15,7 @@ pub use field::{
     advdiff_exponential, advdiff_rate, dealias, dealias_band, dft2, deriv_x, deriv_y,
     hermitian_mode, idft2, is_nyquist, laplacian, taylor_green_spectral, wavenumber,
 };
+pub use fluid::{energy, enstrophy, nonlinear_term, rate, stream_function, velocity};
 pub use fourier::{dft, idft, FourierAdvDiff};
 pub use integrators::{Euler, Integrator, Midpoint, RK4, RK4Equal};
 pub use scalar::Scalar;
