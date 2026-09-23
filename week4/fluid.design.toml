@@ -1,0 +1,77 @@
+usage = "fluid --n 32 --method rk4 --nu 0.001 --dt 0.01 --t-final 2.0 --every 10 --out runs/tg"
+
+description = """integrate the two-dimensional incompressible vorticity equation
+omega_t + u . grad(omega) = nu laplacian(omega) on the periodic [0, 2pi)^2 grid:
+Fourier pseudospectral derivatives, the two-thirds rule applied to the
+vorticity itself and to every product, and the integrator chosen by --method
+from the shared Integrator trait. The initial condition is the Taylor-Green
+vortex, omega(x, y, 0) = 2 sin(x) sin(y), whose nonlinear term vanishes
+identically, so omega(x, y, t) = 2 sin(x) sin(y) exp(-2 nu t) is the exact
+solution and verifies the whole pipeline."""
+
+[library]
+state = """spectral vorticity omega_hat (field's n*n complex state), dealiased
+by the two-thirds rule from the start; every integrator stage sees only the
+dealiased state"""
+
+stream-function = """psi_hat = -omega_hat / (kx^2 + ky^2) at every nonzero
+mode; psi_hat[0, 0] = 0; the mean vorticity omega_hat[0, 0] is carried
+untouched by every stage and produces no velocity"""
+
+velocity = "u_x = d(psi)/dy, u_y = -d(psi)/dx, pseudospectral in spectral space"
+
+nonlinear = """N(omega) = -u . grad(omega): grad(omega) spectral, u spectral,
+both transformed to physical space, the product u_x omega_x + u_y omega_y
+formed there, transformed back, dealiased by the two-thirds rule, negated"""
+
+rate = """F(omega) = nonlinear term + nu laplacian(omega); advanced by the
+Integrator trait with method = euler, midpoint, or rk4; the dealiased
+initial condition is hit by the two-thirds rule before the first step"""
+
+conservation = """with nu = 0 the discrete dynamics must conserve energy to
+round-off over a short run: relative energy drift < 1e-8 across t = 0.5 at
+n = 32, dt = 0.01 (a regression bound, checked by a test)"""
+
+[tests]
+field-contract = "the two-dimensional derivative, dealias, and DFT tests of field.design.toml apply unchanged"
+single-mode = "a single dealiased Fourier mode is an exact solution: its nonlinear term is zero to machine precision and it decays as exp(-nu kappa^2 t)"
+two-mode = """modes k1 = (1, 2) and k2 = (3, 1) with amplitudes a1 = 1,
+a2 = 2i (kappa1^2 = 5, kappa2^2 = 10): self-interaction vanishes identically
+and the only generated mode is k1 + k2 = (4, 3) with the hand-derived
+coefficient
+  N[(4,3)] = (kx1 ky2 - ky1 kx2) a1 a2 (1/kappa1^2 - 1/kappa2^2)
+           = (-5) (2i) (1/10) = -i.
+The test asserts the solver's nonlinear term reproduces exactly -i at mode
+(4, 3) and zero at every other mode, to machine precision"""
+taylor-green = "final field error against 2 sin(x) sin(y) exp(-2 nu t) below 1e-6 for RK4 at n = 32, dt = 0.01, t-final = 1.0, nu = 0.001"
+energy = "inviscid conservation check of the drift bound above"
+
+[args]
+n = "grid points per axis"
+method = "euler, midpoint, or rk4"
+nu = "viscosity"
+dt = "time step; full steps of dt plus one shorter final step hit t-final exactly"
+t-final = "integration time"
+every = "steps between recorded frames; 0, the default, records none"
+out = "output folder"
+
+[writes]
+stdout = """a header, then one line at t-final:
+method, dt, steps, max abs error against the Taylor-Green exact solution,
+energy, enstrophy"""
+
+"<out>/run.json" = "n, method, nu, dt, t_final, every"
+
+"<out>/series.jsonl" = """one object per recorded frame (every > 0):
+t, energy, enstrophy, max abs error against the exact solution"""
+
+"<out>/final.json" = """t, the final vorticity in physical space as n*n
+numbers (row-major), energy, enstrophy, max abs error"""
+
+[diagnostics]
+energy = """(n^2 / 2 pi)^2 * (1/2) * sum over nonzero modes of
+|omega_hat|^2 / (kx^2 + ky^2), from Parseval's identity for the stated DFT
+convention; verified against a hand-computed single mode"""
+enstrophy = """(n^2 / 2 pi)^2 * (1/2) * sum over nonzero modes of
+(kx^2 + ky^2) |omega_hat|^2 + (1/2) omega_bar^2 with omega_bar the mean
+vorticity mode, from Parseval's identity; verified the same way"""

@@ -1,0 +1,56 @@
+usage = "field --n 32 --kx 1 --ky 2 --cx 1 --cy 1 --method rk4 --nu 0.05 --t-final 1.0 --dt 0.01 --out runs/field-single-mode"
+
+description = """two-dimensional spectral field machinery and its verification.
+A complex n*n spectral state on the periodic [0, 2pi)^2 grid; Fourier
+derivatives per axis; the two-thirds rule applied to the field itself and to
+every product; row-column DFTs; and any rate function advanced by the shared
+Integrator trait. The binary integrates linear two-dimensional
+advection-diffusion of a single Fourier mode, whose exact solution is
+exp((-i (cx kx + cy ky) - nu (kx^2 + ky^2)) t), and writes the max abs error."""
+
+[library]
+state = """vec<complex<f64>> of length n*n, row-major: index j*n + i;
+x is the i axis, y the j axis; x_i = 2 pi i / n, y_j = 2 pi j / n"""
+
+dft2-idft2 = """row-column DFT built on the 1d transform; conventions
+u(x_i, y_j) = sum_{kx, ky} u_hat[kx, ky] e^{i (kx x_i + ky y_j)},
+u_hat[kx, ky] = (1/n^2) sum_{i, j} u[i, j] e^{-i (kx x_i + ky y_j)}"""
+
+wavenumbers = """kx, ky = index for index <= n/2 else index - n, per axis;
+a Nyquist index (n even, index = n/2) never travels: its derivative
+coefficient is zero (same rule as the one-dimensional scheme)"""
+
+derivatives = "d/dx multiplies by i kx, d/dy by i ky, laplacian by -(kx^2 + ky^2)"
+
+dealias = """two-thirds rule: zero every mode with |kx| > floor(n/3) or
+|ky| > floor(n/3); applied to the field itself and after every product
+in physical space"""
+
+rate = "any F(state) -> state over the shared Integrator trait; euler, midpoint, rk4 all apply unchanged to the complex 2d state"
+
+[tests]
+derivative = "single mode: d/dx gives i kx, d/dy gives i ky, laplacian gives -(kx^2+ky^2); Nyquist index derivative is zero"
+dealias = "out-of-band modes are zeroed; an in-band field and its products survive unchanged"
+dft2 = "round trip recovers the field; a plane wave lands on a single mode"
+exact-solution = "every method at every dt: final field matches exp((-i (cx kx + cy ky) - nu (kx^2+ky^2)) T) within the one-step bounds of the chosen method's order"
+
+[args]
+n = "grid points per axis"
+kx = "x wavenumber of the single-mode initial condition; must satisfy the two-thirds rule"
+ky = "y wavenumber of the single-mode initial condition; must satisfy the two-thirds rule"
+cx = "advection velocity in x"
+cy = "advection velocity in y"
+method = "euler, midpoint, or rk4"
+nu = "viscosity"
+t-final = "integration time"
+dt = "time step; full steps of dt plus one shorter final step hit t-final exactly"
+out = "output folder"
+
+[writes]
+stdout = """a header, then one line:
+method, dt, steps, max abs error against the exact single-mode solution"""
+
+"<out>/run.json" = "n, kx, ky, cx, cy, method, nu, t_final, dt, steps"
+
+"<out>/final.json" = """t, the final field in physical space as n*n numbers
+(row-major), and max abs error"""
