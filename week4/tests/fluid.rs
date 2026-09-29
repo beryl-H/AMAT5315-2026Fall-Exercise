@@ -1,6 +1,6 @@
 //! Contract tests for the vorticity-equation solver (fluid.design.toml).
 
-use advdiff::field::{hermitian_mode, idft2, taylor_green_spectral};
+use advdiff::field::{idft2, taylor_green_spectral};
 use advdiff::fluid::{energy, enstrophy, nonlinear_term, rate, stream_function, velocity};
 use advdiff::{advance, RK4};
 use num_complex::Complex;
@@ -42,7 +42,9 @@ fn taylor_green_velocity_matches_the_textbook_field() {
 #[test]
 fn single_hermitian_mode_has_zero_nonlinear_term() {
     let n = 32;
-    let omega = hermitian_mode(n, 2, 3, c(1.0, 0.5));
+    let mut omega = vec![c(0.0, 0.0); n * n];
+    omega[3 * n + 2] = c(1.0, 0.5); // ky = 3, kx = 2
+    omega[(n - 3) * n + (n - 2)] = c(1.0, -0.5);
     let nl = nonlinear_term(n, &omega);
     for (q, &v) in nl.iter().enumerate() {
         assert!(v.norm() < 1e-12, "mode {} = {}", q, v);

@@ -1,10 +1,10 @@
 //! Contract tests for the two-dimensional field machinery (field.design.toml).
 
 use advdiff::field::{
-    advdiff_exponential, advdiff_rate, dealias, dealias_band, dft2, deriv_x, deriv_y,
-    hermitian_mode, idft2, is_nyquist, laplacian, taylor_green_spectral, wavenumber,
+    dealias, dealias_band, dft2, deriv_x, deriv_y, idft2, is_nyquist, laplacian,
+    random_vorticity, taylor_green_spectral, taylor_green_velocity, wavenumber,
 };
-use advdiff::{advance, RK4};
+use advdiff::fluid::{energy, vorticity_from_velocity};
 use num_complex::Complex;
 use std::f64::consts::TAU;
 
@@ -121,71 +121,126 @@ fn dealias_enforces_the_two_thirds_band() {
 }
 
 #[test]
-fn hermitian_mode_generator_is_dealiased_and_matches_its_formula() {
-    let n = 32;
-    let u_hat = hermitian_mode(n, 3, 5, c(1.0, 0.0));
-    for (q, &v) in u_hat.iter().enumerate() {
-        let in_pair = q == 5 * n + 3 || q == (n - 5) * n + (n - 3);
-        if !in_pair {
-            assert_eq!(v, c(0.0, 0.0), "mode {} not dealiased", q);
-        }
-    }
-    assert_eq!(u_hat[5 * n + 3], c(1.0, 0.0));
-    assert_eq!(u_hat[(n - 5) * n + (n - 3)], c(1.0, 0.0));
-    let u = idft2(n, &u_hat);
-    // physical field: 2 cos(3 x + 5 y)
-    for j in 0..n {
-        for i in 0..n {
-            let x = TAU * i as f64 / n as f64;
-            let y = TAU * j as f64 / n as f64;
-            let expected = 2.0 * (3.0 * x + 5.0 * y).cos();
-            assert!((u[j * n + i] - expected).abs() < 1e-12);
-        }
-    }
-}
-
-#[test]
-fn linear_rate_advances_toward_the_exact_exponential() {
-    let n = 32;
-    let (kx, ky) = (2usize, 3usize);
-    let (cx, cy, nu) = (1.0, 0.5, 0.05);
-    let u_hat0 = hermitian_mode(n, kx, ky, c(1.0, 0.0));
-    let final_state = advance(
-        &RK4,
-        |s| advdiff_rate(n, cx, cy, nu, s),
-        0.001, // fine steps: RK4 error ~5e-12, far below the 1e-10 bound
-        1.0,
-        &u_hat0,
-    )
-    .last()
-    .expect("non-empty")
-    .1
-    .clone();
-    let factor = advdiff_exponential(n, kx, ky, cx, cy, nu, 1.0);
-    assert!(
-        (final_state[ky * n + kx] - u_hat0[ky * n + kx] * factor).norm() < 1e-10,
-        "got {}",
-        final_state[ky * n + kx]
-    );
-    // Hermitian partner: conjugate amplitude, conjugate factor
-    assert!(
-        (final_state[(n - ky) * n + (n - kx)] - u_hat0[(n - ky) * n + (n - kx)] * factor.conj())
-            .norm()
-            < 1e-10
-    );
-}
-
-#[test]
-fn taylor_green_generator_matches_its_formula() {
+fn taylor_green_vorticity_is_minus_two_cos_x_cos_y() {
     let n = 16;
     let u = idft2(n, &taylor_green_spectral(n));
     for j in 0..n {
         for i in 0..n {
             let x = TAU * i as f64 / n as f64;
             let y = TAU * j as f64 / n as f64;
-            let expected = 2.0 * x.sin() * y.sin();
+            let expected = -2.0 * x.cos() * y.cos();
             assert!((u[j * n + i] - expected).abs() < 1e-12);
+        }
+    }
+    // the four modes (+-1, +-1) all carry -1/2; nothing else is present
+    let u_hat = taylor_green_spectral(n);
+    for (q, &v) in u_hat.iter().enumerate() {
+        let (ky, kx) = (q / n, q % n);
+        let is_corner = (kx == 1 || kx == n - 1) && (ky == 1 || ky == n - 1);
+        if is_corner {
+            assert!((v - c(-0.5, 0.0)).norm() < 1e-12, "mode {}", q);
+        } else {
+            assert!(v.norm() < 1e-12, "mode {} = {}", q, v);
         }
     }
 }
 
+#[test]
+fn taylor_green_velocity_matches_the_course_formula() {
+    let n = 16;
+    let (u, v) = taylor_green_velocity(n, 0.0, 0.0);
+    for j in 0..n {
+        for i in 0..n {
+            let x = TAU * i as f64 / n as f64;
+            let y = TAU * j as f64 / n as f64;
+            assert!((u[j * n + i] - x.cos() * y.sin()).abs() < 1e-12);
+            assert!((v[j * n + i] + x.sin() * y.cos()).abs() < 1e-12);
+        }
+    }
+    // decay: at time t both components carry exp(-2 nu t)
+    let (u1, v1) = taylor_green_velocity(n, 1.0, 0.1);
+    let decay = (-2.0 * 0.1 * 1.0).exp();
+    assert!((u1[5 * n + 3] - u[5 * n + 3] * decay).abs() < 1e-12);
+    assert!((v1[5 * n + 3] - v[5 * n + 3] * decay).abs() < 1e-12);
+}
+
+#[test]
+fn random_vorticity_has_energy_exactly_one_half() {
+    let n = 64;
+    let omega = random_vorticity(n, 2026, 2.0, 6.0);
+    assert!((energy(n, &omega) - 0.5).abs() < 1e-12);
+}
+
+#[test]
+fn random_vorticity_is_deterministic_per_seed() {
+    let a = random_vorticity(64, 2026, 2.0, 6.0);
+    let b = random_vorticity(64, 2026, 2.0, 6.0);
+    assert_eq!(a, b);
+    let c = random_vorticity(64, 2027, 2.0, 6.0);
+    assert_ne!(a, c);
+}
+
+#[test]
+fn random_phases_are_independent_of_n() {
+    // the phase drawn for a given mode (kx, ky) must not depend on n
+    let small = random_vorticity(64, 2026, 2.0, 6.0);
+    let large = random_vorticity(96, 2026, 2.0, 6.0);
+    for ky in -6i64..=6 {
+        for kx in -6i64..=6 {
+            let r2 = (kx * kx + ky * ky) as f64;
+            if r2 < 4.0 || r2 > 36.0 || (kx == 0 && ky == 0) {
+                continue;
+            }
+            let at = |n: usize, kx: i64, ky: i64| {
+                (ky.rem_euclid(n as i64) as usize) * n + (kx.rem_euclid(n as i64) as usize)
+            };
+            assert_eq!(
+                small[at(64, kx, ky)],
+                large[at(96, kx, ky)],
+                "mode ({}, {})",
+                kx,
+                ky
+            );
+        }
+    }
+}
+
+#[test]
+fn random_vorticity_is_hermitian_and_band_limited() {
+    let n = 64;
+    let omega = random_vorticity(n, 2026, 2.0, 6.0);
+    let at = |kx: i64, ky: i64| {
+        (ky.rem_euclid(n as i64) as usize) * n + (kx.rem_euclid(n as i64) as usize)
+    };
+    for ky in -8i64..=8 {
+        for kx in -8i64..=8 {
+            if kx == 0 && ky == 0 {
+                continue;
+            }
+            let v = omega[at(kx, ky)];
+            assert_eq!(v, omega[at(-kx, -ky)].conj(), "Hermitian ({}, {})", kx, ky);
+            let r2 = ((kx * kx + ky * ky) as f64).sqrt();
+            if r2 < 2.0 || r2 > 6.0 {
+                assert_eq!(v, c(0.0, 0.0), "outside annulus ({}, {})", kx, ky);
+            } else {
+                assert!((v.norm() - v.norm()).abs() < 1e-14);
+            }
+        }
+    }
+    // equal amplitudes inside the annulus
+    let amps: Vec<f64> = [(1i64, 3i64), (3, 1), (0, 6), (6, 0), (4, 4)]
+        .iter()
+        .map(|&(kx, ky)| omega[at(kx, ky)].norm())
+        .collect();
+    for a in &amps {
+        assert!((a - amps[0]).abs() < 1e-12, "unequal amplitudes");
+    }
+}
+
+#[test]
+fn vorticity_from_velocity_recovers_the_taylor_green_spectrum() {
+    let n = 16;
+    let (u, v) = taylor_green_velocity(n, 0.0, 0.0);
+    let omega = vorticity_from_velocity(n, &u, &v);
+    assert_eq!(omega, taylor_green_spectral(n));
+}
