@@ -159,7 +159,7 @@ fn taylor_green_velocity_matches_the_course_formula() {
     }
     // decay: at time t both components carry exp(-2 nu t)
     let (u1, v1) = taylor_green_velocity(n, 1.0, 0.1);
-    let decay = (-2.0 * 0.1 * 1.0).exp();
+    let decay = (-0.2_f64).exp();
     assert!((u1[5 * n + 3] - u[5 * n + 3] * decay).abs() < 1e-12);
     assert!((v1[5 * n + 3] - v[5 * n + 3] * decay).abs() < 1e-12);
 }
@@ -242,5 +242,8 @@ fn vorticity_from_velocity_recovers_the_taylor_green_spectrum() {
     let n = 16;
     let (u, v) = taylor_green_velocity(n, 0.0, 0.0);
     let omega = vorticity_from_velocity(n, &u, &v);
-    assert_eq!(omega, taylor_green_spectral(n));
+    // the round trip is exact up to floating-point noise
+    for (a, b) in omega.iter().zip(taylor_green_spectral(n)) {
+        assert!((a - b).norm() < 1e-12, "got {}, want {}", a, b);
+    }
 }

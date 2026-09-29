@@ -33,8 +33,9 @@ fn taylor_green_velocity_matches_the_textbook_field() {
         for i in 0..n {
             let x = TAU * i as f64 / n as f64;
             let y = TAU * j as f64 / n as f64;
-            assert!((ux_p[j * n + i] - x.sin() * y.cos()).abs() < 1e-12);
-            assert!((uy_p[j * n + i] + x.cos() * y.sin()).abs() < 1e-12);
+            // course Taylor-Green velocity: u = cos(x) sin(y), v = -sin(x) cos(y)
+            assert!((ux_p[j * n + i] - x.cos() * y.sin()).abs() < 1e-12);
+            assert!((uy_p[j * n + i] + x.sin() * y.cos()).abs() < 1e-12);
         }
     }
 }

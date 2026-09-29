@@ -162,78 +162,112 @@ pub fn dealias(n: usize, u_hat: &[Complex<f64>]) -> Vec<Complex<f64>> {
         .collect()
 }
 
-/// Hermitian single mode: amplitude `amp` at (kx, ky) and conj(amp) at the
-/// mirrored index, so the physical field 2 Re(amp e^{i(kx x + ky y)}) is real.
-/// Panics when (kx, ky) is outside the two-thirds band.
-pub fn hermitian_mode(n: usize, kx: usize, ky: usize, amp: Complex<f64>) -> Vec<Complex<f64>> {
-    let band = dealias_band(n);
-    assert!(
-        kx <= band && ky <= band,
-        "kx, ky must satisfy the two-thirds rule (<= {band})"
-    );
-    let mut u_hat = vec![Complex::new(0.0, 0.0); n * n];
-    u_hat[ky * n + kx] = amp;
-    let (mx, my) = ((n - kx) % n, (n - ky) % n);
-    if (mx, my) != (kx, ky) {
-        u_hat[my * n + mx] = amp.conj();
-    }
-    u_hat
-}
-
-/// Taylor-Green vortex omega = 2 sin(x) sin(y), dealiased spectral state.
+/// Course Taylor-Green vorticity omega = -2 cos(x) cos(y), dealiased
+/// spectral state (the modes (+-1, +-1) all carry -1/2).
 pub fn taylor_green_spectral(n: usize) -> Vec<Complex<f64>> {
     let u: Vec<f64> = (0..n * n)
         .map(|q| {
             let (i, j) = (q % n, q / n);
             let x = TAU * i as f64 / n as f64;
             let y = TAU * j as f64 / n as f64;
-            2.0 * x.sin() * y.sin()
+            -2.0 * x.cos() * y.cos()
         })
         .collect();
     dealias(n, &dft2(n, &u))
 }
 
-/// Linear 2D advection-diffusion rate:
-/// u_t = -cx u_x - cy u_y + nu laplacian(u), with the per-axis no-travel rule
-/// on the two advection parts and the full kappa^2 on the diffusion.
-pub fn advdiff_rate(
-    n: usize,
-    cx: f64,
-    cy: f64,
-    nu: f64,
-    u_hat: &[Complex<f64>],
-) -> Vec<Complex<f64>> {
-    u_hat
-        .iter()
-        .enumerate()
-        .map(|(q, &u)| {
-            let (ky, kx) = (q / n, q % n);
-            let mut coeff = Complex::new(-nu * (wavenumber(kx, n).powi(2) + wavenumber(ky, n).powi(2)), 0.0);
-            if !is_nyquist(kx, n) {
-                coeff -= Complex::new(0.0, cx * wavenumber(kx, n));
-            }
-            if !is_nyquist(ky, n) {
-                coeff -= Complex::new(0.0, cy * wavenumber(ky, n));
-            }
-            coeff * u
+/// Course Taylor-Green velocity at time t:
+/// u = cos(x) sin(y) exp(-2 nu t), v = -sin(x) cos(y) exp(-2 nu t).
+pub fn taylor_green_velocity(n: usize, t: f64, nu: f64) -> (Vec<f64>, Vec<f64>) {
+    let decay = (-2.0 * nu * t).exp();
+    let u: Vec<f64> = (0..n * n)
+        .map(|q| {
+            let (i, j) = (q % n, q / n);
+            let x = TAU * i as f64 / n as f64;
+            let y = TAU * j as f64 / n as f64;
+            x.cos() * y.sin() * decay
         })
-        .collect()
+        .collect();
+    let v: Vec<f64> = (0..n * n)
+        .map(|q| {
+            let (i, j) = (q % n, q / n);
+            let x = TAU * i as f64 / n as f64;
+            let y = TAU * j as f64 / n as f64;
+            -x.sin() * y.cos() * decay
+        })
+        .collect();
+    (u, v)
 }
 
-/// Exact per-mode exponential factor of the linear advection-diffusion
-/// solution after time t: exp((-i (cx kx + cy ky) - nu (kx^2 + ky^2)) t).
-pub fn advdiff_exponential(
+/// Deterministic splitmix64 stream backing the random initial condition.
+struct SplitMix64(u64);
+
+impl SplitMix64 {
+    fn next_u64(&mut self) -> u64 {
+        self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+        let mut z = self.0;
+        z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+        z ^ (z >> 31)
+    }
+
+    fn next_unit(&mut self) -> f64 {
+        (self.next_u64() >> 11) as f64 / (1u64 << 53) as f64
+    }
+}
+
+/// Random vorticity initial condition (field.design.toml, `random`):
+/// vorticity modes of equal amplitude with
+/// k_min <= sqrt(kx^2 + ky^2) <= k_max, phases uniform in [0, 2pi) drawn
+/// from `seed` in an order independent of n (representatives kx > 0 or
+/// kx == 0, ky > 0, enumerated by ascending (kx, ky), each completed
+/// Hermitian). The amplitude is set so the delivered field has E(0) = 1/2.
+/// Self-conjugate modes (kx, ky in {0, n/2}) lie outside the two-thirds
+/// band for kept modes and are excluded.
+pub fn random_vorticity(
     n: usize,
-    kx: usize,
-    ky: usize,
-    cx: f64,
-    cy: f64,
-    nu: f64,
-    t: f64,
-) -> Complex<f64> {
-    let lambda = Complex::new(
-        -nu * (wavenumber(kx, n).powi(2) + wavenumber(ky, n).powi(2)),
-        -(cx * wavenumber(kx, n) + cy * wavenumber(ky, n)),
-    );
-    (lambda * t).exp()
+    seed: u64,
+    k_min: f64,
+    k_max: f64,
+) -> Vec<Complex<f64>> {
+    assert!(0.0 <= k_min && k_min <= k_max, "k range must satisfy 0 <= k-min <= k-max");
+    let radius = k_max as i64;
+    let mut rng = SplitMix64(seed);
+    let mut reps: Vec<(i64, i64)> = Vec::new();
+    for kx in -radius..=radius {
+        for ky in -radius..=radius {
+            if kx == 0 && ky == 0 {
+                continue;
+            }
+            if !(kx > 0 || (kx == 0 && ky > 0)) {
+                continue;
+            }
+            let r2 = (kx * kx + ky * ky) as f64;
+            if k_min * k_min <= r2 && r2 <= k_max * k_max {
+                reps.push((kx, ky));
+            }
+        }
+    }
+    assert!(!reps.is_empty(), "the annulus contains no modes");
+    let inv_kappa2_sum: f64 = reps
+        .iter()
+        .map(|(kx, ky)| {
+            let kappa2 = (kx * kx + ky * ky) as f64;
+            1.0 / kappa2
+        })
+        .sum();
+    let amp = (0.5 / inv_kappa2_sum).sqrt();
+    let mut omega = vec![Complex::new(0.0, 0.0); n * n];
+    for &(kx, ky) in &reps {
+        let theta = TAU * rng.next_unit();
+        let mode = amp * Complex::new(0.0, theta).exp();
+        let ix = kx.rem_euclid(n as i64) as usize;
+        let iy = ky.rem_euclid(n as i64) as usize;
+        omega[iy * n + ix] = mode;
+        let (mx, my) = ((n - ix) % n, (n - iy) % n);
+        if (mx, my) != (ix, iy) {
+            omega[my * n + mx] = mode.conj();
+        }
+    }
+    dealias(n, &omega)
 }

@@ -10,9 +10,36 @@
 //! physical space and dealiased by the two-thirds rule, as is the vorticity
 //! itself.
 
-use crate::field::{dealias, deriv_x, deriv_y, dft2, idft2, laplacian, wavenumber};
+use crate::field::{
+    dealias, deriv_x, deriv_y, dft2, idft2, is_nyquist, laplacian, wavenumber,
+};
 use crate::scalar::Scalar;
 use num_complex::Complex;
+
+/// Spectral vorticity from a physical velocity field:
+/// omega = d/dx v - d/dy u, so omega_hat = i kx v_hat - i ky u_hat, with the
+/// per-axis no-travel rule on the two first derivatives.
+pub fn vorticity_from_velocity(
+    n: usize,
+    u: &[f64],
+    v: &[f64],
+) -> Vec<Complex<f64>> {
+    let u_hat = dft2(n, u);
+    let v_hat = dft2(n, v);
+    (0..n * n)
+        .map(|q| {
+            let (ky, kx) = (q / n, q % n);
+            let mut w = Complex::new(0.0, 0.0);
+            if !is_nyquist(kx, n) {
+                w += Complex::new(0.0, wavenumber(kx, n)) * v_hat[q];
+            }
+            if !is_nyquist(ky, n) {
+                w -= Complex::new(0.0, wavenumber(ky, n)) * u_hat[q];
+            }
+            w
+        })
+        .collect()
+}
 
 /// Stream function from vorticity: psi_hat = -omega_hat / kappa^2 at every
 /// nonzero mode, zero at the mean mode.

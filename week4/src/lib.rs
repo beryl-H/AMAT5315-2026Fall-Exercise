@@ -12,8 +12,8 @@ pub mod stepper;
 
 pub use fd::CentredFD;
 pub use field::{
-    advdiff_exponential, advdiff_rate, dealias, dealias_band, dft2, deriv_x, deriv_y,
-    hermitian_mode, idft2, is_nyquist, laplacian, taylor_green_spectral, wavenumber,
+    dealias, dealias_band, dft2, deriv_x, deriv_y, idft2, is_nyquist, laplacian,
+    random_vorticity, taylor_green_spectral, taylor_green_velocity, wavenumber,
 };
 pub use fluid::{energy, enstrophy, nonlinear_term, rate, stream_function, velocity};
 pub use fourier::{dft, idft, FourierAdvDiff};
