@@ -1,89 +1,16 @@
-usage = "fluid --n 32 --method rk4 --nu 0.001 --dt 0.01 --t-final 2.0 --every 10 --out runs/tg"
-
-description = """integrate the two-dimensional incompressible vorticity equation
-omega_t + u . grad(omega) = nu laplacian(omega) on the periodic [0, 2pi)^2 grid:
-Fourier pseudospectral derivatives, the two-thirds rule applied to the
-vorticity itself and to every product, and the integrator chosen by --method
-from the shared Integrator trait. The initial condition is the Taylor-Green
-vortex, omega(x, y, 0) = 2 sin(x) sin(y), whose nonlinear term vanishes
-identically, so omega(x, y, t) = 2 sin(x) sin(y) exp(-2 nu t) is the exact
-solution and verifies the whole pipeline."""
-
-[library]
-state = """spectral vorticity omega_hat (field's n*n complex state), dealiased
-by the two-thirds rule from the start; every integrator stage sees only the
-dealiased state; the per-axis independent no-travel rule of field.design.toml
-applies to every spectral derivative"""
-
-stream-function = """CONFIRMED AGAINST THE LECTURE (pairing A):
-  u = (d psi/dy, -d psi/dx) with omega = -laplacian(psi),
-  i.e. omega_hat = +kappa^2 psi_hat, so psi_hat = +omega_hat / kappa^2
-at every nonzero mode (an earlier note here recorded -omega_hat/kappa^2;
-that sign was wrong and the Taylor-Green velocity test caught it).
-psi_hat[0, 0] = 0; the mean vorticity omega_hat[0, 0] is carried untouched by
-every stage and produces no velocity. Recorded here and in the code comments."""
-
-velocity = "u_x = d(psi)/dy, u_y = -d(psi)/dx, pseudospectral in spectral space"
-
-nonlinear = """N(omega) = -u . grad(omega): grad(omega) spectral, u spectral,
-both transformed to physical space, the product u_x omega_x + u_y omega_y
-formed there, transformed back, dealiased by the two-thirds rule, negated"""
-
-rate = """F(omega) = nonlinear term + nu laplacian(omega); advanced by the
-Integrator trait with method = euler, midpoint, or rk4; the dealiased
-initial condition is hit by the two-thirds rule before the first step"""
-
-conservation = """with nu = 0 the discrete dynamics must conserve energy to
-round-off over a short run. No a-priori bound is assumed: during
-verification the relative energy drift is measured on the reference case
-(n = 32, dt = 0.01, t = 0.5), the measured value and its evidence are
-recorded, and the regression bound is set from the measurement with one
-decimal digit of margin"""
-
-[tests]
-field-contract = "the two-dimensional derivative, dealias, and DFT tests of field.design.toml apply unchanged"
-single-mode = "a single dealiased Fourier mode is an exact solution: its nonlinear term is zero to machine precision and it decays as exp(-nu kappa^2 t)"
-two-mode = """real (Hermitian) state: modes k1 = (1, 2) with amplitude 1 and
-k2 = (3, 1) with amplitude 2i, each with its conjugate at the mirrored index
-(kappa1^2 = 5, kappa2^2 = 10). Self-interaction vanishes identically. The
-nonlinear-term spectrum under pairing A, produced by an independent numpy
-frequency-space convolution reference (scripts/verify_two_mode.py) after two
-hand derivations of the sign disagreed, is
-  N[(4, 3)] = +i          (sum mode k1 + k2)
-  N[(-2, 1)] = +i         (difference mode k1 - k2)
-  N[(-4, -3)] = -i,  N[(2, -1)] = -i   (conjugates)
-and zero at every other mode, to machine precision. The test asserts exactly
-this spectrum"""
-taylor-green = "final field error against 2 sin(x) sin(y) exp(-2 nu t) below 1e-6 for RK4 at n = 32, dt = 0.01, t-final = 1.0, nu = 0.001"
-energy = "inviscid conservation check of the drift bound above"
+usage       = "field taylor-green --n 64 | fluid --method rk4 --nu 0.1 --dt 0.01 --t-end 1 --every 0.1 --out artifacts/taylor-green"
+description = "integrate the field on stdin with a chosen time integrator, record frames; no unstated defaults"
 
 [args]
-n = "grid points per axis"
-method = "euler, midpoint, or rk4"
-nu = "viscosity"
-dt = "time step; full steps of dt plus one shorter final step hit t-final exactly"
-t-final = "integration time"
-every = "steps between recorded frames; 0, the default, records none"
+method = "time integrator: euler, rk2, or rk4"
+nu = "kinematic viscosity"
+dt = "time step"
+t-end = "final integration time"
+every = "time between snapshots; save at step 0 and every round(every/dt) steps after that; a step is never shortened to land on a snapshot"
 out = "output folder"
 
 [writes]
-stdout = """a header, then one line at t-final:
-method, dt, steps, max abs error against the Taylor-Green exact solution,
-energy, enstrophy"""
+stdout = "a header, then one tab-separated line per snapshot: t, E (energy), Z (enstrophy); the run stops at the first non-finite energy, prints that line, and exits 1"
 
-"<out>/run.json" = "n, method, nu, dt, t_final, every"
-
-"<out>/series.jsonl" = """one object per recorded frame (every > 0):
-t, energy, enstrophy, max abs error against the exact solution"""
-
-"<out>/final.json" = """t, the final vorticity in physical space as n*n
-numbers (row-major), energy, enstrophy, max abs error"""
-
-[diagnostics]
-energy = """1/2 * sum over nonzero modes of |omega_hat|^2 / (kx^2 + ky^2):
-the domain-mean kinetic energy 1/2 <u.u>, from Parseval's identity for the
-stated DFT convention (u_hat = (1/n^2) sum u e^{-i k.x}). The Taylor-Green
-initial condition has energy exactly 1/4 -- asserted by test"""
-enstrophy = """1/2 * sum over ALL modes of |omega_hat|^2 (including the mean
-mode), the domain-mean 1/2 <omega^2>. The Taylor-Green initial condition has
-enstrophy exactly 1/2 -- asserted by test"""
+"<out>/run.json" = "case, n, seed, k_band as piped; method, nu, dt, t_end, snapshot_every"
+"<out>/fields.jsonl" = "per snapshot stored before the run stopped: t, step, u, v, omega as n*n arrays, 6 decimals"
