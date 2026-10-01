@@ -1,1 +1,0 @@
-{"case":"taylor-green","dt":0.01,"k_band":[0,21],"method":"rk4","n":64,"nu":0.1,"seed":0,"snapshot_every":10,"t_end":1.0}
