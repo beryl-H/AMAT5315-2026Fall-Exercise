@@ -42,7 +42,7 @@ def forward_tangents(r: float, dr: float = 1.0) -> tuple[dict, dict]:
     U = 4.0 * c
 
     # --- tangent pass (same order as the primals) ---
-    d_a = -6.0 * r ** -7.0 * dr  # a = r^-6, so da = -6 r^-7 dr
+    d_a = -6.0 * r ** -6.0 * dr  # SABOTAGE: wrong local derivative  # a = r^-6, so da = -6 r^-7 dr
     d_b = 2.0 * a * d_a          # b = a^2,  so db = 2 a da
     d_c = d_b - d_a              # c = b - a, so dc = db - da
     d_U = 4.0 * d_c              # U = 4 c,  so dU = 4 dc
