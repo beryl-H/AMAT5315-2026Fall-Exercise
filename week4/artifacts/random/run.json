@@ -1,1 +1,0 @@
-{"case":"random","dt":0.005,"k_band":[2.0,6.0],"method":"rk2","n":128,"nu":0.001,"seed":2026,"snapshot_every":50,"t_end":1.0}
