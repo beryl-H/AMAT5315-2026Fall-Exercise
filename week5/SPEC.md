@@ -23,7 +23,7 @@ and reverse-mode (adjoint) passes are written **by hand, one node at a time**:
 
 The analytic cross-check is
 
-$$U'(r) = -48\,r^{-13} + 24\,r^{-7}, \qquad U'(1.3) \approx -0.604743559193\ldots$$
+$$U'(r) = -48\,r^{-13} + 24\,r^{-7}, \qquad U'(1.3) \approx 2.2399799297911431$$
 
 ## Deliverables
 
