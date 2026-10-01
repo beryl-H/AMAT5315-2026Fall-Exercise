@@ -14,26 +14,26 @@
   {
    "dt": 0.02,
    "steps": 100,
-   "relative_omega_error_vs_ref": 5.7977337915415394e-05,
-   "is_reference": false
+   "is_reference": false,
+   "relative_omega_error_vs_ref": 5.7977337915415394e-05
   },
   {
    "dt": 0.0125,
    "steps": 160,
-   "relative_omega_error_vs_ref": 8.5878355753503e-06,
-   "is_reference": false
+   "is_reference": false,
+   "relative_omega_error_vs_ref": 8.5878355753503e-06
   },
   {
    "dt": 0.01,
    "steps": 200,
-   "relative_omega_error_vs_ref": 3.482058007074546e-06,
-   "is_reference": false
+   "is_reference": false,
+   "relative_omega_error_vs_ref": 3.482058007074546e-06
   },
   {
    "dt": 0.0025,
    "steps": 800,
-   "relative_omega_error_vs_ref": 0.0,
-   "is_reference": true
+   "is_reference": true,
+   "relative_omega_error_vs_ref": 0.0
   }
  ],
  "loglog_slope": 4.058356590565745,

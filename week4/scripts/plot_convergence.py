@@ -35,8 +35,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 CONV = ROOT / "artifacts" / "convergence"
-
-data = json.loads((ROOT / "evidence" / "convergence.json").read_text())
+DTS = (0.02, 0.0125, 0.01, 0.0025)
 
 
 def omega_at2(dt):
@@ -45,11 +44,38 @@ def omega_at2(dt):
               if l.strip()]
     last = frames[-1]
     assert abs(last["t"] - 2.0) < 1e-9
-    return np.asarray(last["omega"])
+    return np.asarray(last["omega"]), last["step"]
+
+
+# measured relative omega errors of every run against the reference
+w_ref, ref_steps = omega_at2("0.0025")
+norm_ref = float(np.linalg.norm(w_ref))
+runs = []
+for dt in DTS:
+    w, steps = omega_at2(f"{dt:g}")
+    runs.append({
+        "dt": dt, "steps": steps, "is_reference": dt == 0.0025,
+        "relative_omega_error_vs_ref":
+            0.0 if dt == 0.0025 else float(np.linalg.norm(w - w_ref) / norm_ref),
+    })
+fit_dts = [r["dt"] for r in runs if not r["is_reference"]]
+fit_errs = [r["relative_omega_error_vs_ref"] for r in runs if not r["is_reference"]]
+slope0, intercept0 = np.polyfit(np.log(fit_dts), np.log(fit_errs), 1)
+data = {
+    "case": "random", "n": 128, "nu": 0.004, "seed": 2026,
+    "k_band": [2.0, 6.0], "method": "rk4", "t": 2.0,
+    "reference_dt": 0.0025, "runs": runs,
+    "loglog_slope": float(slope0), "loglog_intercept": float(intercept0),
+    "norm_omega_ref_l2": norm_ref,
+    "note": "final fields retained under artifacts/convergence/dt-<dt>/"
+            "fields.jsonl for Richardson error estimation; errors measured "
+            "against the dt = 0.0025 reference at t = 2",
+}
 
 
 # 1. Richardson estimate from the retained final fields (dt ratio exactly 2)
-w_coarse, w_fine = omega_at2("0.02"), omega_at2("0.01")
+w_coarse, _ = omega_at2("0.02")
+w_fine, _ = omega_at2("0.01")
 rich = float(np.linalg.norm(w_coarse - w_fine)
              / ((2.0**4 - 1.0) * np.linalg.norm(w_fine)))
 print(f"Richardson estimate e_h (relative error of dt = 0.01): {rich:.6e}")
