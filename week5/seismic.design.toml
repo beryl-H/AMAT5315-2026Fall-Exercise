@@ -1,0 +1,55 @@
+usage = """
+seismic --experiment inputs/reflector.json --mode forward --out \
+artifacts/forward"""
+description = """
+propagate acoustic waves and their derivatives; no unstated defaults"""
+
+[args]
+experiment = """
+JSON physical model and survey in reduced units, with these fields:
+name: experiment identifier; nx, nz: grid points along x and depth z;
+dx: grid spacing; dt: timestep; steps: number of time steps;
+source_frequency: peak frequency f0 of the Ricker pulse;
+source_peak_time: time t0 of its peak; source_amplitude: source strength;
+shots: source positions, one [x,z] grid index per shot;
+receivers: receiver positions as [x,z] grid indices;
+sponge_width: width in cells; sponge_strength: largest damping at the edge;
+background: wave speed c as a [z][x] array;
+perturbation: velocity perturbation as a [z][x] array, born mode's input;
+length_unit_m: metres per length unit; time_unit_s: seconds per time unit.
+"""
+mode = "forward: pressure traces; born: tangent traces; adjoint: migrated image"
+out = "output folder"
+
+[writes]
+stdout = "a header, then one tab-separated line per shot: shot, mode, l2 (L2 norm)"
+"<out>/run.json" = """
+experiment: fields named by the experiment argument,
+except background and perturbation;
+optional input schema and provenance are copied; no model or initial-state arrays.
+experiment_file: input path; experiment_sha256: SHA-256 of the input file bytes;
+arguments: invocation flags;
+precision: float64; parameter: velocity; inner_product: unweighted Euclidean sums
+"""
+"<out>/result.json" = """
+schema: week5-born-rtm-v2; experiment: input name (string);
+mode, nx, nz, steps, dt, dx, shots, receivers, implementation, seconds;
+statistics: null except for adjoint counters
+"""
+"<out>/traces.npy" = "forward: float64 [shot, step, receiver] pressures"
+"<out>/born_data.npy" = "born: float64 [shot, step, receiver] scattered data"
+"<out>/image.npy" = "adjoint: float64 [z, x] velocity sensitivity"
+
+[args.recording]
+every = "steps between recorded forward or adjoint pressure fields; default off"
+
+[writes.recording]
+"<out>/wavefield.npy" = """
+float32 [frame, z, x] pressure of the first shot; forward frames in increasing
+steps, adjoint frames in decreasing steps. An adjoint frame is the
+current-pressure adjoint after reversing its step; outer boundary values are zero.
+"""
+"<out>/run.json" = """
+also contains recording: every (integer stride), steps (integer array),
+times (array of reduced times, step*dt); arrays follow wavefield frame order
+"""
