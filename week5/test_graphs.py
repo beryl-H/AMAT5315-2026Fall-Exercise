@@ -19,14 +19,14 @@ spec.loader.exec_module(plot_graphs)
 def test_forward_graph_primitives():
     nodes, _ = plot_graphs.build_energy_graph()
     ops = [n for n in nodes if n["kind"] == "op"]
-    assert [n["label"] for n in ops] == ["pow", "pow", "sub", "mul"]
+    assert [n["op"] for n in ops] == ["pow", "pow", "sub", "mul"]
 
 
 def test_grad_graph_op_count():
     nodes, _ = plot_graphs.build_grad_graph()
     ops = [n for n in nodes if n["kind"] == "op"]
     assert len(ops) == 15
-    labels = [n["label"] for n in ops]
+    labels = [n["op"] for n in ops]
     assert "neg" in labels and "add_any" in labels
 
 
