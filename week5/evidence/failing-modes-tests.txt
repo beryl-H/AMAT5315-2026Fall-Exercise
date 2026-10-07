@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+________________________ ERROR collecting test_modes.py ________________________
+test_modes.py:15: in <module>
+    spec.loader.exec_module(compare_modes)
+<frozen importlib._bootstrap_external>:991: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1128: in get_code
+    ???
+<frozen importlib._bootstrap_external>:1186: in get_data
+    ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/keria_h/AMAT5315-2026Fall-Exercise/week5/scripts/compare_modes.py'
+=========================== short test summary info ============================
+ERROR test_modes.py - FileNotFoundError: [Errno 2] No such file or directory:...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.40s

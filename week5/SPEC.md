@@ -42,6 +42,22 @@ $$U'(r) = -48\,r^{-13} + 24\,r^{-7}, \qquad U'(1.3) \approx 2.2399799297911431$$
   - `tangents`: the tangent of each node `r`, `a`, `b`, `c`, `U`;
   - `adjoints`: the adjoint of each node `r`, `a`, `b`, `c`, `U`;
   - `jax_grad`: the derivative from JAX's own gradient function, at `r`.
+- `week5/scripts/compare_modes.py` — compares hand-written forward mode,
+  hand-written reverse mode and a centered finite difference
+  $(U(r+h) - U(r-h))/(2h)$ with $h = 10^{-6}$ against the analytic
+  $U'(r)$, on 601 equally spaced separations from 0.95 to 2.5
+  (endpoints included). It saves `week5/artifacts/ad/modes.png` with two
+  panels in reduced units — (1) $dU/dr$ vs $r$ for all methods,
+  (2) absolute error vs $r$ on a log scale — and prints each method's
+  maximum absolute error.
+
+## Correctness criteria (comparison)
+
+5. All three methods agree with the analytic $U'(r)$ across the sampled
+   range: maximum absolute error below $10^{-12}$ for forward and reverse
+   mode and below $10^{-8}$ for the centered finite difference with
+   $h = 10^{-6}$ (roundoff-dominated, expected around $10^{-10}$).
+6. The sampled grid has exactly 601 points and includes 0.95 and 2.5.
 
 ## Correctness criteria
 
