@@ -58,6 +58,19 @@ $$U'(r) = -48\,r^{-13} + 24\,r^{-7}, \qquad U'(1.3) \approx 2.2399799297911431$$
    mode and below $10^{-8}$ for the centered finite difference with
    $h = 10^{-6}$ (roundoff-dominated, expected around $10^{-10}$).
 6. The sampled grid has exactly 601 points and includes 0.95 and 2.5.
+- `week5/scripts/plot_graphs.py` — draws the computational graph JAX
+  actually records (via `jax.make_jaxpr`) for `U` at $r = 1.3$ and for
+  `jax.grad(U)` at $r = 1.3$, one node per operation, each labelled with
+  the operation's primitive name, and saves
+  `week5/artifacts/ad/graph.png` (forward graph) and
+  `week5/artifacts/ad/grad-graph.png` (gradient graph).
+
+## Correctness criteria (graphs)
+
+7. The forward graph contains exactly the primitives `pow, pow, sub, mul`
+   (matching the four nodes $a, b, c, U$), and the gradient graph records
+   the backward pass as 15 primitive operations. Both plots exist and are
+   non-empty.
 
 ## Correctness criteria
 
