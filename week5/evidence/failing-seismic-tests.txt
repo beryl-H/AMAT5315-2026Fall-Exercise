@@ -1,0 +1,155 @@
+FFFFEE                                                                   [100%]
+==================================== ERRORS ====================================
+____________ ERROR at setup of test_reflector_gathers_match_lecture ____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x788770cf33e0>, _basetemp=PosixPath('/tmp/pytest-of-keria_h/pytest-1'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def reflector_forward(tmp_path_factory):
+        out = tmp_path_factory.mktemp("reflector-forward")
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "forward",
+               "--every", 3, "--out", out)
+
+tests/test_seismic.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'forward', '--every', 3, ...)
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+__________ ERROR at setup of test_diagonal_wave_speed_matches_lecture __________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x788770cf33e0>, _basetemp=PosixPath('/tmp/pytest-of-keria_h/pytest-1'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def reflector_forward(tmp_path_factory):
+        out = tmp_path_factory.mktemp("reflector-forward")
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "forward",
+               "--every", 3, "--out", out)
+
+tests/test_seismic.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'forward', '--every', 3, ...)
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+=================================== FAILURES ===================================
+_____________ test_enzyme_smoke_is_cube_value_and_both_derivatives _____________
+
+    def test_enzyme_smoke_is_cube_value_and_both_derivatives():
+>       values = json.loads(invoke("--enzyme-smoke").stdout)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_seismic.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True, args = ('--enzyme-smoke',)
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+______________ test_one_cell_centered_update_and_zero_boundaries _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_one_cell_centered_update_0')
+
+    def test_one_cell_centered_update_and_zero_boundaries(tmp_path):
+        model = small_model(3, 3, 2)
+        model.update(dt=.2, source_frequency=1., source_peak_time=0.,
+                     shots=[[1., 1.]], receivers=[[1, 1], [0, 0]], sponge_width=0)
+        model["background"] = np.ones((3, 3)).tolist()
+        path = write_model(tmp_path, model)
+        out = tmp_path / "forward"
+>       invoke("--experiment", path, "--mode", "forward", "--every", 1, "--out", out)
+
+tests/test_seismic.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_one_cell_centered_update_0/model.json'), '--mode', 'forward', '--every', 1, ...)
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+________________________ test_sponge_divides_the_update ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_sponge_divides_the_update0')
+
+    def test_sponge_divides_the_update(tmp_path):
+        model = small_model(3, 3, 1)
+        model.update(dt=.2, source_frequency=1., source_peak_time=0.,
+                     shots=[[1., 1.]], receivers=[[1, 1]], sponge_width=2, sponge_strength=.4)
+        path = write_model(tmp_path, model)
+        out = tmp_path / "damped"
+>       invoke("--experiment", path, "--mode", "forward", "--out", out)
+
+tests/test_seismic.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_sponge_divides_the_update0/model.json'), '--mode', 'forward', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_sponge_divides_the_update0/damped'))
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+________________________ test_unstable_cfl_is_rejected _________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_unstable_cfl_is_rejected0')
+
+    def test_unstable_cfl_is_rejected(tmp_path):
+        model = small_model()
+        model["dt"] = 2.
+>       r = invoke("--experiment", write_model(tmp_path, model), "--mode", "forward",
+                   "--out", tmp_path / "invalid", ok=False)
+
+tests/test_seismic.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = False
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_unstable_cfl_is_rejected0/model.json'), '--mode', 'forward', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-1/test_unstable_cfl_is_rejected0/invalid'))
+
+    def invoke(*args, ok=True):
+>       assert BIN.is_file(), "seismic executable is not implemented yet"
+E       AssertionError: seismic executable is not implemented yet
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic').is_file
+
+tests/test_seismic.py:15: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_seismic.py::test_enzyme_smoke_is_cube_value_and_both_derivatives
+FAILED tests/test_seismic.py::test_one_cell_centered_update_and_zero_boundaries
+FAILED tests/test_seismic.py::test_sponge_divides_the_update - AssertionError...
+FAILED tests/test_seismic.py::test_unstable_cfl_is_rejected - AssertionError:...
+ERROR tests/test_seismic.py::test_reflector_gathers_match_lecture - Assertion...
+ERROR tests/test_seismic.py::test_diagonal_wave_speed_matches_lecture - Asser...
+4 failed, 2 errors in 0.40s
