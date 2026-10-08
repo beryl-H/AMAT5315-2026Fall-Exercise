@@ -92,6 +92,26 @@ def test_far_ricker_tail_stays_finite(tmp_path):
     assert np.all(np.isfinite(data)) and not np.any(data)
 
 
+@pytest.mark.parametrize("frequency,theta,amplitude", [
+    (1e308, 0., 1.), (1., 2., 1e308), (1., 30., 1e308)])
+def test_finite_ricker_extremes_do_not_overflow_or_truncate(tmp_path, frequency, theta, amplitude):
+    model = small_model(3, 3, 1)
+    model.update(dt=.2, source_frequency=frequency,
+                 source_peak_time=0. if theta == 0 else -theta / math.pi,
+                 source_amplitude=amplitude, shots=[[1., 1.]],
+                 receivers=[[1, 1]], sponge_width=0)
+    out = tmp_path / "extreme-pulse"
+    invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+    actual = np.load(out / "traces.npy")[0, 0, 0]
+    if theta == 0:
+        pulse = amplitude
+    else:
+        factor = 1 - 2 * theta**2
+        pulse = math.copysign(math.exp(math.log(amplitude) + math.log(abs(factor)) - theta**2), factor)
+    assert math.isfinite(actual)
+    assert actual == pytest.approx(.04 * pulse, rel=1e-12, abs=0)
+
+
 def test_unrecorded_rerun_cannot_leave_a_stale_wavefield(tmp_path):
     path = write_model(tmp_path, small_model())
     out = tmp_path / "recorded"

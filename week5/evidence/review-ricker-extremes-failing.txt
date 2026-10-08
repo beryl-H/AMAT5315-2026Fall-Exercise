@@ -1,0 +1,91 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+___ test_finite_ricker_extremes_do_not_overflow_or_truncate[1e+308-0.0-1.0] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-13/test_finite_ricker_extremes_do0')
+frequency = 1e+308, theta = 0.0, amplitude = 1.0
+
+    @pytest.mark.parametrize("frequency,theta,amplitude", [
+        (1e308, 0., 1.), (1., 2., 1e308), (1., 30., 1e308)])
+    def test_finite_ricker_extremes_do_not_overflow_or_truncate(tmp_path, frequency, theta, amplitude):
+        model = small_model(3, 3, 1)
+        model.update(dt=.2, source_frequency=frequency,
+                     source_peak_time=0. if theta == 0 else -theta / math.pi,
+                     source_amplitude=amplitude, shots=[[1., 1.]],
+                     receivers=[[1, 1]], sponge_width=0)
+        out = tmp_path / "extreme-pulse"
+        invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+        actual = np.load(out / "traces.npy")[0, 0, 0]
+        if theta == 0:
+            pulse = amplitude
+        else:
+            factor = 1 - 2 * theta**2
+            pulse = math.copysign(math.exp(math.log(amplitude) + math.log(abs(factor)) - theta**2), factor)
+>       assert math.isfinite(actual)
+E       assert False
+E        +  where False = <built-in function isfinite>(np.float64(nan))
+E        +    where <built-in function isfinite> = math.isfinite
+
+tests/test_seismic.py:111: AssertionError
+___ test_finite_ricker_extremes_do_not_overflow_or_truncate[1.0-2.0-1e+308] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-13/test_finite_ricker_extremes_do1')
+frequency = 1.0, theta = 2.0, amplitude = 1e+308
+
+    @pytest.mark.parametrize("frequency,theta,amplitude", [
+        (1e308, 0., 1.), (1., 2., 1e308), (1., 30., 1e308)])
+    def test_finite_ricker_extremes_do_not_overflow_or_truncate(tmp_path, frequency, theta, amplitude):
+        model = small_model(3, 3, 1)
+        model.update(dt=.2, source_frequency=frequency,
+                     source_peak_time=0. if theta == 0 else -theta / math.pi,
+                     source_amplitude=amplitude, shots=[[1., 1.]],
+                     receivers=[[1, 1]], sponge_width=0)
+        out = tmp_path / "extreme-pulse"
+        invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+        actual = np.load(out / "traces.npy")[0, 0, 0]
+        if theta == 0:
+            pulse = amplitude
+        else:
+            factor = 1 - 2 * theta**2
+            pulse = math.copysign(math.exp(math.log(amplitude) + math.log(abs(factor)) - theta**2), factor)
+>       assert math.isfinite(actual)
+E       assert False
+E        +  where False = <built-in function isfinite>(np.float64(-inf))
+E        +    where <built-in function isfinite> = math.isfinite
+
+tests/test_seismic.py:111: AssertionError
+___ test_finite_ricker_extremes_do_not_overflow_or_truncate[1.0-30.0-1e+308] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-13/test_finite_ricker_extremes_do2')
+frequency = 1.0, theta = 30.0, amplitude = 1e+308
+
+    @pytest.mark.parametrize("frequency,theta,amplitude", [
+        (1e308, 0., 1.), (1., 2., 1e308), (1., 30., 1e308)])
+    def test_finite_ricker_extremes_do_not_overflow_or_truncate(tmp_path, frequency, theta, amplitude):
+        model = small_model(3, 3, 1)
+        model.update(dt=.2, source_frequency=frequency,
+                     source_peak_time=0. if theta == 0 else -theta / math.pi,
+                     source_amplitude=amplitude, shots=[[1., 1.]],
+                     receivers=[[1, 1]], sponge_width=0)
+        out = tmp_path / "extreme-pulse"
+        invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+        actual = np.load(out / "traces.npy")[0, 0, 0]
+        if theta == 0:
+            pulse = amplitude
+        else:
+            factor = 1 - 2 * theta**2
+            pulse = math.copysign(math.exp(math.log(amplitude) + math.log(abs(factor)) - theta**2), factor)
+        assert math.isfinite(actual)
+>       assert actual == pytest.approx(.04 * pulse, rel=1e-12, abs=0)
+E       assert np.float64(0.0) == -9.8187780201...e-82 ± 9.8e-94
+E         
+E         comparison failed
+E         Obtained: 0.0
+E         Expected: -9.81877802018325e-82 ± 9.8e-94
+
+tests/test_seismic.py:112: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_seismic.py::test_finite_ricker_extremes_do_not_overflow_or_truncate[1e+308-0.0-1.0]
+FAILED tests/test_seismic.py::test_finite_ricker_extremes_do_not_overflow_or_truncate[1.0-2.0-1e+308]
+FAILED tests/test_seismic.py::test_finite_ricker_extremes_do_not_overflow_or_truncate[1.0-30.0-1e+308]
+3 failed, 8 deselected in 0.36s
