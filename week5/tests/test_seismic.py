@@ -83,6 +83,25 @@ def test_unstable_cfl_is_rejected(tmp_path):
     assert "CFL" in r.stderr
 
 
+def test_far_ricker_tail_stays_finite(tmp_path):
+    model = small_model()
+    model["source_peak_time"] = 1e200
+    out = tmp_path / "far-tail"
+    invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+    data = np.load(out / "traces.npy")
+    assert np.all(np.isfinite(data)) and not np.any(data)
+
+
+def test_unrecorded_rerun_cannot_leave_a_stale_wavefield(tmp_path):
+    path = write_model(tmp_path, small_model())
+    out = tmp_path / "recorded"
+    invoke("--experiment", path, "--mode", "forward", "--every", 1, "--out", out)
+    before = (out / "run.json").read_bytes()
+    result = invoke("--experiment", path, "--mode", "forward", "--out", out, ok=False)
+    assert "wavefield" in result.stderr
+    assert (out / "run.json").read_bytes() == before
+
+
 @pytest.fixture(scope="module")
 def reflector_forward(tmp_path_factory):
     out = tmp_path_factory.mktemp("reflector-forward")

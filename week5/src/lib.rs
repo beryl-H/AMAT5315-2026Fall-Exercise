@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 pub mod npy;
+pub mod simulation;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -87,7 +88,10 @@ impl Experiment {
     }
     pub fn source(&self, step: usize, footprint: &[f64], out: &mut [f64]) {
         let theta = std::f64::consts::PI * self.source_frequency * (step as f64 * self.dt - self.source_peak_time);
-        let pulse = self.source_amplitude * (1.0 - 2.0 * theta * theta) * (-theta * theta).exp();
+        // Beyond this tail exp(-theta^2) rounds to zero; avoid inf * zero.
+        let pulse = if theta.abs() > 27.0 { 0.0 } else {
+            self.source_amplitude * (1.0 - 2.0 * theta * theta) * (-theta * theta).exp()
+        };
         for (q, &v) in out.iter_mut().zip(footprint) { *q = pulse * v; }
     }
 }
@@ -96,6 +100,32 @@ unsafe extern "C" {
     fn enzyme_cube(x: f64, out: *mut f64);
     fn seismic_step(state: *const f64, velocity: *const f64, sigma: *const f64,
                     source: *const f64, dt: f64, dx: f64, nx: usize, nz: usize, out: *mut f64);
+    fn seismic_jvp(state: *const f64, tangent: *const f64, velocity: *const f64, direction: *const f64,
+                   sigma: *const f64, source: *const f64, dt: f64, dx: f64, nx: usize, nz: usize,
+                   out: *mut f64, out_tangent: *mut f64);
+    fn seismic_vjp(state: *const f64, state_bar: *mut f64, velocity: *const f64, velocity_bar: *mut f64,
+                   sigma: *const f64, source: *const f64, dt: f64, dx: f64, nx: usize, nz: usize,
+                   out: *mut f64, out_bar: *mut f64);
+}
+
+pub fn jvp(exp: &Experiment, state: &[f64], tangent: &[f64], velocity: &[f64], direction: &[f64],
+           sigma: &[f64], source: &[f64], out: &mut [f64], out_tangent: &mut [f64]) {
+    let n = exp.cells();
+    for a in [state, tangent, &*out, &*out_tangent] { assert_eq!(a.len(), 2 * n); }
+    for a in [velocity, direction, sigma, source] { assert_eq!(a.len(), n); }
+    unsafe { seismic_jvp(state.as_ptr(), tangent.as_ptr(), velocity.as_ptr(), direction.as_ptr(),
+        sigma.as_ptr(), source.as_ptr(), exp.dt, exp.dx, exp.nx, exp.nz,
+        out.as_mut_ptr(), out_tangent.as_mut_ptr()); }
+}
+
+pub fn vjp(exp: &Experiment, state: &[f64], state_bar: &mut [f64], velocity: &[f64], velocity_bar: &mut [f64],
+           sigma: &[f64], source: &[f64], out: &mut [f64], out_bar: &mut [f64]) {
+    let n = exp.cells();
+    for a in [state, &*state_bar, &*out, &*out_bar] { assert_eq!(a.len(), 2 * n); }
+    for a in [velocity, &*velocity_bar, sigma, source] { assert_eq!(a.len(), n); }
+    unsafe { seismic_vjp(state.as_ptr(), state_bar.as_mut_ptr(), velocity.as_ptr(), velocity_bar.as_mut_ptr(),
+        sigma.as_ptr(), source.as_ptr(), exp.dt, exp.dx, exp.nx, exp.nz,
+        out.as_mut_ptr(), out_bar.as_mut_ptr()); }
 }
 
 pub fn smoke() -> [f64; 3] {

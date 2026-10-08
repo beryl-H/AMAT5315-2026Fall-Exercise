@@ -1,0 +1,53 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+______________________ test_far_ricker_tail_stays_finite _______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-5/test_far_ricker_tail_stays_fin0')
+
+    def test_far_ricker_tail_stays_finite(tmp_path):
+        model = small_model()
+        model["source_peak_time"] = 1e200
+        out = tmp_path / "far-tail"
+        invoke("--experiment", write_model(tmp_path, model), "--mode", "forward", "--out", out)
+        data = np.load(out / "traces.npy")
+>       assert np.all(np.isfinite(data)) and not np.any(data)
+E       AssertionError: assert (np.False_)
+E        +  where np.False_ = <function all at 0x73d84cc071b0>(array([[[False, False, False],\n        [False, False, False],\n        [False, False, False],\n        [False, False, Fa...  [False, False, False],\n        [False, False, False],\n        [False, False, False],\n        [False, False, False]]]))
+E        +    where <function all at 0x73d84cc071b0> = np.all
+E        +    and   array([[[False, False, False],\n        [False, False, False],\n        [False, False, False],\n        [False, False, Fa...  [False, False, False],\n        [False, False, False],\n        [False, False, False],\n        [False, False, False]]]) = <ufunc 'isfinite'>(array([[[nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan,... [nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan, nan],\n        [nan, nan, nan]]]))
+E        +      where <ufunc 'isfinite'> = np.isfinite
+
+tests/test_seismic.py:92: AssertionError
+_____________ test_unrecorded_rerun_cannot_leave_a_stale_wavefield _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-5/test_unrecorded_rerun_cannot_l0')
+
+    def test_unrecorded_rerun_cannot_leave_a_stale_wavefield(tmp_path):
+        path = write_model(tmp_path, small_model())
+        out = tmp_path / "recorded"
+        invoke("--experiment", path, "--mode", "forward", "--every", 1, "--out", out)
+        before = (out / "run.json").read_bytes()
+>       result = invoke("--experiment", path, "--mode", "forward", "--out", out, ok=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_seismic.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = False
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-5/test_unrecorded_rerun_cannot_l0/model.json'), '--mode', 'forward', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-5/test_unrecorded_rerun_cannot_l0/recorded'))
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+            assert result.returncode == 0, result.stderr
+        else:
+>           assert result.returncode != 0
+E           AssertionError: assert 0 != 0
+E            +  where 0 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/...orded_rerun_cannot_l0/recorded'], returncode=0, stdout='shot\tmode\tl2\n0\tforward\t3.974410805021845e-1\n', stderr='').returncode
+
+tests/test_seismic.py:20: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_seismic.py::test_far_ricker_tail_stays_finite - AssertionEr...
+FAILED tests/test_seismic.py::test_unrecorded_rerun_cannot_leave_a_stale_wavefield
+2 failed, 6 deselected in 0.24s
