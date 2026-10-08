@@ -1,0 +1,15 @@
+{
+  "dt": 0.2,
+  "dx": 1.0,
+  "experiment": "reflector",
+  "implementation": "Rust; isolated Enzyme kernel",
+  "mode": "forward",
+  "nx": 41,
+  "nz": 41,
+  "receivers": 14,
+  "schema": "week5-born-rtm-v2",
+  "seconds": 0.008383875,
+  "shots": 3,
+  "statistics": null,
+  "steps": 240
+}
