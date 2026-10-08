@@ -1,0 +1,117 @@
+FFFE                                                                     [100%]
+==================================== ERRORS ====================================
+________ ERROR at setup of test_reflector_dot_product_and_localization _________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7855985b75f0>, _basetemp=PosixPath('/tmp/pytest-of-keria_h/pytest-3'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def reflector_derivatives(tmp_path_factory):
+        tmp = tmp_path_factory.mktemp("reflector-derivatives")
+        born, adj = tmp / "born", tmp / "adjoint"
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "born", "--out", born)
+
+tests/test_derivatives.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'born', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-3/reflector-derivatives0/born'))
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only forward mode is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/home.../pytest-3/reflector-derivatives0/born'], returncode=1, stdout='', stderr='seismic: only forward mode is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+=================================== FAILURES ===================================
+________ test_born_is_velocity_directional_derivative_not_squared_speed ________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_born_is_velocity_directio0')
+
+    def test_born_is_velocity_directional_derivative_not_squared_speed(tmp_path):
+        rng = np.random.default_rng(5315)
+        model = small_model(7, 8, 20)
+        perturbation = rng.normal(size=(8, 7)) * .2
+        model["perturbation"] = perturbation.tolist()
+>       born = run_model(tmp_path, model, "born", "born")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_derivatives.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_derivatives.py:15: in run_model
+    invoke(*args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_born_is_velocity_directio0/born.json'), '--mode', 'born', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_born_is_velocity_directio0/born'))
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only forward mode is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/.../test_born_is_velocity_directio0/born'], returncode=1, stdout='', stderr='seismic: only forward mode is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+________ test_random_weight_transpose_and_duplicate_receiver_injection _________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_random_weight_transpose_a0')
+
+    def test_random_weight_transpose_and_duplicate_receiver_injection(tmp_path):
+        rng = np.random.default_rng(8471)
+        model = small_model(7, 8, 20)
+        model["shots"] = [[2., 3.], [4., 2.]]
+        model["receivers"] = [[2, 3], [2, 3], [4, 3], [3, 4]]
+        m = rng.normal(size=(8, 7)) * .2
+        model["perturbation"] = m.tolist()
+>       born = run_model(tmp_path, model, "born", "random-born")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_derivatives.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_derivatives.py:15: in run_model
+    invoke(*args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_random_weight_transpose_a0/random-born.json'), '--mode', 'born', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_random_weight_transpose_a0/random-born'))
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only forward mode is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/...andom_weight_transpose_a0/random-born'], returncode=1, stdout='', stderr='seismic: only forward mode is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+_________________ test_adjoint_rejects_weights_of_wrong_shape __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-3/test_adjoint_rejects_weights_o0')
+
+    def test_adjoint_rejects_weights_of_wrong_shape(tmp_path):
+        model = small_model()
+        weights = tmp_path / "bad.npy"
+        np.save(weights, np.zeros((1, 12, 2)))
+        result = invoke("--experiment", write_model(tmp_path, model), "--mode", "adjoint",
+                        "--data", weights, "--out", tmp_path / "bad-out", ok=False)
+>       assert "shape" in result.stderr
+E       AssertionError: assert 'shape' in 'seismic: only forward mode is implemented\n'
+E        +  where 'seismic: only forward mode is implemented\n' = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/...st_adjoint_rejects_weights_o0/bad-out'], returncode=1, stdout='', stderr='seismic: only forward mode is implemented\n').stderr
+
+tests/test_derivatives.py:75: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_derivatives.py::test_born_is_velocity_directional_derivative_not_squared_speed
+FAILED tests/test_derivatives.py::test_random_weight_transpose_and_duplicate_receiver_injection
+FAILED tests/test_derivatives.py::test_adjoint_rejects_weights_of_wrong_shape
+ERROR tests/test_derivatives.py::test_reflector_dot_product_and_localization
+3 failed, 1 error in 0.39s
