@@ -28,13 +28,23 @@ fn run() -> Result<()> {
     let input = PathBuf::from(flags.get("--experiment").ok_or("--experiment is required")?);
     let mode = flags.get("--mode").ok_or("--mode is required")?;
     if !["forward", "born", "adjoint"].contains(&mode.as_str()) { return Err("mode must be forward, born or adjoint".into()); }
-    if flags.get("--storage").is_some_and(|s| s != "full") { return Err("only full-history storage is implemented".into()); }
+    let storage = flags.get("--storage").map(String::as_str).unwrap_or("full");
+    if !["full", "treeverse"].contains(&storage) { return Err("storage must be full or treeverse".into()); }
+    let budget = flags.get("--checkpoints").map(|v| v.parse::<usize>()).transpose()?.unwrap_or(0);
+    if mode != "adjoint" && (flags.contains_key("--storage") || flags.contains_key("--checkpoints")) {
+        return Err("storage flags require adjoint mode".into());
+    }
+    if storage == "treeverse" && budget == 0 { return Err("treeverse requires a positive --checkpoints budget".into()); }
+    if storage == "full" && flags.contains_key("--checkpoints") { return Err("--checkpoints requires treeverse storage".into()); }
     let out = PathBuf::from(flags.get("--out").ok_or("--out is required")?);
     let every = flags.get("--every").map(|v| v.parse::<usize>()).transpose()?.unwrap_or(0);
     if flags.contains_key("--every") && every == 0 { return Err("--every must be positive".into()); }
     let bytes = fs::read(&input)?;
     let exp: Experiment = serde_json::from_slice(&bytes)?;
     exp.validate()?;
+    if mode == "adjoint" && storage == "full" && exp.name == "marmousi" {
+        return Err("Marmousi must use treeverse storage; full history would need 4.16 GB per shot".into());
+    }
     let nr = exp.receivers.len();
     let ns = exp.shots.len();
     let weights = if mode == "adjoint" {
@@ -47,7 +57,7 @@ fn run() -> Result<()> {
     }
     fs::create_dir_all(&out)?;
     let started = Instant::now();
-    let computed = simulation::run(&exp, mode, &weights, every);
+    let computed = simulation::run(&exp, mode, &weights, every, storage, budget);
     println!("shot\tmode\tl2");
     for (shot, l2) in computed.shot_l2.iter().enumerate() {
         println!("{shot}\t{mode}\t{l2:.15e}");
@@ -56,6 +66,10 @@ fn run() -> Result<()> {
     let shape = if mode == "adjoint" { vec![exp.nz, exp.nx] } else { vec![ns, exp.steps, nr] };
     npy::write_f64(&out.join(filename), &shape, &computed.array)?;
     if every > 0 { npy::write_f32(&out.join("wavefield.npy"), &[computed.recording_steps.len(), exp.nz, exp.nx], &computed.frames)?; }
+    for (shot, actions) in computed.actions.iter().enumerate() {
+        // Compact action logs keep each committed file under the 5 MB evidence limit.
+        fs::write(out.join(format!("actions-{shot}.json")), serde_json::to_vec(actions)?)?;
+    }
     let mut metadata: Value = serde_json::from_slice(&bytes)?;
     metadata.as_object_mut().unwrap().remove("background");
     metadata.as_object_mut().unwrap().remove("perturbation");

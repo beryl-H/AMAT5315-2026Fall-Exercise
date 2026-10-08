@@ -1,0 +1,44 @@
+{
+  "dt": 0.2,
+  "dx": 1.0,
+  "experiment": "reflector",
+  "implementation": "Rust; isolated Enzyme kernel",
+  "mode": "adjoint",
+  "nx": 41,
+  "nz": 41,
+  "receivers": 14,
+  "schema": "week5-born-rtm-v2",
+  "seconds": 0.937333646,
+  "shots": 3,
+  "statistics": {
+    "checkpoints": 1,
+    "peak_saved_bytes": 53792,
+    "peak_saved_states": 2,
+    "per_shot": [
+      {
+        "actions_file": "actions-0.json",
+        "peak_saved_states": 2,
+        "reverse_calls": 240,
+        "scheduler_forward_calls": 28680
+      },
+      {
+        "actions_file": "actions-1.json",
+        "peak_saved_states": 2,
+        "reverse_calls": 240,
+        "scheduler_forward_calls": 28680
+      },
+      {
+        "actions_file": "actions-2.json",
+        "peak_saved_states": 2,
+        "reverse_calls": 240,
+        "scheduler_forward_calls": 28680
+      }
+    ],
+    "reverse_calls": 720,
+    "saved_state_bytes": 26896,
+    "scheduler_forward_calls": 86040,
+    "state_wavefields": 2,
+    "storage": "treeverse"
+  },
+  "steps": 240
+}

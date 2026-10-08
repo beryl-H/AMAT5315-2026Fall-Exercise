@@ -53,3 +53,35 @@ current-pressure adjoint after reversing its step; outer boundary values are zer
 also contains recording: every (integer stride), steps (integer array),
 times (array of reduced times, step*dt); arrays follow wavefield frame order
 """
+
+[args.reverse]
+data = "born_data.npy of a born run: float64 [shot, step, receiver] receiver weights to back-propagate"
+[writes.reverse]
+"<out>/result.json" = """
+adjoint adds statistics: storage=full, checkpoints=null, state_wavefields=2;
+saved_state_bytes: 2*nx*nz*8; peak_saved_states: N+1 for N timesteps;
+peak_saved_bytes: peak_saved_states*saved_state_bytes;
+scheduler_forward_calls: forward steps run by the schedule, excluding VJP work;
+reverse_calls: timestep VJPs.
+per_shot: array in shot order, each with scheduler_forward_calls, reverse_calls,
+peak_saved_states. Sum work across shots; take maxima for peaks.
+Saved-state bytes exclude work buffers, adjoints, model, data and AD scratch.
+"""
+[args.checkpoint]
+storage = "adjoint storage: full (default, every complete state) or treeverse"
+checkpoints = "extra saved-state slots beyond the initial state; for treeverse"
+[writes.checkpoint]
+"<out>/actions-<shot>.json" = """
+per-shot array: action, step, saved_states (live slots after the action).
+Initial state 0 occupies a permanent slot without a store event.
+restore: copy saved state step to the replay workspace.
+call: advance workspace from step to step+1 (step is the INPUT index).
+store: save the current workspace at step in a new slot.
+grad: reverse step using its input state from a SAVED slot, not workspace.
+fetch: discard saved state step; never discard state 0.
+grad steps are N-1,...,0 exactly once; finish with only state 0 saved.
+"""
+"<out>/result.json" = """
+statistics uses reverse counters; storage=treeverse; checkpoints=requested budget.
+per_shot also names actions_file (relative filename); full history needs no log.
+"""

@@ -1,0 +1,84 @@
+F..FFF                                                                   [100%]
+=================================== FAILURES ===================================
+________________ test_six_steps_two_slots_have_lecture_schedule ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-8/test_six_steps_two_slots_have_0')
+
+    def test_six_steps_two_slots_have_lecture_schedule(tmp_path):
+        model = small_model(7, 8, 6)
+        model["perturbation"] = np.full((8, 7), .1).tolist()
+        born = run_model(tmp_path, model, "born", "six-born")
+        out = run_model(tmp_path, model, "adjoint", "six-tree", data=born / "born_data.npy",
+                        storage="treeverse", checkpoints=2)
+        actions = json.loads((out / "actions-0.json").read_text())
+        assert [a["step"] for a in actions if a["action"] == "store"][0] == 3
+>       assert inspect_actions(actions, 6, 2) == (8, 3)
+E       assert (15, 3) == (8, 3)
+E         
+E         At index 0 diff: 15 != 8
+E         Use -v to get more diff
+
+tests/test_checkpoint.py:50: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-8/test_reflector_treeverse_is_id1')
+budget = 3, calls = 1695, peak = 4
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+        np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+        result = json.loads((out / "result.json").read_text())["statistics"]
+        assert result["peak_saved_states"] == peak
+        assert result["peak_saved_bytes"] == peak * 2 * 41 * 41 * 8
+>       assert result["scheduler_forward_calls"] == calls * 3
+E       assert 86040 == (1695 * 3)
+
+tests/test_checkpoint.py:75: AssertionError
+__ test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-8/test_reflector_treeverse_is_id2')
+budget = 5, calls = 990, peak = 6
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+        np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+        result = json.loads((out / "result.json").read_text())["statistics"]
+        assert result["peak_saved_states"] == peak
+        assert result["peak_saved_bytes"] == peak * 2 * 41 * 41 * 8
+>       assert result["scheduler_forward_calls"] == calls * 3
+E       assert 86040 == (990 * 3)
+
+tests/test_checkpoint.py:75: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11] _
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-8/test_reflector_treeverse_is_id3')
+budget = 10, calls = 642, peak = 11
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+        np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+        result = json.loads((out / "result.json").read_text())["statistics"]
+        assert result["peak_saved_states"] == peak
+        assert result["peak_saved_bytes"] == peak * 2 * 41 * 41 * 8
+>       assert result["scheduler_forward_calls"] == calls * 3
+E       assert 86040 == (642 * 3)
+
+tests/test_checkpoint.py:75: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_checkpoint.py::test_six_steps_two_slots_have_lecture_schedule
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11]
+4 failed, 2 passed in 3.67s

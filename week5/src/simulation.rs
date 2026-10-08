@@ -1,4 +1,5 @@
 use crate::{Experiment, advance, jvp, vjp};
+use crate::schedule::{Action, Treeverse};
 use serde_json::{Value, json};
 
 pub struct Output {
@@ -7,19 +8,35 @@ pub struct Output {
     pub recording_steps: Vec<usize>,
     pub statistics: Option<Value>,
     pub shot_l2: Vec<f64>,
+    pub actions: Vec<Vec<Action>>,
 }
 
-pub fn run(exp: &Experiment, mode: &str, weights: &[f64], every: usize) -> Output {
+pub fn run(exp: &Experiment, mode: &str, weights: &[f64], every: usize, storage: &str, budget: usize) -> Output {
     let n = exp.cells();
     let nr = exp.receivers.len();
     let velocity = exp.velocity();
     let direction = exp.perturbation();
     let sigma = exp.sigma();
     let mut result = Output { array: vec![0.0; if mode == "adjoint" { n } else { exp.shots.len() * exp.steps * nr }],
-        frames: Vec::new(), recording_steps: Vec::new(), statistics: None, shot_l2: Vec::new() };
+        frames: Vec::new(), recording_steps: Vec::new(), statistics: None, shot_l2: Vec::new(), actions: Vec::new() };
     let mut per_shot = Vec::new();
     for (shot, &position) in exp.shots.iter().enumerate() {
         let footprint = exp.footprint(position);
+        if mode == "adjoint" && storage == "treeverse" {
+            let start = shot * exp.steps * nr;
+            let reverse = Reverse::new(exp, &velocity, &sigma, &footprint,
+                &weights[start..start + exp.steps * nr], if shot == 0 { every } else { 0 });
+            let mut tree = Treeverse::new(exp, &velocity, &sigma, &footprint, reverse, budget);
+            tree.run();
+            result.shot_l2.push(norm(&tree.reverse.image));
+            for (total, value) in result.array.iter_mut().zip(&tree.reverse.image) { *total += value; }
+            if shot == 0 { result.frames = tree.reverse.frames; result.recording_steps = tree.reverse.recording_steps; }
+            per_shot.push(json!({"scheduler_forward_calls": tree.counters.scheduler_forward_calls,
+                "reverse_calls": tree.counters.reverse_calls, "peak_saved_states": tree.counters.peak_saved_states,
+                "actions_file": format!("actions-{shot}.json")}));
+            result.actions.push(tree.actions);
+            continue;
+        }
         let mut source = vec![0.0; n];
         let mut state = vec![0.0; 2 * n];
         let mut next = state.clone();
@@ -44,7 +61,7 @@ pub fn run(exp: &Experiment, mode: &str, weights: &[f64], every: usize) -> Outpu
             }
             if shot == 0 && every > 0 && (step + 1) % every == 0 {
                 result.recording_steps.push(step + 1);
-                result.frames.extend(field.iter().map(|&v| v as f32));
+                result.frames.extend(state[n..].iter().map(|&v| v as f32));
             }
         }
         if mode == "adjoint" {
@@ -64,11 +81,13 @@ pub fn run(exp: &Experiment, mode: &str, weights: &[f64], every: usize) -> Outpu
     }
     if mode == "adjoint" {
         let bytes = 2 * n * 8;
-        result.statistics = Some(json!({"storage": "full", "checkpoints": null, "state_wavefields": 2,
-            "saved_state_bytes": bytes, "peak_saved_states": exp.steps + 1,
-            "peak_saved_bytes": (exp.steps + 1) * bytes,
-            "scheduler_forward_calls": exp.steps * exp.shots.len(),
-            "reverse_calls": exp.steps * exp.shots.len(), "per_shot": per_shot}));
+        let peak = per_shot.iter().map(|s| s["peak_saved_states"].as_u64().unwrap()).max().unwrap();
+        let calls: u64 = per_shot.iter().map(|s| s["scheduler_forward_calls"].as_u64().unwrap()).sum();
+        let reverse_calls: u64 = per_shot.iter().map(|s| s["reverse_calls"].as_u64().unwrap()).sum();
+        result.statistics = Some(json!({"storage": storage,
+            "checkpoints": if storage == "treeverse" { json!(budget) } else { Value::Null }, "state_wavefields": 2,
+            "saved_state_bytes": bytes, "peak_saved_states": peak, "peak_saved_bytes": peak * bytes as u64,
+            "scheduler_forward_calls": calls, "reverse_calls": reverse_calls, "per_shot": per_shot}));
     }
     result
 }

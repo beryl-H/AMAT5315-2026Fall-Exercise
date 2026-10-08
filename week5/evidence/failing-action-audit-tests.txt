@@ -1,0 +1,61 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________________ test_valid_schedule_has_zero_audit_counts ___________________
+
+    def test_valid_schedule_has_zero_audit_counts():
+>       result = auditor()(valid_actions(), 3, 1)
+                 ^^^^^^^^^
+
+tests/test_action_audit.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def auditor():
+        path = Path(__file__).resolve().parents[1] / "scripts/audit_actions.py"
+>       assert path.exists(), "action auditor is not implemented yet"
+E       AssertionError: action auditor is not implemented yet
+E       assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/scripts/audit_actions.py').exists
+
+tests/test_action_audit.py:9: AssertionError
+______ test_missing_duplicate_and_out_of_order_reverse_steps_are_detected ______
+
+    def test_missing_duplicate_and_out_of_order_reverse_steps_are_detected():
+>       audit = auditor()
+                ^^^^^^^^^
+
+tests/test_action_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def auditor():
+        path = Path(__file__).resolve().parents[1] / "scripts/audit_actions.py"
+>       assert path.exists(), "action auditor is not implemented yet"
+E       AssertionError: action auditor is not implemented yet
+E       assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/scripts/audit_actions.py').exists
+
+tests/test_action_audit.py:9: AssertionError
+____________ test_invalid_restore_budget_and_workspace_are_detected ____________
+
+    def test_invalid_restore_budget_and_workspace_are_detected():
+>       audit = auditor()
+                ^^^^^^^^^
+
+tests/test_action_audit.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def auditor():
+        path = Path(__file__).resolve().parents[1] / "scripts/audit_actions.py"
+>       assert path.exists(), "action auditor is not implemented yet"
+E       AssertionError: action auditor is not implemented yet
+E       assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/scripts/audit_actions.py').exists
+
+tests/test_action_audit.py:9: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_action_audit.py::test_valid_schedule_has_zero_audit_counts
+FAILED tests/test_action_audit.py::test_missing_duplicate_and_out_of_order_reverse_steps_are_detected
+FAILED tests/test_action_audit.py::test_invalid_restore_budget_and_workspace_are_detected
+3 failed in 0.05s

@@ -1,0 +1,8 @@
+visit b=0 s=0 e=6 d=2 t=2
+visit b=0 s=3 e=6 d=2 t=2
+visit b=3 s=5 e=6 d=1 t=2
+visit b=3 s=4 e=5 d=1 t=1
+visit b=0 s=1 e=3 d=2 t=1
+visit b=1 s=2 e=3 d=1 t=1
+shot	mode	l2
+0	adjoint	6.764322170021372e-6

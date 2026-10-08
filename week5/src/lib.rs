@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 pub mod npy;
 pub mod simulation;
+pub mod schedule;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
