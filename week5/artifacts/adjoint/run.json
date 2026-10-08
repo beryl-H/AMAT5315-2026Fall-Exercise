@@ -4,7 +4,8 @@
     "--every": "3",
     "--experiment": "inputs/reflector.json",
     "--mode": "adjoint",
-    "--out": "artifacts/adjoint"
+    "--out": "artifacts/adjoint",
+    "--storage": "full"
   },
   "experiment": {
     "dt": 0.2,

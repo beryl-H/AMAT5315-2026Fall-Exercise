@@ -1,0 +1,4 @@
+max |error|          forward: 2.842e-14
+max |error|          reverse: 2.842e-14
+max |error| finite_difference: 4.656e-09
+wrote /home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/ad/modes.png

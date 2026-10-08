@@ -1,0 +1,136 @@
+..................FFFF...............                                    [100%]
+=================================== FAILURES ===================================
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[1-28680-2] _
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-15/test_reflector_treeverse_is_id0')
+budget = 1, calls = 28680, peak = 2
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+>       np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+E       AssertionError: 
+E       Arrays are not equal
+E       
+E       Mismatched elements: 1439 / 1681 (85.6%)
+E       First 5 mismatches are at indices:
+E        [1, 1]: -8.613964072183496e-06 (ACTUAL), -8.61396407218358e-06 (DESIRED)
+E        [1, 2]: -3.060389819493247e-05 (ACTUAL), -3.060389819493257e-05 (DESIRED)
+E        [1, 3]: -5.7941804885939656e-05 (ACTUAL), -5.794180488593982e-05 (DESIRED)
+E        [1, 4]: -8.363342199642195e-05 (ACTUAL), -8.363342199642212e-05 (DESIRED)
+E        [1, 5]: -0.00010400939815900646 (ACTUAL), -0.00010400939815900655 (DESIRED)
+E       Max absolute difference among violations: 3.98986399e-17
+E       Max relative difference among violations: 7.84262753e-13
+E        ACTUAL: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+E        DESIRED: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+
+tests/test_checkpoint.py:71: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-15/test_reflector_treeverse_is_id1')
+budget = 3, calls = 1695, peak = 4
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+>       np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+E       AssertionError: 
+E       Arrays are not equal
+E       
+E       Mismatched elements: 1439 / 1681 (85.6%)
+E       First 5 mismatches are at indices:
+E        [1, 1]: -8.613964072183496e-06 (ACTUAL), -8.61396407218358e-06 (DESIRED)
+E        [1, 2]: -3.060389819493247e-05 (ACTUAL), -3.060389819493257e-05 (DESIRED)
+E        [1, 3]: -5.7941804885939656e-05 (ACTUAL), -5.794180488593982e-05 (DESIRED)
+E        [1, 4]: -8.363342199642195e-05 (ACTUAL), -8.363342199642212e-05 (DESIRED)
+E        [1, 5]: -0.00010400939815900646 (ACTUAL), -0.00010400939815900655 (DESIRED)
+E       Max absolute difference among violations: 3.98986399e-17
+E       Max relative difference among violations: 7.84262753e-13
+E        ACTUAL: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+E        DESIRED: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+
+tests/test_checkpoint.py:71: AssertionError
+__ test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-15/test_reflector_treeverse_is_id2')
+budget = 5, calls = 990, peak = 6
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+>       np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+E       AssertionError: 
+E       Arrays are not equal
+E       
+E       Mismatched elements: 1439 / 1681 (85.6%)
+E       First 5 mismatches are at indices:
+E        [1, 1]: -8.613964072183496e-06 (ACTUAL), -8.61396407218358e-06 (DESIRED)
+E        [1, 2]: -3.060389819493247e-05 (ACTUAL), -3.060389819493257e-05 (DESIRED)
+E        [1, 3]: -5.7941804885939656e-05 (ACTUAL), -5.794180488593982e-05 (DESIRED)
+E        [1, 4]: -8.363342199642195e-05 (ACTUAL), -8.363342199642212e-05 (DESIRED)
+E        [1, 5]: -0.00010400939815900646 (ACTUAL), -0.00010400939815900655 (DESIRED)
+E       Max absolute difference among violations: 3.98986399e-17
+E       Max relative difference among violations: 7.84262753e-13
+E        ACTUAL: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+E        DESIRED: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+
+tests/test_checkpoint.py:71: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11] _
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-15/test_reflector_treeverse_is_id3')
+budget = 10, calls = 642, peak = 11
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+        invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+>       np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+E       AssertionError: 
+E       Arrays are not equal
+E       
+E       Mismatched elements: 1439 / 1681 (85.6%)
+E       First 5 mismatches are at indices:
+E        [1, 1]: -8.613964072183496e-06 (ACTUAL), -8.61396407218358e-06 (DESIRED)
+E        [1, 2]: -3.060389819493247e-05 (ACTUAL), -3.060389819493257e-05 (DESIRED)
+E        [1, 3]: -5.7941804885939656e-05 (ACTUAL), -5.794180488593982e-05 (DESIRED)
+E        [1, 4]: -8.363342199642195e-05 (ACTUAL), -8.363342199642212e-05 (DESIRED)
+E        [1, 5]: -0.00010400939815900646 (ACTUAL), -0.00010400939815900655 (DESIRED)
+E       Max absolute difference among violations: 3.98986399e-17
+E       Max relative difference among violations: 7.84262753e-13
+E        ACTUAL: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+E        DESIRED: array([[ 0.000000e+00,  0.000000e+00,  0.000000e+00, ...,  0.000000e+00,
+E                0.000000e+00,  0.000000e+00],
+E              [ 0.000000e+00, -8.613964e-06, -3.060390e-05, ..., -3.060390e-05,...
+
+tests/test_checkpoint.py:71: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[1-28680-2]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11]
+4 failed, 33 passed in 9.77s

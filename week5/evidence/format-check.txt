@@ -1,0 +1,1 @@
+cargo fmt --check completed with exit 0 in bash scripts/run_all.sh.

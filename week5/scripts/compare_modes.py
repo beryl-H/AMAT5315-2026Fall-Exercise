@@ -60,7 +60,7 @@ def run_comparison() -> dict[str, float]:
     ax1.plot(r, finite_diff, ".", ms=3, label=f"centered FD, h={H:g}")
     ax1.set_xlabel("separation r")
     ax1.set_ylabel("dU/dr")
-    ax1.set_title("Lennard-Jones pair force, reduced units")
+    ax1.set_title("Lennard-Jones energy derivative, reduced units")
     ax1.legend()
 
     ax2.loglog(r, np.abs(forward - ref) + 1e-32, ".", ms=4, label="forward")

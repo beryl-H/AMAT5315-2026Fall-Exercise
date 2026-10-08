@@ -62,13 +62,27 @@ def test_zero_budget_and_misplaced_checkpoint_flags_are_rejected(tmp_path):
            "--out", tmp_path / "ignored-flag", ok=False)
 
 
+@pytest.fixture(scope="module")
+def checkpoint_baseline(tmp_path_factory):
+    # Inputs are downloaded, but generated .npy artifacts are deliberately not
+    # committed. Build both sides with this executable, never an old local run.
+    root = tmp_path_factory.mktemp("checkpoint-baseline")
+    born, full = root / "born", root / "full"
+    experiment = ROOT / "inputs/reflector.json"
+    invoke("--experiment", experiment, "--mode", "born", "--out", born)
+    invoke("--experiment", experiment, "--mode", "adjoint", "--data",
+           born / "born_data.npy", "--storage", "full", "--out", full)
+    return born / "born_data.npy", full / "image.npy"
+
+
 @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
-def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, checkpoint_baseline, budget, calls, peak):
+    weights, baseline_image = checkpoint_baseline
     out = tmp_path / f"checkpoint-{budget}"
     invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
-           "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+           "--data", weights, "--storage", "treeverse",
            "--checkpoints", budget, "--out", out)
-    np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(ROOT / "artifacts/adjoint/image.npy"))
+    np.testing.assert_array_equal(np.load(out / "image.npy"), np.load(baseline_image))
     result = json.loads((out / "result.json").read_text())["statistics"]
     assert result["peak_saved_states"] == peak
     assert result["peak_saved_bytes"] == peak * 2 * 41 * 41 * 8

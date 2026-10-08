@@ -5,9 +5,20 @@ fn main() {
     let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let status = Command::new(env::var_os("RUSTC").unwrap())
         .args([
-            "--edition=2024", "--crate-name", "enzyme_kernel", "--crate-type", "staticlib",
-            "-C", "opt-level=3", "-C", "lto=fat", "-C", "panic=abort",
-            "-Zautodiff=Enable", "src/kernel.rs", "-o",
+            "--edition=2024",
+            "--crate-name",
+            "enzyme_kernel",
+            "--crate-type",
+            "staticlib",
+            "-C",
+            "opt-level=3",
+            "-C",
+            "lto=fat",
+            "-C",
+            "panic=abort",
+            "-Zautodiff=Enable",
+            "src/kernel.rs",
+            "-o",
         ])
         .arg(out.join("libenzyme_kernel.a"))
         .status()

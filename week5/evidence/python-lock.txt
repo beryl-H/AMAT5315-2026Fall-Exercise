@@ -1,0 +1,2 @@
+Using CPython 3.12.3 interpreter at: /usr/bin/python3
+Resolved 22 packages in 11.80s

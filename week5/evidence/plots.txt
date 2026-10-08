@@ -1,0 +1,9 @@
+wrote artifacts/inputs.png
+wrote artifacts/forward/gathers.png
+wrote artifacts/forward/wavefield.png
+wrote artifacts/adjoint/wavefield.png
+wrote artifacts/forward/wave-speed.png
+wrote artifacts/adjoint/image.png
+wrote artifacts/checkpoint-actions.png
+wrote artifacts/checkpoint-work.png
+wrote artifacts/marmousi.png

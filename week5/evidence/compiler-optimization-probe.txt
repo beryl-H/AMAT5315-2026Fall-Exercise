@@ -1,0 +1,2 @@
+opt-level=0: calls=8; restore bases=[0, 3, 3, 0, 1]
+opt-level=3: calls=8; restore bases=[0, 3, 3, 0, 1]

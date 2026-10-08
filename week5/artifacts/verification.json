@@ -1,0 +1,786 @@
+{
+  "checks_passed": true,
+  "inner_product": "unweighted Euclidean sums",
+  "parameter": "velocity",
+  "saved_memory_scope": "two float64 wavefields per saved state",
+  "part1": {
+    "r": 1.3,
+    "single_point_absolute_errors": {
+      "forward": 4.440892098500626e-16,
+      "reverse": 0.0,
+      "jax": 0.0
+    },
+    "grid_points": 601,
+    "finite_difference_h": 1e-06,
+    "grid_max_absolute_errors": {
+      "forward": 2.842170943040401e-14,
+      "reverse": 2.842170943040401e-14,
+      "finite_difference": 4.656037333461427e-09
+    }
+  },
+  "forward": {
+    "trace_l2": 11.574769503614014,
+    "reference_relative_error": 4.288517048378931e-08,
+    "peaks": [
+      {
+        "shot": 0,
+        "trace_index": 83,
+        "receiver": 1,
+        "absolute_peak": 0.6080951434274399
+      },
+      {
+        "shot": 1,
+        "trace_index": 83,
+        "receiver": 6,
+        "absolute_peak": 0.5927139734671292
+      },
+      {
+        "shot": 2,
+        "trace_index": 83,
+        "receiver": 12,
+        "absolute_peak": 0.6080951434274399
+      }
+    ],
+    "wavefront_peak_distances_km": [
+      0.8485281374238571,
+      2.121320343559643
+    ],
+    "measured_displacement_km": 1.2727922061357857,
+    "expected_displacement_km": 1.296
+  },
+  "derivatives": {
+    "born_squared_l2": 0.03484789021516378,
+    "perturbation_dot_image": 0.03484789021516377,
+    "dot_relative_error": 3.9823896718360434e-16,
+    "peak_depth_cell": 21,
+    "full_history_statistics": {
+      "checkpoints": null,
+      "peak_saved_bytes": 6481936,
+      "peak_saved_states": 241,
+      "per_shot": [
+        {
+          "peak_saved_states": 241,
+          "reverse_calls": 240,
+          "scheduler_forward_calls": 240
+        },
+        {
+          "peak_saved_states": 241,
+          "reverse_calls": 240,
+          "scheduler_forward_calls": 240
+        },
+        {
+          "peak_saved_states": 241,
+          "reverse_calls": 240,
+          "scheduler_forward_calls": 240
+        }
+      ],
+      "reverse_calls": 720,
+      "saved_state_bytes": 26896,
+      "scheduler_forward_calls": 720,
+      "state_wavefields": 2,
+      "storage": "full"
+    }
+  },
+  "checkpointing": [
+    {
+      "budget": 1,
+      "image_relative_l2_error": 0.0,
+      "bitwise_identical": true,
+      "statistics": {
+        "checkpoints": 1,
+        "peak_saved_bytes": 53792,
+        "peak_saved_states": 2,
+        "per_shot": [
+          {
+            "actions_file": "actions-0.json",
+            "peak_saved_states": 2,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 28680
+          },
+          {
+            "actions_file": "actions-1.json",
+            "peak_saved_states": 2,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 28680
+          },
+          {
+            "actions_file": "actions-2.json",
+            "peak_saved_states": 2,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 28680
+          }
+        ],
+        "reverse_calls": 720,
+        "saved_state_bytes": 26896,
+        "scheduler_forward_calls": 86040,
+        "state_wavefields": 2,
+        "storage": "treeverse"
+      },
+      "audits": [
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 28680,
+          "reverse_calls": 240,
+          "peak_saved_states": 2,
+          "file": "artifacts/checkpoint-1/actions-0.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 28680,
+          "reverse_calls": 240,
+          "peak_saved_states": 2,
+          "file": "artifacts/checkpoint-1/actions-1.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 28680,
+          "reverse_calls": 240,
+          "peak_saved_states": 2,
+          "file": "artifacts/checkpoint-1/actions-2.json"
+        }
+      ]
+    },
+    {
+      "budget": 3,
+      "image_relative_l2_error": 0.0,
+      "bitwise_identical": true,
+      "statistics": {
+        "checkpoints": 3,
+        "peak_saved_bytes": 107584,
+        "peak_saved_states": 4,
+        "per_shot": [
+          {
+            "actions_file": "actions-0.json",
+            "peak_saved_states": 4,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 1695
+          },
+          {
+            "actions_file": "actions-1.json",
+            "peak_saved_states": 4,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 1695
+          },
+          {
+            "actions_file": "actions-2.json",
+            "peak_saved_states": 4,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 1695
+          }
+        ],
+        "reverse_calls": 720,
+        "saved_state_bytes": 26896,
+        "scheduler_forward_calls": 5085,
+        "state_wavefields": 2,
+        "storage": "treeverse"
+      },
+      "audits": [
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 1695,
+          "reverse_calls": 240,
+          "peak_saved_states": 4,
+          "file": "artifacts/checkpoint-3/actions-0.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 1695,
+          "reverse_calls": 240,
+          "peak_saved_states": 4,
+          "file": "artifacts/checkpoint-3/actions-1.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 1695,
+          "reverse_calls": 240,
+          "peak_saved_states": 4,
+          "file": "artifacts/checkpoint-3/actions-2.json"
+        }
+      ]
+    },
+    {
+      "budget": 5,
+      "image_relative_l2_error": 0.0,
+      "bitwise_identical": true,
+      "statistics": {
+        "checkpoints": 5,
+        "peak_saved_bytes": 161376,
+        "peak_saved_states": 6,
+        "per_shot": [
+          {
+            "actions_file": "actions-0.json",
+            "peak_saved_states": 6,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 990
+          },
+          {
+            "actions_file": "actions-1.json",
+            "peak_saved_states": 6,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 990
+          },
+          {
+            "actions_file": "actions-2.json",
+            "peak_saved_states": 6,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 990
+          }
+        ],
+        "reverse_calls": 720,
+        "saved_state_bytes": 26896,
+        "scheduler_forward_calls": 2970,
+        "state_wavefields": 2,
+        "storage": "treeverse"
+      },
+      "audits": [
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 990,
+          "reverse_calls": 240,
+          "peak_saved_states": 6,
+          "file": "artifacts/checkpoint-5/actions-0.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 990,
+          "reverse_calls": 240,
+          "peak_saved_states": 6,
+          "file": "artifacts/checkpoint-5/actions-1.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 990,
+          "reverse_calls": 240,
+          "peak_saved_states": 6,
+          "file": "artifacts/checkpoint-5/actions-2.json"
+        }
+      ]
+    },
+    {
+      "budget": 10,
+      "image_relative_l2_error": 0.0,
+      "bitwise_identical": true,
+      "statistics": {
+        "checkpoints": 10,
+        "peak_saved_bytes": 295856,
+        "peak_saved_states": 11,
+        "per_shot": [
+          {
+            "actions_file": "actions-0.json",
+            "peak_saved_states": 11,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 642
+          },
+          {
+            "actions_file": "actions-1.json",
+            "peak_saved_states": 11,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 642
+          },
+          {
+            "actions_file": "actions-2.json",
+            "peak_saved_states": 11,
+            "reverse_calls": 240,
+            "scheduler_forward_calls": 642
+          }
+        ],
+        "reverse_calls": 720,
+        "saved_state_bytes": 26896,
+        "scheduler_forward_calls": 1926,
+        "state_wavefields": 2,
+        "storage": "treeverse"
+      },
+      "audits": [
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 642,
+          "reverse_calls": 240,
+          "peak_saved_states": 11,
+          "file": "artifacts/checkpoint-10/actions-0.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 642,
+          "reverse_calls": 240,
+          "peak_saved_states": 11,
+          "file": "artifacts/checkpoint-10/actions-1.json"
+        },
+        {
+          "violations": {
+            "missing_reverse_steps": 0,
+            "duplicated_reverse_steps": 0,
+            "reverse_steps_out_of_descending_order": 0,
+            "invalid_restores": 0,
+            "budget_overruns": 0,
+            "invalid_grad_inputs": 0,
+            "invalid_calls": 0,
+            "invalid_stores": 0,
+            "invalid_fetches": 0,
+            "saved_state_count_mismatches": 0,
+            "invalid_actions": 0,
+            "unfinished_saved_slots": 0
+          },
+          "scheduler_forward_calls": 642,
+          "reverse_calls": 240,
+          "peak_saved_states": 11,
+          "file": "artifacts/checkpoint-10/actions-2.json"
+        }
+      ]
+    }
+  ],
+  "marmousi": {
+    "image_l2": 0.0006703774060378282,
+    "reference_relative_error": 5.9103598621228904e-09,
+    "statistics": {
+      "checkpoints": 5,
+      "peak_saved_bytes": 20788320,
+      "peak_saved_states": 6,
+      "per_shot": [
+        {
+          "actions_file": "actions-0.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-1.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-2.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-3.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-4.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-5.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-6.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-7.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        },
+        {
+          "actions_file": "actions-8.json",
+          "peak_saved_states": 6,
+          "reverse_calls": 1200,
+          "scheduler_forward_calls": 7884
+        }
+      ],
+      "reverse_calls": 10800,
+      "saved_state_bytes": 3464720,
+      "scheduler_forward_calls": 70956,
+      "state_wavefields": 2,
+      "storage": "treeverse"
+    },
+    "theoretical_full_history_bytes": 4161128720,
+    "audits": [
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-0.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-1.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-2.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-3.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-4.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-5.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-6.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-7.json"
+      },
+      {
+        "violations": {
+          "missing_reverse_steps": 0,
+          "duplicated_reverse_steps": 0,
+          "reverse_steps_out_of_descending_order": 0,
+          "invalid_restores": 0,
+          "budget_overruns": 0,
+          "invalid_grad_inputs": 0,
+          "invalid_calls": 0,
+          "invalid_stores": 0,
+          "invalid_fetches": 0,
+          "saved_state_count_mismatches": 0,
+          "invalid_actions": 0,
+          "unfinished_saved_slots": 0
+        },
+        "scheduler_forward_calls": 7884,
+        "reverse_calls": 1200,
+        "peak_saved_states": 6,
+        "file": "artifacts/marmousi-image/actions-8.json"
+      }
+    ],
+    "image_depth_gain_applied": false
+  },
+  "input_sha256": {
+    "reflector": "22b84948e28e8e13e958f47b2d4bf9a70a3d0c8ee6ffcaab3cdeb8003b9902a6",
+    "marmousi": "67beabdee96d8e3f6433c2f897b3b24b0c744e7808784148bb06310665d888b0"
+  },
+  "evidence_file_sizes_bytes": {
+    "artifacts/inputs.png": 126970,
+    "artifacts/marmousi.png": 610531,
+    "artifacts/checkpoint-actions.png": 116437,
+    "artifacts/checkpoint-work.png": 133871,
+    "artifacts/checkpoint-10/run.json": 1707,
+    "artifacts/checkpoint-10/result.json": 1025,
+    "artifacts/checkpoint-10/actions-2.json": 74214,
+    "artifacts/checkpoint-10/actions-1.json": 74214,
+    "artifacts/checkpoint-10/actions-0.json": 74214,
+    "artifacts/checkpoint-5/run.json": 1705,
+    "artifacts/checkpoint-5/result.json": 1020,
+    "artifacts/checkpoint-5/actions-2.json": 89821,
+    "artifacts/checkpoint-5/actions-1.json": 89821,
+    "artifacts/checkpoint-5/actions-0.json": 89821,
+    "artifacts/checkpoint-3/run.json": 1705,
+    "artifacts/checkpoint-3/result.json": 1023,
+    "artifacts/checkpoint-3/actions-2.json": 121840,
+    "artifacts/checkpoint-3/actions-1.json": 121840,
+    "artifacts/checkpoint-3/actions-0.json": 121840,
+    "artifacts/ad/grad-graph.png": 189021,
+    "artifacts/ad/graph.png": 59496,
+    "artifacts/ad/modes.png": 115939,
+    "artifacts/ad/derivatives.json": 353,
+    "artifacts/marmousi-image/run.json": 5824,
+    "artifacts/marmousi-image/result.json": 2011,
+    "artifacts/marmousi-image/actions-7.json": 589982,
+    "artifacts/marmousi-image/actions-2.json": 589982,
+    "artifacts/marmousi-image/actions-4.json": 589982,
+    "artifacts/marmousi-image/actions-6.json": 589982,
+    "artifacts/marmousi-image/actions-1.json": 589982,
+    "artifacts/marmousi-image/actions-8.json": 589982,
+    "artifacts/marmousi-image/actions-5.json": 589982,
+    "artifacts/marmousi-image/actions-0.json": 589982,
+    "artifacts/marmousi-image/actions-3.json": 589982,
+    "artifacts/checkpoint-1/run.json": 1705,
+    "artifacts/checkpoint-1/result.json": 1026,
+    "artifacts/checkpoint-1/actions-2.json": 1342399,
+    "artifacts/checkpoint-1/actions-1.json": 1342399,
+    "artifacts/checkpoint-1/actions-0.json": 1342399,
+    "artifacts/forward/run.json": 3909,
+    "artifacts/forward/wavefield.png": 85438,
+    "artifacts/forward/result.json": 284,
+    "artifacts/forward/gathers.png": 146969,
+    "artifacts/forward/wave-speed.png": 120029,
+    "artifacts/born/run.json": 1592,
+    "artifacts/born/result.json": 281,
+    "artifacts/marmousi-born/run.json": 5709,
+    "artifacts/marmousi-born/result.json": 286,
+    "artifacts/adjoint/image.png": 162762,
+    "artifacts/adjoint/run.json": 3977,
+    "artifacts/adjoint/wavefield.png": 87216,
+    "artifacts/adjoint/result.json": 900
+  }
+}

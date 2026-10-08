@@ -1,0 +1,6 @@
+U(1.3)            = -0.6570169144600472
+forward tangent   = 2.2399799297911436
+reverse adjoint   = 2.2399799297911431
+jax.grad          = 2.2399799297911431
+analytic U'(1.3)  = 2.2399799297911431
+wrote /home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/ad/derivatives.json
