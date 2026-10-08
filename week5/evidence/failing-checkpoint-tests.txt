@@ -1,0 +1,173 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+________________ test_six_steps_two_slots_have_lecture_schedule ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_six_steps_two_slots_have_0')
+
+    def test_six_steps_two_slots_have_lecture_schedule(tmp_path):
+        model = small_model(7, 8, 6)
+        model["perturbation"] = np.full((8, 7), .1).tolist()
+        born = run_model(tmp_path, model, "born", "six-born")
+>       out = run_model(tmp_path, model, "adjoint", "six-tree", data=born / "born_data.npy",
+                        storage="treeverse", checkpoints=2)
+
+tests/test_checkpoint.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_derivatives.py:15: in run_model
+    invoke(*args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_six_steps_two_slots_have_0/six-tree.json'), '--mode', 'adjoint', '--out', PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_six_steps_two_slots_have_0/six-tree'), ...)
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only full-history storage is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/...eeverse', '--checkpoints', '2'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+_________ test_zero_budget_and_misplaced_checkpoint_flags_are_rejected _________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_zero_budget_and_misplaced0')
+
+    def test_zero_budget_and_misplaced_checkpoint_flags_are_rejected(tmp_path):
+        model = small_model()
+        weights = tmp_path / "weights.npy"
+        np.save(weights, np.zeros((1, 12, 3)))
+        path = write_model(tmp_path, model)
+        bad = invoke("--experiment", path, "--mode", "adjoint", "--data", weights,
+                     "--storage", "treeverse", "--checkpoints", 0, "--out", tmp_path / "zero", ok=False)
+>       assert "positive" in bad.stderr
+E       AssertionError: assert 'positive' in 'seismic: only full-history storage is implemented\n'
+E        +  where 'seismic: only full-history storage is implemented\n' = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/tmp/...ro_budget_and_misplaced0/zero'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').stderr
+
+tests/test_checkpoint.py:60: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[1-28680-2] _
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_reflector_treeverse_is_id0')
+budget = 1, calls = 28680, peak = 2
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+
+tests/test_checkpoint.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'adjoint', '--data', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/born/born_data.npy'), ...)
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only full-history storage is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/home...treeverse_is_id0/checkpoint-1'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_reflector_treeverse_is_id1')
+budget = 3, calls = 1695, peak = 4
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+
+tests/test_checkpoint.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'adjoint', '--data', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/born/born_data.npy'), ...)
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only full-history storage is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/home...treeverse_is_id1/checkpoint-3'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+__ test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6] __
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_reflector_treeverse_is_id2')
+budget = 5, calls = 990, peak = 6
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+
+tests/test_checkpoint.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'adjoint', '--data', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/born/born_data.npy'), ...)
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only full-history storage is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/home...treeverse_is_id2/checkpoint-5'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+_ test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11] _
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-7/test_reflector_treeverse_is_id3')
+budget = 10, calls = 642, peak = 11
+
+    @pytest.mark.parametrize("budget,calls,peak", [(1, 28680, 2), (3, 1695, 4), (5, 990, 6), (10, 642, 11)])
+    def test_reflector_treeverse_is_identical_to_full_and_respects_budget(tmp_path, budget, calls, peak):
+        out = tmp_path / f"checkpoint-{budget}"
+>       invoke("--experiment", ROOT / "inputs/reflector.json", "--mode", "adjoint",
+               "--data", ROOT / "artifacts/born/born_data.npy", "--storage", "treeverse",
+               "--checkpoints", budget, "--out", out)
+
+tests/test_checkpoint.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ok = True
+args = ('--experiment', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/inputs/reflector.json'), '--mode', 'adjoint', '--data', PosixPath('/home/keria_h/AMAT5315-2026Fall-Exercise/week5/artifacts/born/born_data.npy'), ...)
+
+    def invoke(*args, ok=True):
+        assert BIN.is_file(), "seismic executable is not implemented yet"
+        result = subprocess.run([str(BIN), *map(str, args)], text=True, capture_output=True)
+        if ok:
+>           assert result.returncode == 0, result.stderr
+E           AssertionError: seismic: only full-history storage is implemented
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/keria_h/AMAT5315-2026Fall-Exercise/week5/target/release/seismic', '--experiment', '/home...reeverse_is_id3/checkpoint-10'], returncode=1, stdout='', stderr='seismic: only full-history storage is implemented\n').returncode
+
+tests/test_seismic.py:18: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_checkpoint.py::test_six_steps_two_slots_have_lecture_schedule
+FAILED tests/test_checkpoint.py::test_zero_budget_and_misplaced_checkpoint_flags_are_rejected
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[1-28680-2]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[3-1695-4]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[5-990-6]
+FAILED tests/test_checkpoint.py::test_reflector_treeverse_is_identical_to_full_and_respects_budget[10-642-11]
+6 failed in 0.25s
