@@ -29,8 +29,10 @@ def test_schedule_is_linear_with_cumulative_alphas():
     np.testing.assert_allclose(betas[1:], np.linspace(1e-4, 0.02, T))
 
     # abar_0 = 1 and abar_t is the cumulative product of (1 - beta_s).
+    # The implementation is float32, so allow a few parts per million of
+    # cumulative rounding against the float64 NumPy product.
     np.testing.assert_allclose(abar[0], 1.0)
-    np.testing.assert_allclose(abar, np.cumprod(1.0 - betas))
+    np.testing.assert_allclose(abar, np.cumprod(1.0 - betas), rtol=2e-6, atol=2e-6)
 
 
 def test_noising_matches_closed_forward_form():
