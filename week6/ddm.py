@@ -225,8 +225,8 @@ def _apply_linear(layer: dict[str, jax.Array], x: jax.Array) -> jax.Array:
 def init_predictor(key: jax.Array,
                    time_dim: int = P1_TIME_DIM,
                    hidden: tuple[int, ...] = P1_HIDDEN,
-                   out_dim: int = 2) -> dict[str, Any]:
-    """Initialise the MLP noise predictor's parameters."""
+                   out_dim: int = 2):
+    """Initialise the MLP noise predictor's parameters (a list of layers)."""
     keys = jax.random.split(key, len(hidden) + 1)
     layers = []
     in_dim = 2 + time_dim
@@ -234,14 +234,15 @@ def init_predictor(key: jax.Array,
         layers.append(_init_linear(keys[i], in_dim, units))
         in_dim = units
     layers.append(_init_linear(keys[len(hidden)], in_dim, out_dim))
-    return {"mlp": layers, "time_dim": time_dim}
+    return layers
 
 
-def predictor_apply(params: dict[str, Any], x: jax.Array, t: Any) -> jax.Array:
+def predictor_apply(params, x: jax.Array, t: Any) -> jax.Array:
     """Evaluate the noise predictor eps_theta(x, t)."""
-    te = time_embedding(t, params["time_dim"])
+    time_dim = params[0]["W"].shape[0] - 2
+    te = time_embedding(t, time_dim)
     h = jnp.concatenate([x, te], axis=-1)
-    layers = params["mlp"]
+    layers = params
     for layer in layers[:-1]:
         h = jax.nn.silu(_apply_linear(layer, h))
     return _apply_linear(layers[-1], h)
@@ -278,21 +279,21 @@ def ddpm_sample(params: dict[str, Any],
 
 # ---- Part 1 parameter serialisation ----------------------------------------
 
-def init_p1_predictor(key: jax.Array) -> dict[str, Any]:
+def init_p1_predictor(key: jax.Array):
     return init_predictor(key, time_dim=P1_TIME_DIM, hidden=P1_HIDDEN, out_dim=2)
 
 
-def p1_template_params() -> dict[str, Any]:
+def p1_template_params():
     """A parameter tree with the same structure as any Part 1 predictor."""
     return init_p1_predictor(jax.random.PRNGKey(0))
 
 
-def save_params(params: dict[str, Any], path: str) -> None:
+def save_params(params, path: str) -> None:
     leaves, _ = jax.tree_util.tree_flatten(params)
     np.savez(path, **{f"arr_{i}": np.asarray(leaf) for i, leaf in enumerate(leaves)})
 
 
-def load_params(path: str, template: dict[str, Any]) -> dict[str, Any]:
+def load_params(path: str, template):
     flat, treedef = jax.tree_util.tree_flatten(template)
     data = np.load(path)
     leaves = []
