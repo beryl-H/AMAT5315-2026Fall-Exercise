@@ -8,11 +8,19 @@ noising process, the exact mixture score, and the DDPM reverse update.
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 import ddm
 
 T = 1000
 CENTERS = jnp.array([[3.0, 0.0], [0.0, 3.0], [-3.0, 0.0], [0.0, -3.0]])
+
+
+def _reverse_step_stats(sched, x_t, t, eps_pred, seed=0, n_trials=20000):
+    """Draw many reverse steps and return (mean, variance) over the trials."""
+    keys = jax.random.split(jax.random.PRNGKey(seed), n_trials)
+    outs = jax.vmap(lambda k: ddm.reverse_step(x_t, t, sched, eps_pred, k))(keys)
+    return jnp.mean(outs, axis=0), jnp.var(outs, axis=0)
 
 
 def test_schedule_is_linear_with_cumulative_alphas():
@@ -112,24 +120,73 @@ def test_reverse_step_has_no_noise_on_final_step():
 
 
 def test_reverse_step_adds_variance_beta_t_off_final_step():
+    # The reverse step must add independent Gaussian noise of variance beta_t
+    # at t > 1. With 20000 Gaussian trials, sample-variance relative standard
+    # error is about sqrt(2/19999) = 1%. A 5% relative tolerance and
+    # atol 1e-4 allow sampling variation while rejecting omitted noise.
     sched = ddm.make_schedule()
     x_t = jnp.array([[0.4, -0.8]])
     eps_pred = jnp.zeros_like(x_t)
     t = jnp.array([500])
-    n_trials = 20000
 
-    keys = jax.random.split(jax.random.PRNGKey(0), n_trials)
-    outs = jax.vmap(lambda k: ddm.reverse_step(x_t, t, sched, eps_pred, k))(keys)
-
-    mean = jnp.mean(outs, axis=0)
-    var = jnp.var(outs, axis=0)
+    mean, var = _reverse_step_stats(sched, x_t, t, eps_pred)
+    expected = float(sched["betas"][500])
 
     np.testing.assert_allclose(
-        np.asarray(mean), np.asarray(ddm.reverse_mean(x_t, t, sched, eps_pred)), rtol=1e-2, atol=1e-2
+        np.asarray(mean),
+        np.asarray(ddm.reverse_mean(x_t, t, sched, eps_pred)),
+        rtol=1e-2,
+        atol=1e-3,
     )
     np.testing.assert_allclose(
         np.asarray(var),
-        np.full((1, 2), float(sched["betas"][500])),
-        rtol=2e-2,
-        atol=2e-2,
+        np.full((1, 2), expected),
+        rtol=0.05,
+        atol=1e-4,
     )
+
+
+def test_reverse_step_matches_manual_noise_for_fixed_key():
+    # Deterministic reference: for a fixed PRNG key the output must equal the
+    # deterministic mean plus sqrt(beta_t) times the key's standard normal draw.
+    sched = ddm.make_schedule()
+    x_t = jnp.array([[1.0, -2.0]])
+    eps_pred = jnp.array([[0.3, 0.1]])
+    t = jnp.array([500])
+    key = jax.random.PRNGKey(42)
+
+    out = ddm.reverse_step(x_t, t, sched, eps_pred, key)
+
+    z = jax.random.normal(key, x_t.shape, dtype=x_t.dtype)
+    expected = ddm.reverse_mean(x_t, t, sched, eps_pred) + jnp.sqrt(sched["betas"][500]) * z
+    np.testing.assert_allclose(np.asarray(out), np.asarray(expected), rtol=1e-6, atol=1e-6)
+
+
+def test_reverse_step_variance_negative_control(monkeypatch):
+    # Negative control: if the fresh-noise term is dropped, the variance check
+    # above must fail (variance is zero instead of beta_t).
+    sched = ddm.make_schedule()
+    x_t = jnp.array([[0.4, -0.8]])
+    eps_pred = jnp.zeros_like(x_t)
+    t = jnp.array([500])
+    expected = float(sched["betas"][500])
+
+    original = ddm.reverse_step
+    monkeypatch.setattr(
+        ddm,
+        "reverse_step",
+        lambda x_t, t, sched, eps_pred, key: ddm.reverse_mean(x_t, t, sched, eps_pred),
+    )
+    try:
+        _, var = _reverse_step_stats(sched, x_t, t, eps_pred)
+        assert np.asarray(var).shape == (1, 2)
+        # The variance must NOT be close to beta_t once noise is omitted.
+        with pytest.raises(AssertionError):
+            np.testing.assert_allclose(
+                np.asarray(var), np.full((1, 2), expected), rtol=0.05, atol=1e-4
+            )
+        # And it should be essentially zero.
+        np.testing.assert_allclose(np.asarray(var), np.zeros((1, 2)), atol=1e-8)
+    finally:
+        monkeypatch.undo()
+    assert ddm.reverse_step is original

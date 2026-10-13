@@ -52,6 +52,33 @@ def relative_l2_error(learned, exact):
     return float(num / den)
 
 
+MODE_CENTERS = [(3.0, 0.0), (0.0, 3.0), (-3.0, 0.0), (0.0, -3.0)]
+MODE_NAMES = ["(3, 0)", "(0, 3)", "(-3, 0)", "(0, -3)"]
+MODE_RADIUS = 1.5
+
+
+def mode_stats(x):
+    """Nearest-mode counts, coverage within a radius, and coordinate spread."""
+    x = np.asarray(x)
+    centers = np.asarray(MODE_CENTERS, dtype=float)
+    dist = np.sqrt(((x[:, None, :] - centers[None, :, :]) ** 2).sum(-1))  # (n, 4)
+    nearest = dist.argmin(axis=1)
+    counts = {MODE_NAMES[k]: int(np.sum(nearest == k)) for k in range(4)}
+    coverage = float(np.mean(dist.min(axis=1) < MODE_RADIUS))
+    spread = {
+        "x_min": float(x[:, 0].min()),
+        "x_max": float(x[:, 0].max()),
+        "y_min": float(x[:, 1].min()),
+        "y_max": float(x[:, 1].max()),
+    }
+    return {
+        "n": int(x.shape[0]),
+        "nearest_mode_counts": counts,
+        f"coverage_within_radius_{MODE_RADIUS}": coverage,
+        "spread": spread,
+    }
+
+
 def load_params() -> dict:
     params = ddm.load_params(str(WEEK6 / "artifacts" / "p1" / "params.npz"),
                              ddm.p1_template_params())
@@ -62,7 +89,7 @@ def generate_samples(params, sched, key, n=2000, num_levels=ddm.P1_NUM_LEVELS):
     return ddm.ddpm_sample(params, sched, key, n_samples=n, num_levels=num_levels)
 
 
-def plot_score(sched, params, t_levels, errors, noised_t500):
+def plot_score(sched, params, t_levels, errors, mean_error, noised_t500):
     xs = np.asarray(noised_t500)
     t500 = 500
     t_arr = jnp.full((xs.shape[0],), t500, dtype=jnp.int32)
@@ -72,21 +99,27 @@ def plot_score(sched, params, t_levels, errors, noised_t500):
         jnp.asarray(xs), t_arr, sched, ddm.P1_CENTERS, ddm.P1_DATA_VAR
     )
 
-    # Subsample for a readable quiver.
-    n = xs.shape[0]
-    idx = np.linspace(0, n - 1, 400).astype(int)
+    # A small shared subsample of the same positions keeps both quivers readable
+    # while using identical points and scales for learned and exact fields.
+    rng = np.random.default_rng(0)
+    idx = np.sort(rng.choice(xs.shape[0], size=120, replace=False))
     xs_q = xs[idx]
     lq = np.asarray(learned)[idx]
     eq = np.asarray(exact)[idx]
 
-    scale = 0.12
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    pad = 0.5
+    xmin, xmax = xs[:, 0].min() - pad, xs[:, 0].max() + pad
+    ymin, ymax = xs[:, 1].min() - pad, xs[:, 1].max() + pad
+
+    # One shared arrow scale for both fields (angles=xy, scale_units=xy).
+    scale = 5.0
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 
     for ax, field, color, title in [
         (axes[0], lq, "tab:red", "learned score at t = 500"),
         (axes[1], eq, "tab:blue", "exact score at t = 500"),
     ]:
-        ax.scatter(xs[:, 0], xs[:, 1], s=4, color="0.85", alpha=0.6)
+        ax.scatter(xs[:, 0], xs[:, 1], s=6, color="0.85", alpha=0.7)
         ax.quiver(
             xs_q[:, 0],
             xs_q[:, 1],
@@ -97,15 +130,31 @@ def plot_score(sched, params, t_levels, errors, noised_t500):
             angles="xy",
             scale_units="xy",
             scale=scale,
-            width=0.006,
+            width=0.003,
         )
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_aspect("equal")
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
 
-    axes[2].plot(t_levels, errors, marker="o", color="tab:green")
-    axes[2].axhline(0.15, color="gray", linestyle="--", label="acceptance limit 0.15")
+    axes[2].plot(
+        t_levels, errors, marker="o", color="tab:green", label="per-level error"
+    )
+    axes[2].axhline(
+        0.15, color="gray", linestyle="--", label="mean acceptance threshold 0.15"
+    )
+    axes[2].text(
+        0.5,
+        0.94,
+        f"measured mean = {mean_error:.4f}",
+        transform=axes[2].transAxes,
+        ha="center",
+        va="top",
+        fontsize=11,
+    )
+    axes[2].set_ylim(0.0, max(0.19, 1.15 * max(errors)))
     axes[2].set_xlabel("noise level t")
     axes[2].set_ylabel("relative L2 error")
     axes[2].set_title("learned vs exact score error")
@@ -181,6 +230,11 @@ def main() -> int:
     mean_error = float(np.mean(errors))
     print(f"mean relative L2 error = {mean_error:.6f}")
 
+    gen_stats = mode_stats(generated)
+    tgt_stats = mode_stats(target)
+    print("generated mode counts:", gen_stats["nearest_mode_counts"])
+    print("target    mode counts:", tgt_stats["nearest_mode_counts"])
+
     (out_dir / "score-errors.json").write_text(
         json.dumps(
             {"t_levels": t_levels, "relative_l2_errors": errors,
@@ -202,13 +256,15 @@ def main() -> int:
         "score_mean_relative_l2_error": mean_error,
         "score_acceptance_limit": 0.15,
         "accepted": bool(mean_error < 0.15),
+        "generated": gen_stats,
+        "target": tgt_stats,
     }
     (out_dir / "measurements.json").write_text(
         json.dumps(measurements, indent=2) + "\n"
     )
 
     print("Plotting evidence...", flush=True)
-    plot_score(sched, params, t_levels, errors, noised_t500)
+    plot_score(sched, params, t_levels, errors, mean_error, noised_t500)
     plot_mixture(generated, target)
 
     print("Wrote:")
