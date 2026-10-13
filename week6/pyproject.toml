@@ -1,0 +1,18 @@
+[project]
+name = "amat5315-week6"
+version = "0.1.0"
+description = "Diffusion models exercise (Part 1: learned score of a Gaussian mixture)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "jax==0.11.2",
+    "jaxlib==0.11.2",
+    "numpy==2.5.3",
+    "matplotlib==3.11.2",
+    "pytest==9.1.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["."]
