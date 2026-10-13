@@ -46,14 +46,6 @@ def draw_noised(key, sched, t, n):
     return a * x0 + b * eps
 
 
-def learned_score(params, x_t, t):
-    """Score estimate -eps_theta(x_t, t) / sqrt(1 - abar_t)."""
-    n = x_t.shape[0]
-    t_arr = jnp.full((n,), t, dtype=jnp.int32)
-    eps_pred = ddm.predictor_apply(params, x_t, t_arr)
-    return -eps_pred / ddm.make_schedule()["sqrt_1m_abar"][t]
-
-
 def relative_l2_error(learned, exact):
     num = jnp.sqrt(jnp.sum((learned - exact) ** 2))
     den = jnp.sqrt(jnp.sum(exact ** 2))
