@@ -9,10 +9,13 @@ evidence are **pending cloud price approval**. Parts 3-5 have not started.
 
 - `diffusion.design.toml` + `src/diffusion/` implement the sheet's train/sample
   interface exactly (`uv run diffusion train ...`, `uv run diffusion sample ...`).
-- Smoke verified end to end on CPU; smoke outputs are retained under `runs/`
-  and are NOT formal results.
+- The true train CLI smoke finished on CPU **before any rental**: 200 updates
+  and the 4-sample 1000-step DDPM sample both completed (logs below).
+- Independent review fixes applied: trajectory t=0 semantics, figure layout,
+  full unfiltered smoke logs with an independent verifier, and a reworked
+  English cloud runbook (console-first) matching the human's Chinese A10 guide.
 - Formal 30000-update MNIST run: pending explicit human approval of the cloud
-  price packet in `cloud/runbook.md` (no resource created, no price guessed).
+  price packet in `cloud/runbook.md` (no resource created, no price known).
 - Pending after that run: `evidence/mnist-loss.png`, `evidence/mnist-grid.png`,
   `trajectory.jsonl`, `evidence/mnist-denoising.png`, then Parts 3-5.
 
@@ -52,39 +55,53 @@ uv run pytest -q
 ```
 
 Smoke training (exact command, exact numbers below are SMOKE, not formal
-results):
+results; full unfiltered logs incl. `/usr/bin/time -v` are kept next to the
+outputs):
 
 ```bash
-uv run diffusion train --data mnist --input inputs/mnist.npz \
-  --updates 200 --batch 64 --seed 2026 --out runs/smoke
+/usr/bin/time -v uv run diffusion train --data mnist --input inputs/mnist.npz \
+  --updates 200 --batch 64 --seed 2026 --out runs/smoke 2>&1 | tee runs/smoke/train.log
 ```
 
-Measured: 200 updates in 65.0 s CPU (incl. ~4 s compile); loss 1.2505 at step 1
--> 0.0867 at step 200; `runs/smoke/loss.jsonl` has exactly 200 lines; the
-checkpoint stores settings + EMA weights (roundtrip verified).
+Measured: 200 updates in **81.8 s** CPU (incl. compile), peak RSS **1.70 GB**,
+exit 0; loss 1.2505 at step 1 -> 0.0867 at step 200; `runs/smoke/loss.jsonl`
+has exactly 200 lines; the checkpoint stores settings + EMA weights (126 arrays,
+all finite, roundtrip verified).
 
 Smoke sampling (exact command; smoke, not formal):
 
 ```bash
-uv run diffusion sample --data mnist --checkpoint runs/smoke/checkpoint.npz \
-  --sampler ddpm --steps 1000 --n 4 --seed 1 --out runs/smoke-samples
+/usr/bin/time -v uv run diffusion sample --data mnist --checkpoint runs/smoke/checkpoint.npz \
+  --sampler ddpm --steps 1000 --n 4 --seed 1 --out runs/smoke-samples 2>&1 | tee runs/smoke-samples/sample.log
 ```
 
-Measured: 12.8 s CPU; `run.json` matches the contract (case mnist, size 32,
-t_steps 1000, beta [0.0001, 0.02], sampler ddpm, sample_steps 1000, n_samples
-4, seed 1); `samples.jsonl` has 4 rows with 1024 values each, all in [-1, 1]
-and rounded to 3 decimals; peak RSS ~0.5 GB.
+Measured: 16.3 s CPU, peak RSS 0.50 GB; `run.json` matches the contract
+verbatim; `samples.jsonl` has 4 rows with 1024 values each, all in [-1, 1] and
+rounded to 3 decimals.
 
-End-to-end trajectory check (retained under `runs/smoke-trajectory/`, smoke):
+Trajectory integration check on the SMOKE checkpoint (retained under
+`runs/smoke-trajectory/`; smoke, not formal):
 
 ```bash
 uv run diffusion sample --data mnist --checkpoint runs/smoke/checkpoint.npz \
   --sampler ddpm --steps 1000 --n 4 --seed 1 --out runs/smoke-trajectory --trajectory
 ```
 
-Measured: 26 frames at t = 1000, 960, ..., 0; x and x0 each 8*1024 values;
-first frame is pure noise (std 0.998); at t = 0 both arrays equal the final
-image.
+Independent verification (recorded in `runs/smoke/verify.log`):
+
+```bash
+uv run python scripts/verify_smoke.py
+```
+
+All checks passed: no traceback in any smoke log; train exited 0; loss steps
+exactly 1..200 in order and finite; EMA checkpoint loads with the fixed
+settings; run.json matches the contract; samples are 4x1024, finite, in
+[-1, 1], rounded to 3 decimals; trajectory has 26 frames at t =
+1000, 960, ..., 0 with 8192 finite values per array; the t = 0 frame has
+`x == x0` holding the **clipped saved final image** (within [-1, 1]), while
+intermediate frames may be unbounded (392,183 out-of-range values in the
+undertrained smoke run, all finite - allowed by the sheet; no clipping rule is
+invented for intermediates).
 
 Architecture choices (documented): UNet 32->16->8 with channels (16, 32, 64),
 two residual blocks per level, GroupNorm(8)+SiLU, 3x3 convs, skip connections,
@@ -94,22 +111,39 @@ EMA 0.999 every update; batches drawn uniformly from all 60000 training
 images; labels and the test split are never used in training.
 
 `evidence/mnist-inputs.png` (command: `uv run python
-scripts/plot_mnist_inputs.py`) was rendered and inspected: 16 preprocessed
-digits with color bars, and one image at t = 0, 200, 500, 1000 - the border is
--1 and structure disappears as t increases (t = 1000 is pure noise, std 1.014,
-mean -0.009).
+scripts/plot_mnist_inputs.py`) was reworked per review and re-inspected: a
+GridSpec with four image columns plus a **dedicated narrow color-bar column**
+for the digit block, and a **separate noise-row color bar**; the script
+asserts that no two axes bounding boxes overlap before saving, and the PNG is
+written with `bbox_inches="tight"` so no label or title is cropped. The
+rendered figure shows 16 preprocessed digits with color bars, and one image at
+t = 0, 200, 500, 1000 - the border is -1 and structure disappears as t
+increases (t = 1000 is pure noise, std 1.014, mean -0.009).
 
 ## Part 2: cloud approval packet (STOPPED HERE)
 
-`cloud/runbook.md` prepares the full round trip: aliyun CLI (official release
-v3.5.1), read-only zone/spec/availability/price queries, security group with
-SSH restricted to the human's current public IP, key pair, instance creation,
-`uv sync --extra cuda`, JAX GPU verification, the exact 30000-update command,
-copy-back, release by ID and `DescribeInstances` confirmation. Every
-resource-creating/releasing command is marked `[GATED]`; none was executed.
-`cloud/README.md` records status NOT_STARTED (no instance, no charges).
-This host has no `aliyun` CLI and no credentials, so the packet contains exact
-read-only quote commands for the human instead of guessed prices.
+`cloud/runbook.md` (rewritten in English from the human's Chinese A10 guide
+`阿里云A10租用操作.md`) provides a **manual console sequence first** (no CLI or
+account configuration assumed) plus the gated CLI path: interactive
+`aliyun configure` (OAuth preferred, AK fallback via prompts; keys never in
+history or git), read-only `DescribeZones`/`DescribeInstanceTypes`/
+`DescribeAvailableResource`/**`DescribePrice`** (spec: 8 vCPU, 30 GiB, A10
+24 GB; system disk 60 GiB; PayByTraffic with explicit bandwidth cap), local
+RSA key pair with public-key-only `ImportKeyPair` (never `CreateKeyPair`,
+whose private key goes to stdout), `RunInstances` with required `VSwitchId`
+and matching disk settings and no password, deployment of the **current local
+tested source** via `git archive` (tracked files only - no `.venv/`, secrets,
+`inputs/`, `runs/`, `artifacts/`), separate `mnist.npz` upload with SHA256
+verification (731c5ac6...), a GPU assertion (`platform == "gpu"`, driver
+>= 525 for CUDA 12) before training, tmux + saved logs, copy-back into a NEW
+retrieval folder with remote/local SHA256 and 30000-record verification before
+promoting the checkpoint, and gated release as **StopInstance ->
+`DeleteInstance --Force false` -> `DescribeInstances` for the exact ID**
+(release is DeleteInstance; it permanently deletes disks and needs a separate
+explicit human confirmation). Every resource-creating/releasing command is
+marked `[GATED]`; none was executed, and the actual price is UNKNOWN.
+`cloud/README.md` records that this task created no resources (it makes no
+claim about the account's global state or costs).
 
 ## Part 1 (complete)
 
@@ -256,8 +290,12 @@ human-authorized provider. An independent Codex review requested readable
 quiver scales and meaningful reverse-noise tests; pi implemented those
 corrections and a standalone verifier.
 
-Part 2 is implemented and smoke-verified: design contract, failing tests,
-`diffusion` package (UNet + DDPM + EMA + trajectory), MNIST download,
-`evidence/mnist-inputs.png`, and the gated cloud packet. The formal
-30000-update MNIST run waits for explicit human approval of the price packet;
-no cloud resource exists. Parts 3-5 have not started. No push yet.
+Part 2 review fixes are applied: trajectory t=0 frames hold the clipped saved
+final image (new unit + integration checks), `evidence/mnist-inputs.png` is
+reworked with dedicated color-bar columns and an axes-overlap assertion, full
+unfiltered smoke logs plus `scripts/verify_smoke.py` are saved, and the cloud
+runbook is rewritten in English (console-first, DescribePrice pricing,
+DeleteInstance release, local-source deployment with hash verification). The
+formal 30000-update MNIST run waits for explicit human approval of the price
+packet; no cloud resource exists and no cloud API was executed. Parts 3-5
+have not started. No push yet.
