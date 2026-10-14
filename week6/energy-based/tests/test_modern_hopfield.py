@@ -94,7 +94,7 @@ def test_energy_nonincreasing_under_update():
         E1 = ref_energy(X, x1, beta)
         assert E1 <= E0 + 1e-5
         assert float(energy_modern(X, x, beta)) == pytest.approx(E0, abs=1e-4)
-        x2 = np.asarray(modern_update(X, x, beta))
+        x2 = np.asarray(modern_update(X, x1, beta))
         assert float(energy_modern(X, x2, beta)) <= \
             float(energy_modern(X, x1, beta)) + 1e-4
 

@@ -3,9 +3,11 @@
 AMAT5315 Scientific Computing for Physicists, Week 6 learning sheet
 ("Energy-based models", retrieved 2026-10-14; PDF SHA256
 `fa80cc242513d2c513b5048ea39369406f842488ac1837ca404c6b3ea210be8f`).
-This folder implements **Part 1 only**; see `SPEC.md` and `PLAN.md`.
-Source identity: see `SOURCE.md`. Parent `week6/` diffusion work is
-separate and untouched.
+This folder implements the complete Week 6 exercise, Parts 1–4
+(Part 1: dataset understanding; Part 2: RBM with CD; Part 3: classical
+Hopfield capacity; Part 4: modern Hopfield / attention). See `SPEC.md`
+for each part's scope and acceptance criteria. Source identity: see
+`SOURCE.md`. Parent `week6/` diffusion work is separate and untouched.
 
 ## Environment
 
@@ -103,12 +105,12 @@ downloaded as the original author-defined files (CVDF mirror of MNIST; the
 CIFAR-10 authors' binary archive), preserving the original train/test
 assignment — we never reshuffle records across splits.
 
-## Later parts (planned, not yet implemented)
+## Part 2 reference settings (as implemented)
 
-Part 2 RBM/CD reference settings from the sheet: 128 hidden units, 20 epochs,
-batch size 100, plain gradient descent with learning rate 0.1, seed 2026,
-matched initialization and data order for CD-1 vs CD-10.
-
+RBM/CD settings from the sheet: 128 hidden units, 20 epochs, batch size 100,
+plain gradient descent with learning rate 0.1, seed 2026, matched
+initialization and data permutations for CD-1 vs CD-10 (see the Part 2
+section below for results).
 ---
 
 # Part 2 — RBM: CD learning, fresh generation, clamped completion
@@ -269,3 +271,135 @@ crosstalk between the stored items, not by a fitting procedure.
 Raw per-set arrays: `artifacts/part3/evaluation-20261014-171245/part3_raw.npz`
 (git-ignored) — root independently replayed N100/α0.20 set0 and
 N400/α0.20 set3 with exact agreement.
+
+---
+
+# Part 4 — Modern Hopfield retrieval and attention
+
+## Experiment
+
+Stored patterns: the FIRST P original MNIST training images, binarized
+(≥128) and mapped to spins 2v−1, as columns X ∈ {±1}^(784×P),
+P ∈ {3,10,30,100,300,1000}. For each P, exactly 100 queries with target
+indices `arange(100) % P`; each query's lower 14 rows are replaced by
+independent random ±1 spins. Seed 2026 fixed before outcomes; the SAME
+queries are used for every β and for classical recall. β ∈
+{0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1}.
+
+```bash
+uv run python scripts/part4_run.py         # full scan, ~21 s CPU (runs/part4_run2.log)
+uv run python scripts/part4_plots.py       # figures below
+uv run python scripts/part4_acceptance.py  # acceptance from saved raw arrays; exit 0 = PASS
+```
+
+Environment: JAX 0.11.2 (CPU), Python 3.12, uv-managed; total scan 21 s.
+
+## The modern update IS one softmax-attention step
+
+`x' = X softmax(β Xᵀx)` was compared, for EVERY query at EVERY P and β,
+with the installed library's `jax.nn.dot_product_attention(query=x,
+key=X.T, value=X.T, scale=β)` (layout `(T,N,H)`/`(S,K,H)`).
+**Global maximum difference: 0.0e+00 (< 1e-5)** — bitwise identical on CPU.
+Negative control (test): the library default scale 1/√784 demonstrably
+fails this equality.
+
+![softmax weights](evidence/part4_softmax_weights.png)
+
+The weights for the first (predeclared) query at P=100 carry 0.01 / 0.24 /
+1.00 of the total on the target at β = 0.003 / 0.03 / 0.3 — exactly the
+reference values. Small β averages many stored digits; large β retrieves one.
+
+## Inverse temperature separates averaging from retrieval
+
+![gallery](evidence/part4_gallery_P100.png)
+
+At β ≤ 0.01 every query returns the same blurred average of the stored
+digits (gray levels preserved — the average is continuous; the sign is only
+taken for the success metric). At β = 0.03 the queried digit appears inside
+the average; for β ≥ 0.1 one update returns the stored digit. Classical
+recall (Part 3 implementation, same patterns and queries, zero diagonal,
+random async order, run to a full zero-flip sweep — all chains converged,
+no safety cap) returns the same sparse fragment of strokes for every query:
+digit correlations, not load, defeat it.
+
+## Success vs load
+
+![success](evidence/part4_success_vs_P.png)
+
+Success = spin overlap of the retrieved sign vector with its target ≥ 0.95
+(sign(0)=0 policy, at most 19 wrong pixels of 784) AND the target is the
+nearest stored pattern to the result (first-index argmax ties) — the same
+criterion for both models, never digit-label accuracy.
+
+| P | modern β=0.3 | classical |
+|---|---|---|
+| 3 | 1.00 | 0.00 |
+| 10 | 1.00 | 0.00 |
+| 30 | 1.00 | 0.00 |
+| 100 | 0.98 | 0.00 |
+| 300 | 1.00 | 0.00 |
+| 1000 | 0.97 | 0.00 |
+
+Modern retrieval at β = 0.3 succeeds for ≥ 97% of queries at every P up to
+1000 (acceptance ≥ 0.95 ✓); the few failures are queries whose visible half
+matches a near-duplicate stored digit at least as well. Classical recall
+succeeds for NO query at any P (acceptance = 0 ✓), even at P = 3
+(α = 0.004): the shared background and shared strokes of digits of the same
+class create large signed crosstalk — unlike Part 3's random patterns,
+whose crosstalk is zero-mean noise.
+
+**Memorization vs generation.** The modern Hopfield network retrieves one of
+the patterns it stored (content-addressable memory, one step); the Part 2
+RBM generates novel configurations from a learned distribution. Retrieval
+of stored digits says nothing about generating new ones — and vice versa.
+
+Raw arrays (queries, targets, all modern outputs, classical states, sweep
+counts, convergence flags) are in
+`artifacts/part4/evaluation-20261014-180638/` (git-ignored); compact metrics
+in `evidence/part4_metrics.json`; acceptance checker in
+`scripts/part4_acceptance.py` (exit 0).
+
+---
+
+# Final verification
+
+- **Unknown target distribution vs empirical distribution.** MNIST/CIFAR-10
+  are finite samples (Part 1) from unknown populations; class frequencies
+  p̂(y=c) = (1/N)Σₙ1[y₍ₙ₎=c] describe the empirical distribution only.
+- **Fitted model and sampling algorithm.** Part 2 fits an RBM energy by CD;
+  generation samples the fixed model with block Gibbs. The CD surrogate is
+  an approximate likelihood gradient: its data term lowers F on training
+  images while the sampled (stop-gradient) endpoint term replaces the
+  infeasible normalization log Z over 2^784 configurations. The surrogate
+  need not decrease (our curves rise) and is not the NLL; reconstruction
+  error improved from 0.1722 to ≈ 0.048 (both CD-1 and CD-10), but good
+  one-step reconstruction is not proof of good fresh generation, which
+  produced stroke-like blobs rather than clean digits.
+- **Clamping is inference.** Resetting the observed upper half after every
+  Gibbs sweep turns the sampler into one for p(v_M|v_O) with fixed
+  parameters: true-upper completions reached ink Dice 0.435 (CD-1) /
+  0.522 (CD-10) at 1000 steps vs ≈ 0.25 for wrong-upper controls.
+- **Crosstalk and capacity.** Part 3: unstable-bit fractions follow
+  Φ(-1/√α) with finite-N corrections; recall crosses 0.9 at
+  α = 0.188/0.168/0.157/0.148 (N = 100…800), approaching α_c ≈ 0.138 from
+  above. Reference deviation, stated precisely: the minimum low-load
+  (α ≤ 0.12) mean overlap is slightly below the reference "above 0.988"
+  for exactly TWO sizes (N=200: 0.98795, N=800: 0.98729); N=100 (0.99480)
+  and N=400 (0.98950) are above it — set-sampling fluctuations, not an
+  implementation defect (root replayed points with exact agreement).
+- **Modern update = attention.** The modern Hopfield update and
+  `jax.nn.dot_product_attention` with scale=β compute the same vector
+  (max diff 0.0 < 1e-5); β moves retrieval from an average of stored
+  digits to a single stored digit.
+
+## Limitations
+
+- RBM diagnostics (CD surrogate, one-step reconstruction) do not establish
+  NLL decrease; no AIS was computed.
+- Fresh RBM generation rarely yields clean digits at this model size.
+- Part 3 low-load unstable fractions include exact zeros (resolution
+  1/(20·P·N) pooled over sets); min low-load overlaps deviate from the
+  reference's 0.988 observation for two sizes as stated above.
+- Part 4 classical-recall sweeps at P=1000 can wander long before
+  converging; all chains converged within the 200-sweep cap here, and a cap
+  hit would be flagged, not silently accepted.
