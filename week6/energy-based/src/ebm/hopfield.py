@@ -137,9 +137,9 @@ def recall(K, starts, key, *, max_sweeps: int, perms=None):
     first_zero = jnp.argmax(~nonzero, axis=0)        # (C,)
     had_zero = jnp.any(~nonzero, axis=0)
     sweeps_used = jnp.where(had_zero, first_zero + 1, sweep)
-    # converged iff the LAST executed sweep (index sweep-1, always >= 0)
-    # flipped nothing
-    converged = ~jnp.any(hist[sweep - 1] > 0)
+    # converged per chain iff the LAST executed sweep (index sweep-1,
+    # always >= 0 since at least one sweep runs) flipped nothing
+    converged = ~(hist[sweep - 1] > 0)   # (C,)
     return {"states": s.T, "sweeps_used": sweeps_used,
             "converged": converged, "flips": hist}
 
