@@ -1,0 +1,50 @@
+# Week 6 Part 2 interface contract for the `diffusion` tool.
+# Transcribed from the Week 6 learning sheet (Part 2, DO section).
+# No unstated defaults: every train/sample argument is explicit on the
+# command line; the only default is `trajectory` being off.
+
+usage = "diffusion train --data mnist --input inputs/mnist.npz --updates 30000 --batch 64 --seed 2026 --out runs/train-mnist"
+description = "train or sample a diffusion model; no unstated defaults"
+
+[train]
+usage = "diffusion train --data mnist --input inputs/mnist.npz --updates 30000 --batch 64 --seed 2026 --out runs/train-mnist"
+description = "train a noise predictor; no unstated defaults"
+
+[train.args]
+data = "dataset: mnist now, ising in Part 4"
+input = "training data file"
+updates = "number of parameter updates"
+batch = "training examples per update"
+seed = "random seed for initialization and all training draws"
+out = "folder for this training run"
+
+[train.writes]
+"<out>/checkpoint.npz" = "model settings and EMA weights needed to sample"
+"<out>/loss.jsonl" = "one object per update: step, loss (mean over batch and pixels)"
+
+[sample]
+usage = "diffusion sample --data mnist --checkpoint checkpoints/mnist.npz --sampler ddpm --steps 1000 --n 100 --seed 2026 --out runs/mnist-preview --trajectory"
+description = "sample a trained noise predictor; no unstated defaults"
+
+[sample.args]
+data = "dataset: mnist or ising"
+checkpoint = "trained model to load; its schedule and image shape apply"
+sampler = "ddpm now; ddim in Part 3"
+steps = "number of network evaluations per sample, from 2 to 1000"
+n = "number of generated samples"
+seed = "random seed for initial noise and all reverse-step noise"
+out = "folder for this sampling run"
+trajectory = "also record 8 samples using 1000 DDPM steps; default off"
+
+[sample.writes]
+"<out>/run.json" = """case (dataset), size = 32, t_steps = 1000,
+    beta = [0.0001, 0.02], sampler, sample_steps = steps, n_samples = n, seed;
+    cases = ["mnist"] until both datasets are implemented"""
+"<out>/samples.jsonl" = """one object per sample: i (index),
+    x (1024 row-major pixel values in [-1,1], rounded to 3 decimals)"""
+"<out>/trajectory.jsonl" = """when requested, a separate 8-sample DDPM run:
+    one object at t = 1000, 960, ..., 0; t is the noise level;
+    x and x0 are flat sample-major arrays, each of 8*1024 values,
+    row-major within each image, rounded to 3 decimals;
+    x is the current noisy image; x0 is the predicted clean image;
+    at t = 0 both arrays contain the final image"""
