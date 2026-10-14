@@ -108,3 +108,100 @@ assignment — we never reshuffle records across splits.
 Part 2 RBM/CD reference settings from the sheet: 128 hidden units, 20 epochs,
 batch size 100, plain gradient descent with learning rate 0.1, seed 2026,
 matched initialization and data order for CD-1 vs CD-10.
+
+---
+
+# Part 2 — RBM: CD learning, fresh generation, clamped completion
+
+## Model and training (exact settings, recorded before the run)
+
+Binarized MNIST at half intensity (`v_i = 1` iff pixel >= 128; spins
+`s_i = 2v_i - 1`), energy `E(v,h) = -a.v - b.h - vWh`, visible free energy
+`F(v) = -a.v - sum_j softplus(b_j + (vW)_j)` (sheet eqs. 3-4). Training:
+128 hidden units, 20 epochs, batch 100, plain SGD lr 0.1, seed 2026, CD-1
+and CD-10 with **exactly shared initial parameters and per-epoch data
+permutations** (SHA-256 hashes in `artifacts/part2/shared_hashes.json`;
+per-model *stochastic step-key streams* differ by construction, formula
+`split(split(PRNGKey(2026))[0] folded in with k, 21)`). Visible bias from
+the logit of TRAIN pixel means clipped to [1e-3, 1-1e-3] (finite logits,
+no held-out data used); hidden bias 0; W ~ N(0, 0.01^2). Epoch loop is one
+JIT-compiled `lax.scan` over 600 minibatches; a Python loop over epochs logs
+metrics. The CD surrogate is `mean[F(v0) - F(stop_gradient(vk))]` with chain
+starts at each training batch (no persistent CD). Full 60000 images, 20
+epochs; test split only for evaluation.
+
+```bash
+uv run python scripts/part2_train.py        # ~50s (CD-1) + ~295s (CD-10), CPU
+uv run python scripts/part2_verify2.py      # learning-curve figure
+uv run python scripts/part2_verify134.py    # VERIFY 1/3/4 figures + raw dumps
+```
+
+## VERIFY2 — learning curves (`evidence/part2_learning_curves.png`)
+
+Held-out one-step reconstruction Hamming fraction on all 10000 test images,
+including initialization: **CD-1 0.1722 -> 0.0477** (ratio 0.277), **CD-10
+0.1722 -> 0.0492** (ratio 0.285); both far below the acceptance threshold
+final < 0.5 x initial. Actual runtimes: CD-1 50.0 s, CD-10 294.5 s
+(2-core-ish CPU). The CD surrogate does not decrease monotonically — it is
+not the NLL; differentiating the free-energy difference with sampled
+endpoints fixed gives the CD update (sheet eq. 9-10), and exact NLL would
+need the infeasible log Z of 2^784 configurations, so no NLL claim is made.
+
+## VERIFY1 — representation (`part2_binarized_first16.png`,
+`part2_spin_configuration.png`, `part2_rbm_diagram.png`)
+
+First 16 binarized training images (native pixels), one enlarged spin
+configuration (+1 ink / -1 background), and the RBM diagram: 784 visible and
+128 hidden bits, every learned coupling joining one visible bit to one
+hidden bit, no within-layer edges.
+
+## VERIFY3 — reconstruction vs fresh generation
+(`part2_reconstructions_first16.png`, `part2_generation_cd1.png`,
+`part2_generation_cd10.png`, `part2_generation_trajectories.png`)
+
+One-step reconstructions of the first 16 held-out digits are recognizable
+for both models. Fresh generation starts from 16 Bernoulli(0.5) random
+configurations — the SAME starts across the two models, each chain with its
+OWN start — evolved with fixed parameters for 1, 10, 100 and 1000 steps.
+After 1 step the chains retain speckle; by 100-1000 steps connected
+stroke-like blobs and rings appear. Honest reading: mostly blob/ring shapes
+rather than clean digits — as the sheet says for a model this small trained
+this briefly. Chains sometimes revisit similar shapes; one-step
+reconstruction quality is NOT evidence of good fresh sampling, because the
+reconstruction chain merely starts near a digit.
+
+## VERIFY4 — completion as inference (`part2_completion_curves.png`,
+`part2_completion_cd1.png`, `part2_completion_cd10.png`,
+`evidence/part2_completion_metrics.json`)
+
+Lower 14 rows (392 bits) of the first 64 held-out digits are completed by
+clamped block Gibbs sampling (upper half reset after every sweep — the
+production `clamped_gibbs_chain`, clamp invariance asserted on every
+snapshot): 8 chains per digit, matched random missing-bit starts across
+models and conditions, snapshots at 1/10/100/1000 steps. The wrong-upper
+control uses the first cyclic different-label held-out digit (full mapping
+and labels in the metrics JSON, fixed before any outcome). Ink Dice on the
+missing half (2|A∩B|/(|A|+|B|), blank -> 0 including both-blank): chains
+averaged within each digit, then mean ± SEM over the 64 digits.
+
+| model | true upper @1000 | wrong upper @1000 | difference | >= 0.1 |
+|---|---|---|---|---|
+| CD-1  | 0.435 ± 0.016 | 0.244 | **0.191** | pass |
+| CD-10 | 0.522 ± 0.019 | 0.250 | **0.272** | pass |
+
+These sit close to the sheet's reference (CD-10 0.51±0.02 vs 0.27; CD-1
+0.40±0.02 vs 0.24). Wrong-upper overlap stays flat near 0.25: different
+digits share strokes near the image center. Clamping turns generation into
+*inference*: with parameters fixed, the clamped chain's missing bits have
+p(v_M | v_O) as their stationary distribution.
+
+## Limitations
+
+- The CD surrogate is a training diagnostic only; no NLL/AIS was computed.
+- Fresh generation produces blobs/strokes, rarely clean digits; neither
+  longer CD chains nor longer sampling repair a wrongly learned
+  distribution.
+- Completion Dice is an ink-overlap measure, not a "correct digit" measure.
+- Raw arrays (starts, snapshots, per-chain Dice, donor mapping, seed-key
+  hashes) are preserved under git-ignored `artifacts/part2/` for
+  independent verification; tracked JSON/PNGs carry the compact results.

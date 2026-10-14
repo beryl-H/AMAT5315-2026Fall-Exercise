@@ -1,0 +1,320 @@
+{
+  "settings": {
+    "n_hidden": 128,
+    "n_epochs": 20,
+    "batch_size": 100,
+    "lr": 0.1,
+    "seed": 2026,
+    "binarize_threshold": 128,
+    "n_train": 60000,
+    "n_test": 10000,
+    "visible_bias_init": "logit of train pixel mean clipped to [1e-3, 1-1e-3]",
+    "hidden_bias_init": "zeros",
+    "W_init": "N(0, 0.01^2)",
+    "chain_starts": "each training batch (no persistent CD)",
+    "optimizer": "plain SGD",
+    "step_keys": "split(split(PRNGKey(2026))[0] folded in with k, 21); per-model stochastic streams differ; init params and epoch permutations exactly shared"
+  },
+  "hashes": {
+    "a": "a351aa473f89e86c9df70a907987fa00450e7059980f7ece181bc403378886a7",
+    "b": "076a27c79e5ace2a3d47f9dd2e83e4ff6ea8872b3c2218f66c92b89b55f36560",
+    "W": "7a6c23b93a8a4b721124cd9d37c1e475a984615b5590aacf2fa3f76da370a53d",
+    "perms": [
+      "daa7047d041a25425876b7fec2ee6f0fb9759d24fefd174610dfa622e8cb06c4",
+      "91d8111c208c557bc972f92db1ae6f288be6eb442fe109c55210f9dfc3e9a977",
+      "9b02f714bfc969c3c71da4ec36c52299bfe2752fe4d26d22f0b7740cc139cfa1",
+      "3a98253c9f496bb565e2d09cf6d97f40a70808089cd0067d7f3bb4f203e36c5b",
+      "abbceb735403d0eb69a3d3b85776051e3e673897a1eb27b46c3b5a161fc6a3e0",
+      "e08eda56ca7bf6f1989dd71c1ba02f675a17afe48fbd4af8d224ca511899a0ef",
+      "3b7d72fc2404a85131ca43274a324d376c3895ee90d72118de6ed57992d7cbf3",
+      "3771cecc8fcce9e7d45766508ceca886521efbdddd9e6a904e468668d7e3e41e",
+      "f840ce31b0b18ade62dbbdf7d1cca3054e596e71bd5b0a6e27e6af078dc39254",
+      "592c9edf371267e03e6d9b0dc5b4dae888501e5b6c84a3cf76dce6e1f84e7f93",
+      "9eeb8a38a3813b2f42f1faeec321866df09515171687e99c6db352548bc20f52",
+      "f03af9d941b8b8e6320c913f9a9f26e2554e02eaf8405f5be99652fd949b8e54",
+      "d6d9d14529b8afd840d13ce0787b09c852492c693e3e931498c5573a3a6c3482",
+      "b9291fa39b09a792e83ab7a9e5e8140f1b2beccbb95fcd3c132a91e6ba8f024a",
+      "624238d090c8534fe6dacfddebe50728bd9948de1bad2f9e88dae2cf7ecd7778",
+      "5952475c921e622103f22b0f03e372d26c2c393ec430dc436031ca1233d0f2fc",
+      "c5e672a684df13b9d053bfddd830cdda6336fdd0d90e16f736eae9dc696c06dd",
+      "81e9cbd67d97d278f4919f7ddabc58062e26ed9588cb2b2a6a8f1d5dccf2cb58",
+      "845928e7a483fc6426a219ccbd76890b65d41f50d2a66733b94dff0b5b896178",
+      "99e8682ebdaa0a321395b1a0c1f992203f794f4b6ba86bcdf040dc99455e4838"
+    ],
+    "master_key_bits": "e78fd22eec5809f92ae882a9777c7bce24c1f62f9fca5afef7726ea251e32278",
+    "perms_all": "d5e6e7ad04060591843186f3a6d95208a66d3f078b31865a57bcec7aa6c283c7",
+    "pixel_mean": "c7637db2df474ff988293ad47a01bd341d8c1404f82c7ec3ce8383e69976b219"
+  },
+  "runs": {
+    "cd1": {
+      "k": 1,
+      "epochs": [
+        {
+          "epoch": 0,
+          "recon_hamming": 0.1721573919057846,
+          "cd_surrogate": null,
+          "time_s": 0.0
+        },
+        {
+          "epoch": 1,
+          "recon_hamming": 0.08705267310142517,
+          "cd_surrogate": -15.377678871154785,
+          "time_s": 3.4341161309998824
+        },
+        {
+          "epoch": 2,
+          "recon_hamming": 0.07444579154253006,
+          "cd_surrogate": -15.709446907043457,
+          "time_s": 2.9712783599998147
+        },
+        {
+          "epoch": 3,
+          "recon_hamming": 0.06826683133840561,
+          "cd_surrogate": -13.811080932617188,
+          "time_s": 2.6828758940000625
+        },
+        {
+          "epoch": 4,
+          "recon_hamming": 0.0647108405828476,
+          "cd_surrogate": -12.523351669311523,
+          "time_s": 2.938104274000125
+        },
+        {
+          "epoch": 5,
+          "recon_hamming": 0.06192551180720329,
+          "cd_surrogate": -11.649871826171875,
+          "time_s": 2.4086063710001326
+        },
+        {
+          "epoch": 6,
+          "recon_hamming": 0.059931762516498566,
+          "cd_surrogate": -11.009174346923828,
+          "time_s": 2.3521663360002094
+        },
+        {
+          "epoch": 7,
+          "recon_hamming": 0.05805433169007301,
+          "cd_surrogate": -10.521625518798828,
+          "time_s": 2.5800877060000857
+        },
+        {
+          "epoch": 8,
+          "recon_hamming": 0.056606121361255646,
+          "cd_surrogate": -10.09105110168457,
+          "time_s": 2.3561089489999176
+        },
+        {
+          "epoch": 9,
+          "recon_hamming": 0.05523928254842758,
+          "cd_surrogate": -9.782970428466797,
+          "time_s": 2.349555836000036
+        },
+        {
+          "epoch": 10,
+          "recon_hamming": 0.054117601364851,
+          "cd_surrogate": -9.471261024475098,
+          "time_s": 2.343895678000081
+        },
+        {
+          "epoch": 11,
+          "recon_hamming": 0.0530686192214489,
+          "cd_surrogate": -9.044651985168457,
+          "time_s": 2.333109565000086
+        },
+        {
+          "epoch": 12,
+          "recon_hamming": 0.05217626690864563,
+          "cd_surrogate": -8.678365707397461,
+          "time_s": 2.395876654999938
+        },
+        {
+          "epoch": 13,
+          "recon_hamming": 0.05150318518280983,
+          "cd_surrogate": -8.280555725097656,
+          "time_s": 2.272065126000143
+        },
+        {
+          "epoch": 14,
+          "recon_hamming": 0.05071326345205307,
+          "cd_surrogate": -7.9293293952941895,
+          "time_s": 2.560498956000174
+        },
+        {
+          "epoch": 15,
+          "recon_hamming": 0.050167981535196304,
+          "cd_surrogate": -7.466701507568359,
+          "time_s": 2.3177989860000707
+        },
+        {
+          "epoch": 16,
+          "recon_hamming": 0.049584563821554184,
+          "cd_surrogate": -7.18759298324585,
+          "time_s": 2.233006042999932
+        },
+        {
+          "epoch": 17,
+          "recon_hamming": 0.04908838868141174,
+          "cd_surrogate": -6.820712089538574,
+          "time_s": 2.3676651290002155
+        },
+        {
+          "epoch": 18,
+          "recon_hamming": 0.04860625043511391,
+          "cd_surrogate": -6.531984806060791,
+          "time_s": 2.226078020999921
+        },
+        {
+          "epoch": 19,
+          "recon_hamming": 0.048180099576711655,
+          "cd_surrogate": -6.215083599090576,
+          "time_s": 2.341656904000047
+        },
+        {
+          "epoch": 20,
+          "recon_hamming": 0.04776109382510185,
+          "cd_surrogate": -6.0475335121154785,
+          "time_s": 2.459584714000357
+        }
+      ],
+      "total_time_s": 49.98697457700018,
+      "initial_recon": 0.1721573919057846,
+      "final_recon": 0.04776109382510185,
+      "final_lt_half_initial": true
+    },
+    "cd10": {
+      "k": 10,
+      "epochs": [
+        {
+          "epoch": 0,
+          "recon_hamming": 0.1724936068058014,
+          "cd_surrogate": null,
+          "time_s": 0.0
+        },
+        {
+          "epoch": 1,
+          "recon_hamming": 0.08970751613378525,
+          "cd_surrogate": -12.12405776977539,
+          "time_s": 16.18838335500004
+        },
+        {
+          "epoch": 2,
+          "recon_hamming": 0.07675637304782867,
+          "cd_surrogate": -14.786736488342285,
+          "time_s": 14.952276364000227
+        },
+        {
+          "epoch": 3,
+          "recon_hamming": 0.07036606222391129,
+          "cd_surrogate": -13.070281028747559,
+          "time_s": 14.42167758200003
+        },
+        {
+          "epoch": 4,
+          "recon_hamming": 0.0666862204670906,
+          "cd_surrogate": -11.763503074645996,
+          "time_s": 14.777976694000245
+        },
+        {
+          "epoch": 5,
+          "recon_hamming": 0.06361262500286102,
+          "cd_surrogate": -11.07681941986084,
+          "time_s": 14.871666611999899
+        },
+        {
+          "epoch": 6,
+          "recon_hamming": 0.061677806079387665,
+          "cd_surrogate": -10.662692070007324,
+          "time_s": 14.389280632999998
+        },
+        {
+          "epoch": 7,
+          "recon_hamming": 0.05947563424706459,
+          "cd_surrogate": -10.136295318603516,
+          "time_s": 14.051429165999707
+        },
+        {
+          "epoch": 8,
+          "recon_hamming": 0.057890813797712326,
+          "cd_surrogate": -9.575423240661621,
+          "time_s": 14.092142920000242
+        },
+        {
+          "epoch": 9,
+          "recon_hamming": 0.056536730378866196,
+          "cd_surrogate": -9.01461410522461,
+          "time_s": 14.735055586000271
+        },
+        {
+          "epoch": 10,
+          "recon_hamming": 0.05531708896160126,
+          "cd_surrogate": -8.38484001159668,
+          "time_s": 14.53933558000017
+        },
+        {
+          "epoch": 11,
+          "recon_hamming": 0.05417346581816673,
+          "cd_surrogate": -7.714914321899414,
+          "time_s": 14.8629712689999
+        },
+        {
+          "epoch": 12,
+          "recon_hamming": 0.053445663303136826,
+          "cd_surrogate": -7.306826114654541,
+          "time_s": 15.32570531600004
+        },
+        {
+          "epoch": 13,
+          "recon_hamming": 0.0525919646024704,
+          "cd_surrogate": -6.852740287780762,
+          "time_s": 14.361760935999882
+        },
+        {
+          "epoch": 14,
+          "recon_hamming": 0.05190981924533844,
+          "cd_surrogate": -6.544820308685303,
+          "time_s": 14.375323842999933
+        },
+        {
+          "epoch": 15,
+          "recon_hamming": 0.05133762210607529,
+          "cd_surrogate": -6.239230155944824,
+          "time_s": 14.11285094699997
+        },
+        {
+          "epoch": 16,
+          "recon_hamming": 0.05076798424124718,
+          "cd_surrogate": -6.037054061889648,
+          "time_s": 14.033528609999848
+        },
+        {
+          "epoch": 17,
+          "recon_hamming": 0.05025548115372658,
+          "cd_surrogate": -5.656784534454346,
+          "time_s": 14.791101305000211
+        },
+        {
+          "epoch": 18,
+          "recon_hamming": 0.049790941178798676,
+          "cd_surrogate": -5.538163661956787,
+          "time_s": 14.846565526000177
+        },
+        {
+          "epoch": 19,
+          "recon_hamming": 0.04930025339126587,
+          "cd_surrogate": -5.280335903167725,
+          "time_s": 15.212125942999592
+        },
+        {
+          "epoch": 20,
+          "recon_hamming": 0.049187883734703064,
+          "cd_surrogate": -5.130734443664551,
+          "time_s": 15.520019819000026
+        }
+      ],
+      "total_time_s": 294.5100233789999,
+      "initial_recon": 0.1724936068058014,
+      "final_recon": 0.049187883734703064,
+      "final_lt_half_initial": true
+    }
+  }
+}
