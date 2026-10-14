@@ -1,23 +1,79 @@
 # Week 6 — Diffusion models
 
 Part 1 (learned score of a Gaussian mixture) is complete and reviewed.
-Part 2 (MNIST UNet + diffusion CLI) is implemented and smoke-verified; its
-formal 30000-update training run and the resulting loss/grid/trajectory/denoising
-evidence are **pending cloud price approval**. Parts 3-5 have not started.
+Part 2 (MNIST UNet + diffusion CLI) is **complete**: the formal 30000-update
+run was trained on the human-purchased Alibaba Cloud A10, independently
+verified, copied back with SHA256 equality, and the local preview/trajectory
+evidence was produced. Parts 3-5 have not started.
 
 ## Part 2 status (this update)
 
-- `diffusion.design.toml` + `src/diffusion/` implement the sheet's train/sample
-  interface exactly (`uv run diffusion train ...`, `uv run diffusion sample ...`).
-- The true train CLI smoke finished on CPU **before any rental**: 200 updates
-  and the 4-sample 1000-step DDPM sample both completed (logs below).
-- Independent review fixes applied: trajectory t=0 semantics, figure layout,
-  full unfiltered smoke logs with an independent verifier, and a reworked
-  English cloud runbook (console-first) matching the human's Chinese A10 guide.
-- Formal 30000-update MNIST run: pending explicit human approval of the cloud
-  price packet in `cloud/runbook.md` (no resource created, no price known).
-- Pending after that run: `evidence/mnist-loss.png`, `evidence/mnist-grid.png`,
-  `trajectory.jsonl`, `evidence/mnist-denoising.png`, then Parts 3-5.
+- Formal training verified: exit 0, wall **368 s** on `ecs.gn7i-c8g1.2xlarge`
+  (NVIDIA A10 23028 MiB, driver 580.126.09, jax 0.11.2 on `cuda:0`),
+  ~84 steps/s at mid-run; loss 1.250534 -> **0.013941** (min 0.007980 at step
+  27973); 30000 ordered finite losses; exact settings (updates 30000, batch
+  64, seed 2026); 126 finite EMA arrays.
+- `checkpoints/mnist.npz` promoted (was absent) from the verified copy.
+- Preview sampling ran **locally on CPU** after copy-back (no extra GPU
+  tasks): 100 samples + separate 8-sample 1000-step trajectory, exit 0,
+  138.2 s.
+- Instance release (exact ID `i-t4n7f2zqpa44cb3hh7uc`) is the human's gated
+  action; no further instance work is needed by this repo.
+- Honest incident record: a coordination race during initial setup produced a
+  second training process; root stopped both processes and preserved the
+  mixed output in the remote `runs/train-mnist`. That run is **INVALID**, was
+  never promoted, and remains preserved on the instance for audit. The valid
+  run is root's locked `runs/train-mnist-a10-20261014-1421` (tmux
+  `mnist-verified`, flock-guarded), whose artifacts are the only ones used
+  here.
+
+## Part 2: formal training evidence
+
+Deployed source: local `git archive` of HEAD `36c56ee7e27e7db4335ab16b196f3f57e3551515`
+(SHA256 `144fb0f9...f1a2`, verified on both sides; dataset SHA256
+`731c5ac6...673d1` verified on both sides). Remote environment: uv 0.13.1,
+`uv sync --extra cuda` exit 0, JAX GPU assertion passed before training
+(`gpu-check.log`).
+
+Remote command (run by root's lock script, unchanged model/settings):
+
+```bash
+uv run diffusion train --data mnist --input inputs/mnist.npz \
+  --updates 30000 --batch 64 --seed 2026 --out runs/train-mnist-a10-20261014-1421
+```
+
+Measured: start 2026-10-14T14:21:00+08:00, end 14:27:09+08:00, wall **368 s**,
+exit **0**, ~84 steps/s. Retrieval: `retrievals/20261014-1427-formal-mnist/`
+(run dir + full train log + gpu/start/end/exit/wall markers + gpu-check.log +
+sync.log); remote/local SHA256 verified for all 10 files;
+`scripts/verify_formal_train.py` all checks passed.
+
+`evidence/mnist-loss.png` (command: `uv run python scripts/plot_mnist_loss.py
+--loss retrievals/20261014-1427-formal-mnist/train-mnist-a10-20261014-1421/loss.jsonl`):
+loss on a logarithmic axis falls from order one toward ~0.014 and plateaus
+around 0.02-0.03, matching the expected trend.
+
+## Part 2: preview and trajectory evidence (local CPU, from the formal checkpoint)
+
+```bash
+uv run diffusion sample --data mnist --checkpoint checkpoints/mnist.npz \
+  --sampler ddpm --steps 1000 --n 100 --seed 2026 --out runs/mnist-preview --trajectory
+```
+
+Measured: exit 0, **138.2 s** CPU; `samples.jsonl` 100 rows, `trajectory.jsonl`
+26 frames. The denoising recording is copied to `week6/trajectory.jsonl` for
+the course viewer (https://giggleliu.github.io/AMAT5315-2026Fall/week6-viewer.html);
+the human loads the viewer and saves the official t = 200 PNG as
+`evidence/mnist-denoising.png` replacement if desired - the current
+`evidence/mnist-denoising.png` is a labelled matplotlib substitute (command:
+`uv run python scripts/plot_mnist_denoising.py --trajectory trajectory.jsonl`),
+showing the current image above and predicted clean image below at
+t = 1000, 800, 200, 0: the prediction becomes recognisable earlier than the
+noisy state, as the lecture describes.
+
+`evidence/mnist-grid.png` (command: `uv run python scripts/plot_mnist_grid.py
+--samples runs/mnist-preview/samples.jsonl`): the 100 generated digits as a
+10x10 grid - recognisable digits of varied classes and shapes.
 
 ## Part 2: environment and dependency compatibility (tested)
 
@@ -120,7 +176,7 @@ rendered figure shows 16 preprocessed digits with color bars, and one image at
 t = 0, 200, 500, 1000 - the border is -1 and structure disappears as t
 increases (t = 1000 is pure noise, std 1.014, mean -0.009).
 
-## Part 2: cloud approval packet (STOPPED HERE)
+## Part 2: cloud approval packet (approved and executed; instance release pending)
 
 `cloud/runbook.md` (rewritten in English from the human's Chinese A10 guide
 `阿里云A10租用操作.md`) provides a **manual console sequence first** (no CLI or
@@ -290,12 +346,15 @@ human-authorized provider. An independent Codex review requested readable
 quiver scales and meaningful reverse-noise tests; pi implemented those
 corrections and a standalone verifier.
 
-Part 2 review fixes are applied: trajectory t=0 frames hold the clipped saved
-final image (new unit + integration checks), `evidence/mnist-inputs.png` is
-reworked with dedicated color-bar columns and an axes-overlap assertion, full
-unfiltered smoke logs plus `scripts/verify_smoke.py` are saved, and the cloud
-runbook is rewritten in English (console-first, DescribePrice pricing,
-DeleteInstance release, local-source deployment with hash verification). The
-formal 30000-update MNIST run waits for explicit human approval of the price
-packet; no cloud resource exists and no cloud API was executed. Parts 3-5
+Part 2 is complete: the formal 30000-update run was trained on the
+human-purchased A10 (root's flock-locked run; exit 0, 368 s), independently
+verified, copied back with SHA256 equality, promoted to
+`checkpoints/mnist.npz`, and the loss/grid/trajectory evidence was generated
+from a local-CPU preview sampling of the formal checkpoint. The initial
+setup race (two training processes, stopped by root, output preserved
+remotely) is recorded honestly in `cloud/README.md`; that run was never
+promoted. The instance `i-t4n7f2zqpa44cb3hh7uc` is release-ready pending the
+human's exact-ID confirmation; actual bill pending. The official viewer PNG
+at t = 200 is to be saved by the human from trajectory.jsonl; the committed
+`evidence/mnist-denoising.png` is a labelled matplotlib substitute. Parts 3-5
 have not started. No push yet.
