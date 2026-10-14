@@ -23,8 +23,12 @@ recommended — no CLI or account configuration is assumed) and the **CLI path**
 
 ```bash
 # dedicated SSH key; NEVER overwrite an existing key file
-test -f ~/.ssh/week6_ecs && echo "key already exists: reuse it, do not regenerate" \
-  || ssh-keygen -t rsa -b 4096 -f ~/.ssh/week6_ecs -C "amat5315-week6-ecs"
+mkdir -p ~/.ssh
+if test -e ~/.ssh/week6_ecs || test -e ~/.ssh/week6_ecs.pub; then
+  echo "Existing key material found; reuse the matched pair or choose a new name."
+else
+  ssh-keygen -t rsa -b 4096 -f ~/.ssh/week6_ecs -C "amat5315-week6-ecs"
+fi
 # the public half (~/.ssh/week6_ecs.pub) is uploaded; the private half never
 # leaves this machine and is never committed, printed or embedded anywhere.
 ```
@@ -59,7 +63,9 @@ sha256sum week6/inputs/mnist.npz
    offers "install GPU driver automatically" for GPU instances, select it
    (driver must satisfy JAX: CUDA 12 needs Linux driver >= 525; verify with
    `nvidia-smi` later). Do not buy a paid image.
-7. System disk: **60 GiB** (category as offered, e.g. ESSD; the category and
+7. System disk: **60 GiB**, ESSD AutoPL (`cloud_auto`), with no extra
+   provisioned IOPS or throughput. If choosing another disk type, update the
+   quote and creation commands to match (the category and
    size enter the price). No data disk.
 8. Network: the default VPC/VSwitch of the region is fine; public IP with
    **pay-by-traffic** and an explicit bandwidth cap (e.g. 10 Mbps peak). Do
@@ -67,7 +73,7 @@ sha256sum week6/inputs/mnist.npz
 9. Login: **SSH key** — upload the PUBLIC key `~/.ssh/week6_ecs.pub` (paste or
    import). The private key stays local. Do not set a password.
 10. Security group: allow inbound TCP 22 ONLY from the human's current SSH
-    egress IPv4 as `/<YOUR_EGRESS_IP>/32`. If WSL/Windows goes through a
+    egress IPv4 as `<YOUR_EGRESS_IP>/32`. If WSL/Windows goes through a
     proxy/VPN, confirm the real egress IP first. Never use 0.0.0.0/0. Update
     the rule if the IP changes.
 11. Instance name suggestion: `amat5315-week6-mnist`.
@@ -97,9 +103,10 @@ aliyun ecs DescribeAvailableResource --RegionId ap-southeast-1 \
 # category/size 60, region/zone, PriceUnit Hour / Period 1 / SpotStrategy
 # NoSpot, InternetChargeType PayByTraffic, explicit bandwidth cap.
 aliyun ecs DescribePrice --RegionId ap-southeast-1 --ZoneId <ZoneId> \
+  --ResourceType instance \
   --InstanceType ecs.gn7i-c8g1.2xlarge --ImageId <ImageId> \
   --PriceUnit Hour --Period 1 --SpotStrategy NoSpot \
-  --SystemDiskCategory cloud_essd --SystemDiskSize 60 \
+  --SystemDisk.Category cloud_auto --SystemDisk.Size 60 \
   --InternetChargeType PayByTraffic --InternetMaxBandwidthOut 10
 # (confirm flag names with `aliyun ecs DescribePrice --help` before running)
 ```
@@ -123,7 +130,7 @@ aliyun ecs ImportKeyPair --RegionId ap-southeast-1 --KeyPairName week6-ecs \
 
 # security group + SSH-only ingress from the human's egress IP
 aliyun ecs CreateSecurityGroup --RegionId ap-southeast-1 \
-  --SecurityGroupName week6-gn7i-sg
+  --SecurityGroupName week6-gn7i-sg --VpcId <VpcId-of-the-selected-VSwitch>
 aliyun ecs AuthorizeSecurityGroup --RegionId ap-southeast-1 \
   --SecurityGroupId <SecurityGroupId> --IpProtocol tcp --PortRange 22/22 \
   --SourceCidrIp <YOUR_EGRESS_IP>/32
@@ -134,7 +141,7 @@ aliyun ecs RunInstances --RegionId ap-southeast-1 --ZoneId <ZoneId> \
   --InstanceType ecs.gn7i-c8g1.2xlarge --ImageId <ImageId> \
   --InstanceChargeType PostPaid --Amount 1 --InstanceName amat5315-week6-mnist \
   --VSwitchId <VSwitchId> --SecurityGroupId <SecurityGroupId> \
-  --KeyPairName week6-ecs --SystemDiskCategory cloud_essd --SystemDiskSize 60 \
+  --KeyPairName week6-ecs --SystemDisk.Category cloud_auto --SystemDisk.Size 60 \
   --InternetChargeType PayByTraffic --InternetMaxBandwidthOut 10
 
 # poll by the RETURNED InstanceIds (InstanceNames filtering is not supported)
@@ -165,8 +172,10 @@ uv --version
 # --- from this machine: upload local tested source and data separately ---
 scp -i "$ECS_KEY" /tmp/week6-src.tar.gz "$ECS_USER@$ECS_HOST:~/"
 ssh -i "$ECS_KEY" "$ECS_USER@$ECS_HOST" 'mkdir -p ~/week6/inputs && \
-  tar -xzf ~/week6-src.tar.gz -C ~ --strip-components=1'
+  tar -xzf ~/week6-src.tar.gz -C ~'
 sha256sum /tmp/week6-src.tar.gz                       # local value
+ssh -i "$ECS_KEY" "$ECS_USER@$ECS_HOST" \
+  'sha256sum ~/week6-src.tar.gz'                         # must match local archive
 scp -i "$ECS_KEY" week6/inputs/mnist.npz "$ECS_USER@$ECS_HOST:~/week6/inputs/"
 ssh -i "$ECS_KEY" "$ECS_USER@$ECS_HOST" 'sha256sum ~/week6/inputs/mnist.npz'
 # both SHA256 values must match the section 1 value before continuing
@@ -198,15 +207,20 @@ ssh -i "$ECS_KEY" "$ECS_USER@$ECS_HOST" \
   'sha256sum ~/week6/runs/train-mnist/checkpoint.npz ~/week6/runs/train-mnist/loss.jsonl'
 # the SHA256 pairs must match; loss.jsonl must hold exactly 30000 ordered,
 # finite records (spot-check with scripts/verify_smoke.py-style checks or:
-python - <<'PY'
-import json, math
-rows = [json.loads(l) for l in open("<RETRIEVE>/train-mnist/loss.jsonl")]
+uv run python - "$RETRIEVE/train-mnist/loss.jsonl" <<'PY'
+import json, math, sys
+rows = [json.loads(l) for l in open(sys.argv[1])]
 assert [r["step"] for r in rows] == list(range(1, 30001))
 assert all(math.isfinite(r["loss"]) for r in rows)
 print("30000 ordered finite loss records OK")
 PY
 # only after verification:
-mkdir -p checkpoints && cp "$RETRIEVE/train-mnist/checkpoint.npz" checkpoints/mnist.npz
+mkdir -p checkpoints
+if test -e checkpoints/mnist.npz; then
+  echo "Existing formal checkpoint found; preserve it before promoting another run."
+else
+  cp "$RETRIEVE/train-mnist/checkpoint.npz" checkpoints/mnist.npz
+fi
 ```
 
 ## 6. Release and confirmation — `[GATED]`, needs SEPARATE explicit human
@@ -257,5 +271,5 @@ actually shown. Do not execute any `[GATED]` command without the human.
 - DescribePrice API: https://www.alibabacloud.com/help/en/ecs/developer-reference/api-ecs-2014-05-26-describeprice
 - ECS API (release = DeleteInstance): https://api.alibabacloud.com/document/Ecs/2014-05-26
 - aliyun CLI configuration: https://github.com/aliyun/aliyun-cli/blob/master/docs/en/configuration.md
-- Chinese original of this operating guide (human-provided):
+- Chinese companion guide prepared for this task:
   `/mnt/d/Keria/Course/AMAT5315/week6-support/阿里云A10租用操作.md`
