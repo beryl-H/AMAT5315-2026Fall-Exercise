@@ -1,3 +1,14 @@
+# Completion status — 2026-10-14
+
+- [x] Part 1: original dataset provenance, loaders, figures and independent verification.
+- [x] Part 2: matched CD-1/CD-10 training, reconstruction, generation and conditional completion.
+- [x] Part 3: 84-point classical Hopfield study and independent replay.
+- [x] Part 4: 600 queries, 4200 outputs, library attention equality and classical comparison.
+- [x] Final source/test review, 50 tests, figures and full-array acceptance.
+- Final delivery receipts (backup checksum and remote commit) are recorded in the local delivery audit.
+
+The original Part 1 implementation plan is preserved below.
+
 # Part 1 implementation plan
 
 1. **Setup**: `pyproject.toml` (numpy, matplotlib, jax[cpu], pytest),

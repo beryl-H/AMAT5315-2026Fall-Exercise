@@ -1,0 +1,105 @@
+{
+  "artifact_directory": "artifacts/part4/evaluation-20261014-180638",
+  "queries_verified": 600,
+  "modern_outputs_verified": 4200,
+  "global_max_attention_difference": 0.0,
+  "default_scale_negative_control_max_difference": 1.6819415092468262,
+  "points": [
+    {
+      "P": 3,
+      "modern_beta0.3_success": 1.0,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 1.5829590793714488e-07,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    },
+    {
+      "P": 10,
+      "modern_beta0.3_success": 1.0,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 1.6416496689819482e-06,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    },
+    {
+      "P": 30,
+      "modern_beta0.3_success": 1.0,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 1.7226385581325943e-06,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    },
+    {
+      "P": 100,
+      "modern_beta0.3_success": 0.98,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 1.1282657683686637e-06,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    },
+    {
+      "P": 300,
+      "modern_beta0.3_success": 1.0,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 2.32134978292442e-06,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    },
+    {
+      "P": 1000,
+      "modern_beta0.3_success": 0.97,
+      "classical_success": 0.0,
+      "max_numpy_reference_difference": 1.7762220210215673e-06,
+      "attention_diff_by_beta": {
+        "0.001": 0.0,
+        "0.003": 0.0,
+        "0.01": 0.0,
+        "0.03": 0.0,
+        "0.1": 0.0,
+        "0.3": 0.0,
+        "1.0": 0.0
+      },
+      "all_classical_states_stable": true
+    }
+  ]
+}

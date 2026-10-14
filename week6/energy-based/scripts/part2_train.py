@@ -33,6 +33,7 @@ SETTINGS = dict(n_hidden=128, n_epochs=20, batch_size=100, lr=0.1, seed=2026,
                 # fold_in(_, k) and split(n_epochs+1), so the two models'
                 # STOCHASTIC STREAMS DIFFER while init and data order match.
                 step_keys="split(split(PRNGKey(2026))[0] folded in with k, 21); per-model streams differ",  # noqa: E501
+)
 
 
 def main():
@@ -84,7 +85,7 @@ def main():
     print(f"shared init hashes: a={hashes['a'][:12]} W={hashes['W'][:12]} "
           f"perms={hashes['perms_all'][:12]}", flush=True)
 
-    # step keys: derived once from the master key, shared by both runs
+    # Step keys share a master seed, then are folded in with k for distinct streams.
     step_key_root = jax.random.PRNGKey(SETTINGS["seed"])
     step_key_root, _ = jax.random.split(step_key_root)  # split off init key
     results = {"settings": SETTINGS, "hashes": hashes, "runs": {}}
