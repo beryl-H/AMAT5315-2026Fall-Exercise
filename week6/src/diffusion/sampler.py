@@ -55,8 +55,8 @@ def ddpm_sample(apply_fn, sched, key, n: int, steps: int, size: int = 32,
 
     Each reverse transition t -> s consumes fresh noise fold_in(key, t), so a
     seed reproduces the run exactly. When a recorder is given it observes the
-    current image and predicted clean image at recorded levels, and the final
-    image at t = 0.
+    current image and predicted clean image at recorded levels; the CALLER
+    finalizes the recorder with the saved final image.
     """
     t_steps = len(sched["betas"]) - 1
     grid = reverse_grid(steps, t_steps=t_steps)
@@ -67,6 +67,4 @@ def ddpm_sample(apply_fn, sched, key, n: int, steps: int, size: int = 32,
             recorder.observe(int(t), x, predicted_x0(x, int(t), sched, eps_pred))
         x = ddpm_step(x, int(t), int(s), sched, eps_pred,
                       jax.random.fold_in(key, int(t)))
-    if recorder is not None:
-        recorder.final(x)
     return x

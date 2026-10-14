@@ -324,6 +324,33 @@ def test_recorder_rounds_to_three_decimals():
 
 # ---- UNet model -----------------------------------------------------------------
 
+def test_trajectory_final_frame_is_clipped_saved_image():
+    # The t = 0 frame must contain the final SAVED image (clipped to [-1, 1]),
+    # matching samples.jsonl; intermediate frames may be unbounded.
+    from diffusion import sample as sample_mod
+
+    sched = schedule.make_schedule()
+    size = 8
+
+    def apply_fn(x, t):
+        # a large constant prediction drives the run far outside [-1, 1]
+        return jnp.full(x.shape, 10.0, dtype=x.dtype)
+
+    rec = trajectory.TrajectoryRecorder(2, size, trajectory.trajectory_levels(1000))
+    saved = sample_mod.run_trajectory(
+        apply_fn, sched, jax.random.PRNGKey(0), size, 1000, rec
+    )
+
+    frames = rec.frames()
+    assert [f["t"] for f in frames] == trajectory.trajectory_levels(1000) + [0]
+    last = frames[-1]
+    assert last["x"] == last["x0"]
+    xs = np.asarray(last["x"])
+    assert xs.shape == (2 * size * size,)
+    assert xs.min() >= -1.0 and xs.max() <= 1.0
+    np.testing.assert_allclose(xs, np.asarray(saved).reshape(-1), atol=1e-9)
+
+
 def test_unet_forward_shape_and_finite():
     config = model.UNetConfig()
     params = model.init_unet(jax.random.PRNGKey(1), config)

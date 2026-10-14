@@ -1,9 +1,10 @@
 """DDPM sampling from a trained checkpoint.
 
 The reverse grid is levels 1 + round(linspace(0, 999, steps)) visited in
-reverse followed by level 0. Final MNIST samples are clipped to [-1, 1].
-With --trajectory a SEPARATE 8-sample, 1000-step DDPM run records frames at
-t = 1000, 960, ..., 0; its key is the second half of the command seed's key
+reverse followed by level 0. Final MNIST samples are clipped to [-1, 1], and
+the trajectory's t = 0 frame holds that same saved final image in both x and
+x0. With --trajectory a SEPARATE 8-sample, 1000-step DDPM run records frames
+at t = 1000, 960, ..., 0; its key is the second half of the command seed's key
 split, so the same seed reproduces both runs exactly.
 """
 
@@ -25,6 +26,20 @@ from .schedule import make_schedule
 from .trajectory import TrajectoryRecorder, trajectory_levels
 
 TRAJECTORY_N = 8
+
+
+def run_trajectory(apply_fn, sched, key, size: int, t_steps: int, recorder):
+    """Separate 8-sample, 1000-step DDPM trajectory run.
+
+    Intermediate frames keep the unbounded current image x and predicted x0;
+    the t = 0 frame holds the final SAVED image (clipped to [-1, 1], matching
+    samples.jsonl) in both x and x0.
+    """
+    x = ddpm_sample(apply_fn, sched, key, recorder.n, t_steps,
+                    size=size, recorder=recorder)
+    saved = np.clip(np.asarray(x), -1.0, 1.0)
+    recorder.final(saved)
+    return saved
 
 
 def run_sampling(checkpoint_path, out_dir, sampler: str, steps: int, n: int,
@@ -74,8 +89,7 @@ def run_sampling(checkpoint_path, out_dir, sampler: str, steps: int, n: int,
 
     if trajectory:
         rec = TrajectoryRecorder(TRAJECTORY_N, size, trajectory_levels(t_steps))
-        ddpm_sample(apply_fn, sched, key_traj, TRAJECTORY_N, t_steps,
-                    size=size, recorder=rec)
+        run_trajectory(apply_fn, sched, key_traj, size, t_steps, rec)
         with (out_dir / "trajectory.jsonl").open("w") as f:
             for frame in rec.frames():
                 f.write(json.dumps(frame) + "\n")
