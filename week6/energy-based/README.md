@@ -205,3 +205,67 @@ p(v_M | v_O) as their stationary distribution.
 - Raw arrays (starts, snapshots, per-chain Dice, donor mapping, seed-key
   hashes) are preserved under git-ignored `artifacts/part2/` for
   independent verification; tracked JSON/PNGs carry the compact results.
+
+---
+
+# Part 3 — Classical Hopfield capacity
+
+## Model and settings
+
+Random ±1 patterns; Hebbian couplings `K = Xi^T Xi` computed in exact int32
+(cast before the matmul) with zero diagonal; energy `E(s) = -0.5 s(K/N)s`,
+overlap `m_mu = xi_mu.s/N`, identity `E(s) = -N/2 Σ m_mu² + P/2`. Async
+zero-temperature updates `s_i <- sign(h_i)` in random order (independent
+derived keys, exact integer fields so zero fields hold their spin), sweeps
+until one flips nothing. Seed 2026 fixed before outcomes; key derivation
+`key_N = fold_in(master,N)`, `key_set = fold_in(key_N,set)`,
+`key_recall = fold_in(key_set,7777)`. Study: N ∈ {100,200,400,800},
+α = 0.05…0.25 step 0.01, P = round(αN), 20 independent pattern sets per
+point; each set measures BOTH the unstable-bit fraction (ξ_i h_i < 0 over
+all stored patterns, zeros not counted) and recall of the first min(10, P)
+exact stored patterns, from the same patterns.
+
+```bash
+uv run python scripts/part3_run.py     # full scan, ~6.5 min CPU, log runs/part3_run*.log
+uv run python scripts/part3_plots.py   # figures from verified aggregates + raw arrays
+```
+
+## Results (`evidence/part3_unstable_fraction.png`,
+`evidence/part3_recall_capacity.png`, `evidence/part3_metrics.json`)
+
+- **Unstable-bit fraction** follows the crosstalk prediction Φ(-1/√α);
+  measured points approach the large-N curve as N grows, and at low load
+  the N=100 points lie BELOW it exactly as the finite-N form
+  Φ(-√((N-1)/(P-1))) predicts (e.g. N=800, α=0.20: 1.23e-2 ± 1.4e-5 vs
+  large-N 1.27e-2). Exact zeros at low load are plotted as zeros.
+- **Recall**: mean final overlap stays ≥ 0.9873 up to α = 0.12 for every
+  N. First downward 0.9-crossings, by linear interpolation between adjacent
+  loads (first pair with mean ≥ 0.9 then < 0.9):
+  **N=100: 0.188, N=200: 0.168, N=400: 0.157, N=800: 0.148** — decreasing
+  with N and within 0.02 of the reference 0.186/0.170/0.156/0.150.
+  Reference deviation, stated precisely: the minimum low-load (α ≤ 0.12)
+  mean overlap is slightly below the reference's "above 0.988" observation
+  for exactly TWO sizes (N=200: 0.98795, N=800: 0.98729), while N=400
+  (0.98950) and N=100 (0.99480) are above it; these are set-sampling
+  fluctuations, not an implementation failure (root independently replayed
+  points and reproduced every number).
+- Negative controls (tested): couplings from wrong patterns give an
+  unstable fraction ≈ 0.5; adding the diagonal self-coupling suppresses the
+  fraction — neither reflects correct physics.
+
+## Interpretation
+
+Crosstalk from other stored patterns acts as signal-plus-noise on each
+local field: at low load the noise rarely flips a bit, near α ≈ 0.138 the
+recall fixed point (overlap ≈ 0.97) ceases to exist in the infinite-N
+limit, and at finite N the transition is smoothed and shifted (our
+crossings approach 0.138 from above as N grows). A converged recall state
+is a local minimum of the Ising energy — it need not be the target pattern
+beyond the capacity. Unlike Part 2, where couplings are *learned* by
+gradient descent on data, the Hebbian couplings are *set* in one shot from
+the patterns themselves; what the network can store is therefore limited by
+crosstalk between the stored items, not by a fitting procedure.
+
+Raw per-set arrays: `artifacts/part3/evaluation-20261014-171245/part3_raw.npz`
+(git-ignored) — root independently replayed N100/α0.20 set0 and
+N400/α0.20 set3 with exact agreement.
