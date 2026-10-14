@@ -48,7 +48,12 @@ def image_gallery(images, labels=None, *, class_names=None, path,
         img = images[i]
         if img.ndim == 3 and img.shape[-1] == 1:
             img = img[..., 0]
-        ax.imshow(img, interpolation="nearest", cmap=None if img.ndim == 3 else cmap)
+        if img.ndim == 3:  # RGB: show stored colors unscaled
+            ax.imshow(img, interpolation="nearest")
+        else:  # grayscale: fixed scale, not per-image autoscaling
+            vmax = 255 if img.dtype == np.uint8 else 1
+            ax.imshow(img, interpolation="nearest", cmap=cmap,
+                      vmin=0, vmax=vmax)
         ax.set_xticks([])
         ax.set_yticks([])
         if labels is not None:

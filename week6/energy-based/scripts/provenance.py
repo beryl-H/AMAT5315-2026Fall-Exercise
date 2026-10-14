@@ -66,6 +66,10 @@ def main():
             "effective_url": probe_effective_url(CIFAR_URL),
             "bytes": p.stat().st_size,
             "sha256": sha256(p),
+            # Official author page https://www.cs.toronto.edu/~kriz/cifar.html
+            # lists MD5 c32a1d4ab5d03f1284b67883e8d87530 (verified by root
+            # against the fetched page; not re-asserted here if archive changed).
+            "official_md5_from_author_page": "c32a1d4ab5d03f1284b67883e8d87530",
             "matches_official_size": p.stat().st_size == CIFAR_CANONICAL_BYTES,
         })
     out = root / "evidence/provenance.json"
