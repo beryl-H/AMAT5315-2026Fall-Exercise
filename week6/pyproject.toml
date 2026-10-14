@@ -1,7 +1,11 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "amat5315-week6"
-version = "0.1.0"
-description = "Diffusion models exercise (Part 1: learned score of a Gaussian mixture)"
+version = "0.2.0"
+description = "Diffusion models exercise (Part 1 mixture score; Part 2 MNIST diffusion CLI)"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "jax==0.11.2",
@@ -11,8 +15,14 @@ dependencies = [
     "pytest==9.1.1",
 ]
 
-[tool.uv]
-package = false
+[project.optional-dependencies]
+cuda = ["jax[cuda12]==0.11.2"]
+
+[project.scripts]
+diffusion = "diffusion.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/diffusion"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]

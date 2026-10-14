@@ -58,8 +58,10 @@ def test_training_data_uses_only_train_split(tmp_path):
     train_images = data.load_training_images(path)
     assert train_images.shape == (6, 32, 32)
     expected = 10 / 127.5 - 1.0
-    np.testing.assert_allclose(train_images.min(), expected, atol=1e-7)
-    np.testing.assert_allclose(train_images.max(), expected, atol=1e-7)
+    # check the interior only: the zero-padded border is exactly -1
+    interior = train_images[:, 2:-2, 2:-2]
+    np.testing.assert_allclose(interior.min(), expected, atol=1e-7)
+    np.testing.assert_allclose(interior.max(), expected, atol=1e-7)
 
 
 # ---- Schedule and forward process ------------------------------------------
