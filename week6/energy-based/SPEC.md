@@ -179,3 +179,39 @@ N=4 retrieved deterministically.
   .186/.170/.156/.150 (N=100..800). Min mean overlap over alpha<=0.12
   reported (>0.988 expected).
 - Raw per-set arrays in ignored artifacts; compact tracked JSON + PNGs.
+
+---
+
+# Part 4 SPEC + final verification: modern Hopfield retrieval / attention
+
+## Experiment (fixed before outcomes)
+
+- Store the FIRST P original MNIST training images, binarized (>=128) and
+  mapped to spins 2v-1, as columns X (784, P). P in {3,10,30,100,300,1000}.
+- For each P: exactly 100 queries with target indices arange(100) % P;
+  lower 14 rows replaced by independent random +/-1 spins. Seed 2026 fixed
+  before outcomes; queries/keys saved in a unique ignored artifact folder;
+  IDENTICAL queries for every beta and for classical recall.
+- beta in {.001,.003,.01,.03,.1,.3,1}: modern update
+  x' = X @ softmax(beta * X.T @ x) in float32, AND the same update via
+  jax.nn.dot_product_attention(query=x, key=X.T, value=X.T, scale=beta).
+  Global max |difference| over all queries/P/beta must be < 1e-5. Negative
+  control: default 1/sqrt(784) scale must demonstrably FAIL equality.
+- Classical recall reuses the tested Part 3 implementation (same patterns/
+  queries, zero diagonal, random async order, exact-zero holds), run to a
+  full zero-flip sweep; any safety-cap hit is flagged, never accepted.
+- Success criterion (identical for both models, fixed before evaluation):
+  spin overlap m = target . sign(out) / 784 >= 0.95 with sign(0)=0 policy,
+  AND the target is the nearest stored pattern to sign(out) (spin overlap,
+  first-index argmax tie rule). All 100 overlaps/nearest indices/success
+  flags saved per point; NOT digit-label accuracy.
+
+## Acceptance
+
+modern beta=.3 success >= 0.95 for EVERY P; classical success = 0 for
+EVERY P; attention equality < 1e-5; wrong-scale control fails. Raw arrays
+saved incrementally per point in ignored artifacts; compact JSON + PNGs
+tracked. Reference observations (not thresholds): at beta <= 0.01 every
+query returns the same blurred average; at beta >= 0.1 one update returns
+the stored digit; classical recall returns the same sparse fragment for
+every query.
