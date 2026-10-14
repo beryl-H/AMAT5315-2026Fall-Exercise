@@ -23,7 +23,7 @@ from .checkpoint import save_checkpoint
 from .ema import ema_init, ema_update
 from .model import UNetConfig, init_unet, unet_apply
 from .process import forward_noise
-from .schedule import BETA_MAX, BETA_MIN, T_STEPS
+from .schedule import BETA_MAX, BETA_MIN, T_STEPS, make_schedule
 
 
 def _adam_init(params):
