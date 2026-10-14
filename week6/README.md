@@ -1,7 +1,119 @@
 # Week 6 — Diffusion models
 
-This documents **Part 1 only**: learning the score of a two-dimensional Gaussian
-mixture. Later parts are deliberately not started yet.
+Part 1 (learned score of a Gaussian mixture) is complete and reviewed.
+Part 2 (MNIST UNet + diffusion CLI) is implemented and smoke-verified; its
+formal 30000-update training run and the resulting loss/grid/trajectory/denoising
+evidence are **pending cloud price approval**. Parts 3-5 have not started.
+
+## Part 2 status (this update)
+
+- `diffusion.design.toml` + `src/diffusion/` implement the sheet's train/sample
+  interface exactly (`uv run diffusion train ...`, `uv run diffusion sample ...`).
+- Smoke verified end to end on CPU; smoke outputs are retained under `runs/`
+  and are NOT formal results.
+- Formal 30000-update MNIST run: pending explicit human approval of the cloud
+  price packet in `cloud/runbook.md` (no resource created, no price guessed).
+- Pending after that run: `evidence/mnist-loss.png`, `evidence/mnist-grid.png`,
+  `trajectory.jsonl`, `evidence/mnist-denoising.png`, then Parts 3-5.
+
+## Part 2: environment and dependency compatibility (tested)
+
+- Same pinned stack as Part 1, on Python 3.12.3 (WSL2, CPU):
+  `jax==0.11.2`, `jaxlib==0.11.2`, `numpy==2.5.3`, `matplotlib==3.11.2`,
+  `pytest==9.1.1`. Part 1 tests still pass unchanged after the packaging
+  change.
+- The repo is now a uv package (hatchling build, editable install):
+  `uv run diffusion ...` comes from `[project.scripts]`. `uv sync` keeps the
+  CPU wheels; `uv sync --extra cuda` (`jax[cuda12]==0.11.2`) is locked in
+  `uv.lock` for the GPU instance but **not yet exercised** (no GPU here);
+  jax 0.11.2 does publish the `cuda12` extra on PyPI (checked).
+- The GPU path needs only the NVIDIA kernel driver + libcuda on the host; the
+  CUDA runtime ships in the pip wheels.
+
+## Part 2: commands and smoke measurements (CPU, WSL2, 16 cores, ~14 GiB host)
+
+Download the dataset (git-ignored):
+
+```bash
+mkdir -p inputs
+curl -fL https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz \
+  -o inputs/mnist.npz
+```
+
+Verified after download: train (60000, 28, 28) uint8, test (10000, 28, 28);
+preprocessed (60000, 32, 32) float32 in [-1, 1]; the 2-pixel border is -1.
+
+Mathematical/interface tests (run before implementation, watched failing, then
+implementation): 24 new tests in `test_diffusion.py`; total `33 passed` with
+Part 1's 9.
+
+```bash
+uv run pytest -q
+```
+
+Smoke training (exact command, exact numbers below are SMOKE, not formal
+results):
+
+```bash
+uv run diffusion train --data mnist --input inputs/mnist.npz \
+  --updates 200 --batch 64 --seed 2026 --out runs/smoke
+```
+
+Measured: 200 updates in 65.0 s CPU (incl. ~4 s compile); loss 1.2505 at step 1
+-> 0.0867 at step 200; `runs/smoke/loss.jsonl` has exactly 200 lines; the
+checkpoint stores settings + EMA weights (roundtrip verified).
+
+Smoke sampling (exact command; smoke, not formal):
+
+```bash
+uv run diffusion sample --data mnist --checkpoint runs/smoke/checkpoint.npz \
+  --sampler ddpm --steps 1000 --n 4 --seed 1 --out runs/smoke-samples
+```
+
+Measured: 12.8 s CPU; `run.json` matches the contract (case mnist, size 32,
+t_steps 1000, beta [0.0001, 0.02], sampler ddpm, sample_steps 1000, n_samples
+4, seed 1); `samples.jsonl` has 4 rows with 1024 values each, all in [-1, 1]
+and rounded to 3 decimals; peak RSS ~0.5 GB.
+
+End-to-end trajectory check (retained under `runs/smoke-trajectory/`, smoke):
+
+```bash
+uv run diffusion sample --data mnist --checkpoint runs/smoke/checkpoint.npz \
+  --sampler ddpm --steps 1000 --n 4 --seed 1 --out runs/smoke-trajectory --trajectory
+```
+
+Measured: 26 frames at t = 1000, 960, ..., 0; x and x0 each 8*1024 values;
+first frame is pure noise (std 0.998); at t = 0 both arrays equal the final
+image.
+
+Architecture choices (documented): UNet 32->16->8 with channels (16, 32, 64),
+two residual blocks per level, GroupNorm(8)+SiLU, 3x3 convs, skip connections,
+nearest-neighbor upsample, sinusoidal time embedding (64) -> Dense(128) ->
+SiLU -> Dense(128) injected per block; Adam lr 2e-4 constant (DDPM standard);
+EMA 0.999 every update; batches drawn uniformly from all 60000 training
+images; labels and the test split are never used in training.
+
+`evidence/mnist-inputs.png` (command: `uv run python
+scripts/plot_mnist_inputs.py`) was rendered and inspected: 16 preprocessed
+digits with color bars, and one image at t = 0, 200, 500, 1000 - the border is
+-1 and structure disappears as t increases (t = 1000 is pure noise, std 1.014,
+mean -0.009).
+
+## Part 2: cloud approval packet (STOPPED HERE)
+
+`cloud/runbook.md` prepares the full round trip: aliyun CLI (official release
+v3.5.1), read-only zone/spec/availability/price queries, security group with
+SSH restricted to the human's current public IP, key pair, instance creation,
+`uv sync --extra cuda`, JAX GPU verification, the exact 30000-update command,
+copy-back, release by ID and `DescribeInstances` confirmation. Every
+resource-creating/releasing command is marked `[GATED]`; none was executed.
+`cloud/README.md` records status NOT_STARTED (no instance, no charges).
+This host has no `aliyun` CLI and no credentials, so the packet contains exact
+read-only quote commands for the human instead of guessed prices.
+
+## Part 1 (complete)
+
+Part 1 (learned score of a Gaussian mixture) is complete and reviewed.
 
 ## Setup
 
@@ -140,10 +252,12 @@ four clean-data modes with a similar spread to fresh target samples.
 ## Execution status
 
 Part 1 was implemented and trained through native Linux pi in WSL, using the
-human-authorized `volcengine-plan` provider. An independent Codex review
-requested readable quiver scales and meaningful reverse-noise tests; pi
-implemented those corrections and a standalone verifier. The provider then
-returned `429 AccountQuotaExceeded`, reporting a reset at
-2026-10-13 20:48:31 Asia/Shanghai. Codex completed the mechanical documentation
-and verification handoff. Parts 2-5 have not started. No cloud resources
-were created and this work has not been pushed.
+human-authorized provider. An independent Codex review requested readable
+quiver scales and meaningful reverse-noise tests; pi implemented those
+corrections and a standalone verifier.
+
+Part 2 is implemented and smoke-verified: design contract, failing tests,
+`diffusion` package (UNet + DDPM + EMA + trajectory), MNIST download,
+`evidence/mnist-inputs.png`, and the gated cloud packet. The formal
+30000-update MNIST run waits for explicit human approval of the price packet;
+no cloud resource exists. Parts 3-5 have not started. No push yet.
