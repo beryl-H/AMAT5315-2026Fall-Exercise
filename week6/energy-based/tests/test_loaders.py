@@ -17,6 +17,7 @@ from ebm.data import (
     CIFAR_RECORD_BYTES,
     IDX_IMAGE_MAGIC,
     IDX_LABEL_MAGIC,
+    load_mnist_pair,
     class_frequencies,
     load_cifar10,
     load_cifar10_tar,
@@ -204,6 +205,22 @@ def test_cifar_tar_read_members_only(tmp_path):
     images, labels = load_cifar10_tar(p, member="cifar-10-batches-bin/data_batch_1.bin")
     assert images.shape[1:] == (32, 32, 3)
     assert set(np.unique(labels)) <= set(range(10))
+
+
+def test_split_identity_preserved(tmp_path):
+    """Train/test stay separate arrays with their original assignment:
+    no shared buffers, no relabeling, and order preserved."""
+    images, labels = synthetic_mnist(n_per_class=3)
+    ip, lp = tmp_path / "i.gz", tmp_path / "l.gz"
+    write_idx_images(ip, images, gzipped=True)
+    write_idx_labels(lp, labels, gzipped=True)
+    loaded_img, loaded_lab = load_mnist_pair(ip, lp)
+    assert loaded_img.shape == images.shape and loaded_lab.shape == labels.shape
+    np.testing.assert_array_equal(loaded_lab, labels)  # original assignment
+    assert not np.shares_memory(loaded_img, images)  # independent copies
+    orig = int(images[0, 0, 0])
+    loaded_img[0, 0, 0] = 123  # mutation must not leak into the other array
+    assert int(images[0, 0, 0]) == orig
 
 
 # --------------------------------------------------------- frequency tests
