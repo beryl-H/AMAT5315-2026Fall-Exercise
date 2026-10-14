@@ -61,3 +61,67 @@ training and test empirical distributions compare.
 Part 2 RBM/CD reference settings: 128 hidden units, 20 epochs, batch 100,
 plain gradient descent lr 0.1, seed 2026, matched initialization and data
 order for CD-1/CD-10. Parts 3–4: classical & modern Hopfield per sheet.
+
+---
+
+# Part 2 SPEC: RBM, CD learning, fresh generation, clamped completion
+
+Goal (sheet): compare reconstructing an input digit, completing a partly
+observed digit, and generating a new one; explain how training chain length
+and sampling length affect the images.
+
+## Model (exact definitions)
+
+- Binarize original MNIST pixels at half intensity: `v_i = 1` if pixel >= 128
+  (127 -> 0, 128 -> 1); spin `s_i = 2 v_i - 1`. 784 visible bits.
+- Energy `E(v,h) = -a.v - b.h - v W h`; visible free energy
+  `F(v) = -a.v - sum_j softplus(b_j + (v W)_j)` (eq. 4).
+- Alternating Bernoulli block Gibbs from sigmoid conditionals (eq. 6-7).
+- CD surrogate: `mean_batch[F(v0) - F(stop_gradient(vk))]` (eq. 10); chains
+  start at each training batch (no persistent CD).
+
+## Training settings (recorded before run)
+
+128 hidden units; 20 epochs; batch 100; plain SGD lr 0.1; seed 2026; CD-1 and
+CD-10 with EXACT shared initial parameters and per-epoch data permutations
+(sha256 hashes of init arrays and each epoch permutation stored). Visible
+bias initialized from logit of TRAIN pixel means clipped to
+[0.001, 0.999] (documented choice: prevents +-inf logits for always-on/off
+pixels; uses no held-out data); hidden bias 0; W ~ N(0, 0.01^2). Epoch loop
+JIT-compiled with lax.scan (no per-minibatch Python overhead). Full
+60000 images / 20 epochs; test split never used for fitting. Explicit
+PRNG key management documented in code.
+
+## Tests (before implementation)
+
+Tiny 2-visible x 2-hidden RBM exactly enumerated in NumPy: energy, free
+energy vs hidden marginalization; conditional probabilities; exact Gibbs
+transition stationarity; CD autodiff gradient vs independent analytic
+positive-minus-negative sufficient statistics with fixed endpoints;
+stop-gradient negative control with a differentiable synthetic endpoint;
+binarization boundary; clamped-pixel invariance across steps; Dice incl.
+blank=0 and known values; shared init/perm hash equality checks.
+
+## Evidence (VERIFY 1-4)
+
+1. First 16 binarized train images + enlarged spin image + schematic network
+   diagram (784 visible / 128 hidden, cross-layer couplings only).
+2. Paired CD-surrogate / held-out one-step reconstruction (Hamming fraction,
+   10000 test images) per epoch INCLUDING initialization; runtimes, settings,
+   hashes. Acceptance: final recon < 0.5 x initial for BOTH models.
+3. Fresh generation: 16 chains, matched random Bernoulli(0.5) starts for both
+   models; same evolving chains saved at steps 1,10,100,1000; first-16
+   held-out digits and their one-step reconstructions shown separately.
+4. Completion: first 64 held-out digits, 8 chains each, lower 14 rows
+   missing, upper 14 clamped every step; matched random inits across models
+   and true/wrong-upper conditions; wrong upper = first cyclic
+   different-label held-out digit within the 64 (mapping fixed before any
+   outcome, indices recorded). Ink Dice on missing half
+   (2|A cap B|/(|A|+|B|), blank->0 including both-blank); average 8 chains
+   per digit, then mean +- SEM (ddof=1) over 64 digits. Acceptance at step
+   1000: true-minus-wrong >= 0.1 for BOTH models. Fixed first-4-digit
+   completion galleries + masked/true images.
+
+Metrics saved as compact tracked JSON + PNGs; parameters/keys/hashes in
+git-ignored artifacts/<run>/. No AIS, no NLL claims. Surrogate need not
+decrease; only the Hamming reconstruction criterion is asserted.
