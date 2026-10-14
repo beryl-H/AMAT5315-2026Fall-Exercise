@@ -1,7 +1,7 @@
 # Week 6 cloud training record
 
-**Status: formal training COMPLETE and verified; copy-back validated. Instance
-release and the actual bill remain pending human actions. No cloud resource
+**Status: formal training COMPLETE and verified; copy-back validated. The human confirmed release of the exact instance on 2026-10-14.
+The actual release timestamp, independent API absence check and bill remain unverified. No cloud resource
 was created, stopped or deleted by pi.**
 
 Actual bill: UNKNOWN / pending — pi has not queried any billing API. The
@@ -17,8 +17,8 @@ human-provided screenshot-corrected quote (instance 18.065 CNY/h + disk
 | instance type | ecs.gn7i-c8g1.2xlarge (8 vCPU, 30 GiB, 1x NVIDIA A10 23028 MiB) |
 | OS | Ubuntu 22.04.5 LTS |
 | GPU / driver | NVIDIA A10 23028 MiB, driver 580.126.09 (nvidia-smi; CUDA 13.0 shown is the driver compatibility maximum, not an installed toolkit) |
-| creation time | not exposed by instance metadata; per human screenshot the purchase was 2026-10-14 ~14:04 CST — recorded as approximate, not verified |
-| release time | PENDING — human exact-ID confirmation required; pi will not release |
+| creation time | not exposed by instance metadata; first successful connection was 2026-10-14 ~14:04 CST, which is not the creation time |
+| release time | human confirmed release on 2026-10-14; exact release time and DescribeInstances absence not independently checked |
 | billed cost | pending (see above) |
 
 ## Deployment (verified provenance)
@@ -40,7 +40,7 @@ human-provided screenshot-corrected quote (instance 18.065 CNY/h + disk
 | field | value |
 |---|---|
 | run directory | `/root/week6/runs/train-mnist-a10-20261014-1421` (root's tmux session `mnist-verified`, flock `/root/week6/.formal-training.lock`) |
-| command | `uv run diffusion train --data mnist --input inputs/mnist.npz --updates 30000 --batch 64 --seed 2026 --out runs/train-mnist-a10-20261014-1421` |
+| command | `uv run --extra cuda diffusion train --data mnist --input inputs/mnist.npz --updates 30000 --batch 64 --seed 2026 --out runs/train-mnist-a10-20261014-1421` |
 | start / end | 2026-10-14T14:21:00+08:00 / 2026-10-14T14:27:09+08:00 |
 | wall time | 368 s (~84 steps/s measured at mid-run) |
 | exit code | 0 |
@@ -53,8 +53,8 @@ human-provided screenshot-corrected quote (instance 18.065 CNY/h + disk
 
 A coordination race during initial setup started a second training process
 while root had already launched one; root stopped both processes (PIDs 5003,
-6522). Their mixed output is preserved un-deleted in the remote
-`/root/week6/runs/train-mnist`. That run is **INVALID**: it was never
+6522). Their mixed output was retained in remote `/root/week6/runs/train-mnist`
+until the human subsequently released the instance. Valid results were backed up before release. That run is **INVALID**: it was never
 promoted, never used as evidence, and must not be. The lock script
 (`start-formal-mnist-locked.sh` with flock) and the single dedicated run
 directory above are the controls that prevent recurrence.
@@ -78,3 +78,12 @@ overwritten.
    leftover disks/EIPs created for this run.
 4. Record release time and, when it appears, the actual billed cost
    ("bill pending" until then).
+
+## Human release confirmation
+
+The human replied that instance `i-t4n7f2zqpa44cb3hh7uc` had been released
+after its exact ID and disk-deletion consequences were shown and validated
+local backups were available. This is a human-confirmed action, not an
+independently executed DescribeInstances check. No additional cloud work is
+needed for this historical diffusion run. The purchased filesystem was about
+99 GiB, differing from the earlier 60 GiB quote; the actual bill remains pending.

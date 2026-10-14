@@ -1,3 +1,10 @@
+> **Historical task version:** this folder preserves the originally supplied
+> "Week 6: Diffusion models" exercise. On 2026-10-14 the human selected the
+> current official "Week 6: Energy-based models" instead. The new authoritative
+> exercise is isolated in [`energy-based/`](energy-based/); these diffusion
+> results are retained and are not the new Week 6 submission. The old course
+> viewer URL returns HTTP 404; the matplotlib denoising plot is not a viewer export.
+
 # Week 6 — Diffusion models
 
 Part 1 (learned score of a Gaussian mixture) is complete and reviewed.
