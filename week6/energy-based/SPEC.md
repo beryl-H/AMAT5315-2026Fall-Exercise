@@ -125,3 +125,57 @@ blank=0 and known values; shared init/perm hash equality checks.
 Metrics saved as compact tracked JSON + PNGs; parameters/keys/hashes in
 git-ignored artifacts/<run>/. No AIS, no NLL claims. Surrogate need not
 decrease; only the Hamming reconstruction criterion is asserted.
+
+---
+
+# Part 3 SPEC: classical Hopfield network capacity
+
+Goal (sheet): Hebbian couplings make stored patterns stable states of an
+Ising energy; the unstable-bit fraction follows the crosstalk prediction;
+recall collapses near alpha_c ~= 0.138.
+
+## Model (exact definitions)
+
+- Patterns xi^mu_i = +/-1 iid uniform, P patterns of N spins.
+- Hebbian couplings K = Xi^T Xi with exact integer arithmetic (cast to
+  int32 BEFORE the matmul to avoid int8 overflow), diagonal set to 0;
+  J = K / N (normalization used only for energy/overlap reporting).
+- Energy E(s) = -0.5 s J s; overlap m_mu = xi_mu . s / N; identity
+  E(s) = -N/2 sum_mu m_mu^2 + P/2.
+- Async zero-temperature updates s_i <- sign(h_i) with h_i = sum_j J_ij s_j;
+  a ZERO local field leaves the spin unchanged; random update order per
+  chain and per sweep (independent derived keys); sweeps repeat until one
+  full sweep flips nothing (safety cap 200 sweeps -> flagged incomplete).
+  Integer fields for sign/tie decisions avoid float32 fictitious ties.
+
+## Study (fixed before outcomes)
+
+N in {100, 200, 400, 800}; alpha in 0.05..0.25 inclusive step 0.01;
+P = round(alpha*N); 20 independent pattern sets per point; seed 2026 fixed
+before any outcome; derived-key formula documented in the driver. Each set
+yields BOTH the unstable-bit fraction (xi_i h_i < 0 over ALL stored
+patterns, zeros not counted) and recall of the first min(10, P) stored
+patterns STARTING AT THE EXACT stored pattern, from the same patterns.
+Per-set aggregation first, then SEM over the 20 sets (no pseudoreplication).
+
+## Tests (before implementation, calling production functions)
+
+Symmetric zero-diagonal Hebb; energy-overlap identity; strictly decreasing
+energy per flip (tie holds); incremental fields match recomputed K s after
+flips; converged states have all-local-fields stable; seeded permutation
+reproducibility; NumPy reference agrees on deterministic update order;
+negative controls (wrong-pattern couplings -> fraction near 0.5; non-zero
+diagonal -> suppressed fraction); single-pattern single-bit corruption at
+N=4 retrieved deterministically.
+
+## Acceptance
+
+- Unstable fractions with SEM vs Phi(-1/sqrt(alpha)); finite-N
+  Phi(-sqrt((N-1)/(P-1))) curves added. N=800 alpha=.20 near 1.27e-2;
+  N=100 alpha=.10 below the large-N curve as finite-N predicts.
+- Mean final overlap and success fraction (m>=0.9) vs alpha per N, alpha_c
+  0.138 marked. First .9-crossing by linear interpolation between adjacent
+  loads (method reported); crossings decrease with N and within 0.02 of
+  .186/.170/.156/.150 (N=100..800). Min mean overlap over alpha<=0.12
+  reported (>0.988 expected).
+- Raw per-set arrays in ignored artifacts; compact tracked JSON + PNGs.
