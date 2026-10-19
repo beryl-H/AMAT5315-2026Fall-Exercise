@@ -7,7 +7,7 @@ solver/validated observations; study.py owns evaluation only; repaint.py owns
 conditional sampling; figures.py reads saved evidence. The Week 6 source and
 checkpoint remain read-only. Spec: SPEC.md. Global constraints are in SPEC.md.
 
-- [ ] Part 1: write tests for the DCT basis, signed L1 optimum, observation-only
+- [x] Part 1: write tests for the DCT basis, signed L1 optimum, observation-only
   constraints and exact RNG stream; run failing tests; implement sparse.py;
   run the exact 120-trial command; independently recompute errors, LP residuals
   and basis/RNG; draw the requested representative trials; commit.

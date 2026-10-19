@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "counts": [
+    2,
+    20,
+    24,
+    24,
+    24
+  ],
+  "max_observed_residual": 1.7727236345521646e-11,
+  "max_independent_LP_objective_gap": 2.45485409777757e-10,
+  "negative_control_rejected": true,
+  "representative_trials_1based": [
+    18,
+    4
+  ]
+}
