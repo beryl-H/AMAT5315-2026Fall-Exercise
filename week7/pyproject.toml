@@ -1,0 +1,16 @@
+[project]
+name = "amat5315-week7"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "numpy==2.2.6",
+  "scipy==1.15.3",
+  "jax==0.6.2",
+  "jaxlib==0.6.2",
+  "matplotlib==3.10.3",
+  "pytest==8.4.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
