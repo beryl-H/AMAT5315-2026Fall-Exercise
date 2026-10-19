@@ -16,7 +16,7 @@ checkpoint remain read-only. Spec: SPEC.md. Global constraints are in SPEC.md.
   study.py and inpaint.design.toml. Verify official image identities; run batch
   and standalone commands; audit all 20 reconstructions against an independent
   SciPy loop and the fixed mean thresholds; generate/inspect three PNGs; commit.
-- [ ] Part 3: test skipped-level posterior/final step, noise matching, exact
+- [x] Part 3: test skipped-level posterior/final step, noise matching, exact
   split ordering, t-1 network indexing and trace size with a tiny deterministic
   predictor. Implement repaint.py using existing Week 6 loader. Compare model
   outputs between old/new environments; run 20-image batch for four fixed

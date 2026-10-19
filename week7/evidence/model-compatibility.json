@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "max_absolute_prediction_difference": 3.6954879760742188e-06,
+  "old_python": "3.12.3",
+  "old_jax": "0.11.2",
+  "new_python": "3.11.17",
+  "new_jax": "0.6.2",
+  "checkpoint_sha256": "8b9b1a4704cf4fd1f8f4258c78e370db85ac0eca228cbc0bc03f2543e960f11d",
+  "test_shape": [
+    2,
+    32,
+    32,
+    1
+  ],
+  "network_indices": [
+    49,
+    499
+  ],
+  "coverage": "Two deterministic inputs; not a proof of cross-version identity for every possible state."
+}

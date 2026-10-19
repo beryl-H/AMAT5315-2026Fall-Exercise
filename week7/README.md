@@ -95,3 +95,122 @@ information. This iteration alternates a hard transform budget with exact
 observed restoration; it is not Part 1's convex basis pursuit, and 100 iterations
 are a fixed budget rather than a proof of convergence. Errors are averaged
 only over the 400 withheld pixels, not diluted across all 1024 pixels.
+
+## Part 3: frozen diffusion prior
+
+```bash
+JAX_PLATFORMS=cpu uv run python study.py --input inputs/images.npz --checkpoint ../week6/checkpoints/mnist.npz --out artifacts
+JAX_PLATFORMS=cpu uv run ./inpaint --method diffusion --input inputs/case.npz --checkpoint ../week6/checkpoints/mnist.npz --steps 100 --repeats 3 --seed 7201 --out artifacts/case-diffusion
+uv run python figures.py --part 3
+```
+
+The checkpoint SHA-256 is
+`8b9b1a4704cf4fd1f8f4258c78e370db85ac0eca228cbc0bc03f2543e960f11d`.
+It contains 336385 frozen EMA parameters from the Week 6 MNIST run, 30000
+updates, batch 64, seed 2026. The existing loader and network are imported
+directly from `../week6/src`; no retraining or copied/reinterpreted architecture.
+Two deterministic input comparisons between the old JAX 0.11.2/Python 3.12
+environment and this JAX 0.6.2/Python 3.11 environment had maximum prediction
+difference 3.70e-6. This checks those inputs, not every possible network state.
+See [model compatibility](evidence/model-compatibility.json).
+
+The 20-image batch is processed once per seed in order 7201,7202,7203,7204.
+Each seed uses 298 network evaluations, with 100 reverse levels and three
+attempts per transition except the final transition. Measured sampling times
+were 8.570, 7.541, 7.834 and 7.730 seconds on local CPU, including compilation
+in the first seed. Input arrays, DCT outputs and the checkpoint are unchanged.
+
+| Mask | DCT MSE | Mean individual-sample MSE | Mean-completion MSE | Missing-pixel population variance |
+| --- | ---: | ---: | ---: | ---: |
+| Random | 0.1895889244 | 0.0420107781 | 0.0236204449 | 0.0183903332 |
+| Central hole | 0.6017061911 | 0.9658646375 | 0.6234262249 | 0.3424384125 |
+
+These are this student's own-checkpoint results, not copied reference outputs.
+All four completions satisfy all observations exactly; maximum final observed
+error is 0. Diffusion improves every random-mask digit's average error here,
+but worsens every central-hole digit's average error. Improvement is not the
+Part 3 acceptance condition.
+
+![Conditioning trace](evidence/conditioning.png)
+
+`conditioning.png` shows final attempts at s=798,495,203,0, the saved levels
+nearest 800,500,200,0. Known pixels are noisy during inference and exact only at
+zero. Every frame uses [-1,1] display scaling, with unrounded float32 states
+saved in `artifacts/trace.npz`. The reverse mean uses the clipped clean estimate;
+the merged intermediate state is never clipped.
+
+![Recovery curves](evidence/recovery-curves.png)
+
+`recovery-curves.png` shows all ten per-image errors for both masks, including
+the difference between averaging four individual errors and evaluating the
+mean image. It supports the different effects of the prior on the two fixed
+observation geometries. Known-pixel restoration alone is not evidence of
+recovery of the withheld truth.
+
+![Largest and smallest gains](evidence/inpainting-comparison.png)
+
+`inpainting-comparison.png` selects largest/smallest gains using DCT error minus
+diffusion error averaged over four seeds; it displays seed 7201 as requested.
+The selected random-mask digits are 6 and 1, and hole digits are 7 and 3.
+Both selected hole gains are negative. For hole digit 7, the seed-7201 output
+has a closed upper loop resembling a 9, whereas the withheld truth has an open
+7 stroke. The generated loop lies within the unobserved hole: plausible
+digit structure is not a measurement and does not establish true recovery.
+
+![Four completions and variance](evidence/completions.png)
+
+`completions.png` uses hole digit 6, the case with the largest missing-pixel
+population variance. The four draws disagree on central vertical/diagonal
+strokes and loops. Their mean blurs these differences. The variance map is zero
+at observed pixels and bright only in the hole. Its spread describes these
+four draws; it is not a calibrated posterior uncertainty estimate.
+
+The float64 ensemble identity is
+`mean(sample MSE) = MSE(mean image) + mean(population variance on missing pixels)`.
+The largest residual across all 20 cases is **1.66534e-16**, below 1e-6. The mean
+cannot have higher MSE than the average sample; it need not look like a digit
+or beat every single draw. A ddof=1 sample-variance negative control violates
+the identity, as expected.
+
+In [RePaint sections 4.1-4.2 and Figure 3](https://arxiv.org/html/2201.09865v4),
+known-region replacement conditions a pretrained unconditional denoiser.
+Revisiting noise levels lets generated and measured content interact again.
+This exercise uses the local lecture's shortened schedule and mask convention,
+not an exact reproduction of the paper's models or experiments. More resampling
+does not guarantee lower MSE; exact posterior sampling is not established.
+
+The [Part 3 audit](evidence/part3-audit.json) independently checks all saved
+noise predictions and all 298 trace transitions, replaying the specified PRNG
+stream in the full batch shape. Maximum algebra differences against a float64
+reference were 1.63e-5 (reverse), 2.38e-6 (forward) and 3.04e-6 (conditioning);
+re-evaluated network predictions matched every saved trace prediction exactly.
+These are numerical implementation checks, not proof of exact posterior draws.
+
+## Reproduction and final demonstration
+
+Run commands above in order from a fresh `week7/` checkout, with the existing
+Week 6 source/checkpoint alongside it. Outputs refuse unrelated overwrites;
+use fresh output folders for new studies. `prepare_inputs.py` can download the
+two official test archives if the existing Week 6 dataset is unavailable.
+The diffusion extension preserves `artifacts/dct-evidence.npz` and
+`artifacts/dct-run.json` before adding diffusion fields.
+
+```bash
+JAX_PLATFORMS=cpu uv run pytest -q
+uv run python -m compileall -q sparse.py inpainting.py prepare_inputs.py repaint.py study.py figures.py tests
+uv run python figures.py --part all
+git diff --check
+```
+
+The eight figures above are the complete visual evidence set. Present in this
+order: sparse recovery, two image masks and DCT errors, conditioning, recovery
+comparison, four consistent but disagreeing completions. The assumptions are
+respectively sparse exact coefficients, an approximate fixed cosine budget,
+and a learned distribution of digits. Hidden-pixel errors distinguish fitting
+the measurements from recovering truth. The ensemble identity explains the
+MSE effect of averaging, with no guarantee of a plausible mean image.
+
+The selected PDF says to show these results at the start of Week 8 and that
+nothing is submitted. Automated completion does not certify the student's
+understanding or instructor acceptance. Full command/failure/delivery details
+are recorded in [AUDIT.md](AUDIT.md).

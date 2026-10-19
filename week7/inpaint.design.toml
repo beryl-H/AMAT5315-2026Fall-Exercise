@@ -12,3 +12,10 @@ iterations = "Number of threshold-and-restore iterations."
 "<out>/reconstruction.npz" = "reconstruction[32,32]: recovered image in input units."
 "<out>/run.json" = "method, input, n; k and iterations for dct."
 stdout = "observed_max_error and missing_pixels, as a tab-separated table."
+[args.diffusion]
+checkpoint = "Week 6 MNIST model settings and trained EMA weights."
+steps = "Number of reverse transitions on the original noise schedule."
+repeats = "Reverse attempts per transition; the final transition runs once."
+seed = "Seed for the initial state and all sampling noise."
+[writes.diffusion]
+"<out>/run.json" = "method, input, n, steps, repeats, seed, checkpoint_sha256."

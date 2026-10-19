@@ -78,6 +78,53 @@ def fixed_figures(artifacts,evidence):
     ax.legend();fig.savefig(evidence/'fixed-error.png');plt.close(fig)
 
 
+def diffusion_figures(artifacts,evidence):
+    with np.load(artifacts/'evidence.npz') as f:z={k:f[k] for k in f.files}
+    with np.load(artifacts/'trace.npz') as f:trace={k:f[k] for k in f.files}
+    final_attempt=np.r_[trace['s'][:-1]!=trace['s'][1:],True]
+    candidates=np.flatnonzero(final_attempt)
+    selected=[candidates[np.argmin(abs(trace['s'][candidates]-target))] for target in [800,500,200,0]]
+    fig,axs=plt.subplots(1,5,figsize=(12,3.1),layout='constrained')
+    image_panel(axs[0],z['observations'][0,0],'Known observation',z['masks'][0,0])
+    for ax,idx in zip(axs[1:],selected):
+        delta=np.abs(trace['x_s'][idx][z['masks'][0,0]]-z['observations'][0,0][z['masks'][0,0]]).max()
+        image_panel(ax,trace['x_s'][idx],f"s={trace['s'][idx]}, cycle={trace['cycle'][idx]}\nknown max error {delta:.3g}")
+    fig.suptitle('Noise-matched known pixels become exact at s=0; all panels [-1,1]',fontsize=13)
+    fig.savefig(evidence/'conditioning.png');plt.close(fig)
+    averaged=z['diffusion_mse'].mean(axis=2)
+    methods=[('DCT',z['fixed_mse'],'#ba552c'),('Diffusion: mean of 4 sample MSEs',averaged,'#126a80'),('Mean completion',z['mean_completion_mse'],'#7b4292')]
+    fig,axs=plt.subplots(1,2,figsize=(12,4.8),layout='constrained')
+    for m,ax in enumerate(axs):
+        for name,values,color in methods:
+            ax.plot(range(10),values[m],'o-',lw=1.3,color=color,label=f'{name}: {values[m].mean():.5f}')
+        ax.set(xlabel='Digit label',ylabel='MSE over 400 missing pixels',xticks=range(10),title=['Random mask','Central hole'][m]);ax.legend(fontsize=8)
+    fig.suptitle('Frozen Week 6 prior; seeds 7201-7204; own-checkpoint results',fontsize=13)
+    fig.savefig(evidence/'recovery-curves.png');plt.close(fig)
+    gain=z['fixed_mse']-averaged
+    fig,axs=plt.subplots(4,4,figsize=(10,10.5),layout='constrained')
+    for row,(m,rule) in enumerate([(0,'largest'),(0,'smallest'),(1,'largest'),(1,'smallest')]):
+        i=int(np.argmax(gain[m]) if rule=='largest' else np.argmin(gain[m]))
+        image_panel(axs[row,0],z['truth'][i],f"{'Random' if m==0 else 'Hole'}: {rule} gain\ndigit {i}; gain {gain[m,i]:+.4f}")
+        image_panel(axs[row,1],z['observations'][m,i],'Observed',z['masks'][m,i])
+        image_panel(axs[row,2],z['fixed'][m,i],f"DCT MSE {z['fixed_mse'][m,i]:.4f}")
+        image_panel(axs[row,3],z['diffusion'][m,i,0],f"Seed 7201 MSE {z['diffusion_mse'][m,i,0]:.4f}")
+    fig.suptitle('Selection uses DCT MSE minus average diffusion MSE, including smallest gains',fontsize=12)
+    fig.savefig(evidence/'inpainting-comparison.png');plt.close(fig)
+    i=int(np.argmax(z['diversity'][1]));samples=z['diffusion'][1,i].astype(np.float64)
+    fig,axs=plt.subplots(2,4,figsize=(11,6),layout='constrained')
+    image_panel(axs[0,0],z['truth'][i],f'Truth: digit {i}')
+    image_panel(axs[0,1],z['observations'][1,i],'Same observation',z['masks'][1,i])
+    for r,ax in enumerate([axs[0,2],axs[0,3],axs[1,0],axs[1,1]]):
+        image_panel(ax,samples[r],f"Seed {7201+r}\nMSE {z['diffusion_mse'][1,i,r]:.4f}")
+    image_panel(axs[1,2],samples.mean(0),f"Mean completion\nMSE {z['mean_completion_mse'][1,i]:.4f}")
+    im=axs[1,3].imshow(samples.var(0,ddof=0),cmap='magma',vmin=0,interpolation='nearest')
+    axs[1,3].set_title(f"Population variance\nhidden mean {z['diversity'][1,i]:.4f}",fontsize=9)
+    axs[1,3].set_xticks([]);axs[1,3].set_yticks([])
+    fig.colorbar(im,ax=axs[1,3],fraction=.046,pad=.04)
+    fig.suptitle('Central-hole case with largest missing-pixel population variance',fontsize=14)
+    fig.savefig(evidence/'completions.png');plt.close(fig)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--part',choices=['1','2','3','all'],required=True)
@@ -86,6 +133,7 @@ def main():
     a=p.parse_args();a.evidence.mkdir(parents=True,exist_ok=True)
     if a.part in ['1','all']:sparse_figure(a.artifacts,a.evidence)
     if a.part in ['2','all']:fixed_figures(a.artifacts,a.evidence)
+    if a.part in ['3','all']:diffusion_figures(a.artifacts,a.evidence)
 
 
 if __name__=='__main__':main()

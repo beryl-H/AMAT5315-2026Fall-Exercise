@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Standalone reconstruction tool with explicit method parameters."""
-import argparse,json
+import argparse,json,hashlib
 from pathlib import Path
 import numpy as np
 from inpainting import dct_inpaint,validate_observations
@@ -8,20 +8,35 @@ from inpainting import dct_inpaint,validate_observations
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--method',choices=['dct'],required=True)
+    p.add_argument('--method',choices=['dct','diffusion'],required=True)
     p.add_argument('--input',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
-    p.add_argument('--k',type=int,required=True)
-    p.add_argument('--iterations',type=int,required=True)
+    p.add_argument('--k',type=int)
+    p.add_argument('--iterations',type=int)
+    p.add_argument('--checkpoint',type=Path)
+    p.add_argument('--steps',type=int)
+    p.add_argument('--repeats',type=int)
+    p.add_argument('--seed',type=int)
     a=p.parse_args()
     with np.load(a.input,allow_pickle=False) as z:y,m=validate_observations(z['observations'],z['mask'])
     if y.shape!=(32,32):raise ValueError('input must have shape [32,32]')
     for name in ['reconstruction.npz','run.json']:
         if (a.out/name).exists():raise FileExistsError('Use a new output directory')
-    x=dct_inpaint(y,m,a.k,a.iterations)
+    metadata=dict(method=a.method,input=str(a.input),n=32)
+    if a.method=='dct':
+        if a.k is None or a.iterations is None:p.error('dct requires --k and --iterations')
+        x=dct_inpaint(y,m,a.k,a.iterations)
+        metadata.update(k=a.k,iterations=a.iterations)
+    else:
+        if any(v is None for v in [a.checkpoint,a.steps,a.repeats,a.seed]):p.error('diffusion requires --checkpoint, --steps, --repeats and --seed')
+        from repaint import load_prior,repaint_sample
+        before=hashlib.sha256(a.checkpoint.read_bytes()).hexdigest()
+        output,_=repaint_sample(load_prior(a.checkpoint),y[None,:,:,None],m[None,:,:,None],a.steps,a.repeats,a.seed)
+        x=output[0,:,:,0]
+        assert hashlib.sha256(a.checkpoint.read_bytes()).hexdigest()==before
+        metadata.update(steps=a.steps,repeats=a.repeats,seed=a.seed,checkpoint_sha256=before)
     a.out.mkdir(parents=True,exist_ok=True)
     np.savez_compressed(a.out/'reconstruction.npz',reconstruction=x)
-    metadata=dict(method=a.method,input=str(a.input),n=32,k=a.k,iterations=a.iterations)
     (a.out/'run.json').write_text(json.dumps(metadata,indent=2)+'\n')
     err=float(np.max(np.abs(x[m]-y[m]))) if m.any() else 0.
     print(f'observed_max_error\tmissing_pixels\n{err:.9g}\t{int((~m).sum())}')
