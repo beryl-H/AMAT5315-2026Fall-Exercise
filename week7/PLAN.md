@@ -23,7 +23,7 @@ checkpoint remain read-only. Spec: SPEC.md. Global constraints are in SPEC.md.
   seeds once, retaining each seed immediately. Independently replay all 298
   transitions, verify final conditioning and float64 ensemble identity. Generate
   four PNGs, inspect and commit.
-- [ ] Final: run full pytest/compile checks, audit raw artifacts/README links
+- [x] Final: run full pytest/compile checks, audit raw artifacts/README links
   and input/checkpoint hashes, record failures/corrections, export code/figures
   and raw evidence with per-file hashes, then report exact delivery state.
 

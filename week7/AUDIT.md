@@ -92,3 +92,14 @@ Model source compatibility was measured on two fixed inputs; it is not a global
 cross-version numerical equivalence proof. Full trace re-evaluation verifies
 the actual first-case noise predictions used in this run. Automated tests and
 plots do not substitute for the student's Week 8 explanation.
+
+## Final local acceptance
+
+Final suite: 18 tests passed. Source compilation and all 18 local documentation
+links passed. All 17 raw/input files and the frozen checkpoint were unchanged
+by verification. All eight figures were visually checked. Only week7 paths
+changed from the baseline. Code, figures and audit records have local commits;
+no push or merge was performed. The Windows export includes all tracked Week 7
+files, required raw arrays/inputs, the frozen checkpoint and its minimal Week 6
+source dependencies. Its manifest and archive receipt bind the exact final
+commit and verify every exported file and archive member.
