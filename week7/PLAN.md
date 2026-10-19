@@ -11,7 +11,7 @@ checkpoint remain read-only. Spec: SPEC.md. Global constraints are in SPEC.md.
   constraints and exact RNG stream; run failing tests; implement sparse.py;
   run the exact 120-trial command; independently recompute errors, LP residuals
   and basis/RNG; draw the requested representative trials; commit.
-- [ ] Part 2: test ties, unbounded outputs, observed restoration, masks, hidden
+- [x] Part 2: test ties, unbounded outputs, observed restoration, masks, hidden
   MSE and real CLI; record initial failures; implement inpainting.py, inpaint,
   study.py and inpaint.design.toml. Verify official image identities; run batch
   and standalone commands; audit all 20 reconstructions against an independent

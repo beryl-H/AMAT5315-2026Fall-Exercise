@@ -1,0 +1,14 @@
+usage = """inpaint --method dct --input inputs/case.npz
+--k 20 --iterations 100 --out artifacts/case"""
+description = "Recover missing pixels using a prior; no unstated defaults"
+[args]
+method = "dct for sparse cosine coefficients; diffusion for a trained image prior."
+input = "NPZ: observations[32,32], zero where missing; mask[32,32], observed=true."
+out = "Directory receiving reconstruction.npz and run.json."
+[args.dct]
+k = "Number of largest DCT coefficient magnitudes retained, including ties."
+iterations = "Number of threshold-and-restore iterations."
+[writes]
+"<out>/reconstruction.npz" = "reconstruction[32,32]: recovered image in input units."
+"<out>/run.json" = "method, input, n; k and iterations for dct."
+stdout = "observed_max_error and missing_pixels, as a tab-separated table."

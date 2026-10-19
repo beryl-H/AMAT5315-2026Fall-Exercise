@@ -1,0 +1,61 @@
+{
+  "source_archives": [
+    {
+      "url": "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz",
+      "local_source": "../week6/energy-based/inputs/mnist/t10k-images-idx3-ubyte.gz",
+      "bytes": 1648877,
+      "md5": "9fb629c4189551a2d022fa330f9573f3",
+      "sha256": "8d422c7b0a1c1c79245a5bcf07fe86e33eeafee792b84584aec276f5a2dbc4e6"
+    },
+    {
+      "url": "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz",
+      "local_source": "../week6/energy-based/inputs/mnist/t10k-labels-idx1-ubyte.gz",
+      "bytes": 4542,
+      "md5": "ec29112dd5afa0611ce80d1b7f02629c",
+      "sha256": "f7ae60f92e00ec6debd23a6088c31dbd2371eca3ffa0defaefb259924204aec6"
+    }
+  ],
+  "reason": "Live course archive belongs to another exercise; reconstruct exact local-PDF rows.",
+  "test_ids": [
+    3,
+    2,
+    1,
+    18,
+    4,
+    8,
+    11,
+    0,
+    61,
+    7
+  ],
+  "validation_ids": [
+    10,
+    5,
+    35,
+    30,
+    6,
+    15,
+    21,
+    17,
+    84,
+    9
+  ],
+  "labels": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "normalization": "pad uint8 with zeros then float32 / 127.5 - 1",
+  "arrays_sha256": {
+    "test": "186e140beeea689e8925109fd1c5f739621521d6954619eec9bf1cebcebcca46",
+    "validation": "db2ac66857be6f43a74134d35cb5e9c290f712abf1c3302cdb137ff58576fed8"
+  },
+  "archive_sha256": "73c3a69dde455f6eaae782bed05307b374f2cdbf9bf7ac3ecebcc6d8c9b71ab1"
+}
