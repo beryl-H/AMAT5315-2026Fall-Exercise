@@ -71,8 +71,14 @@ def main():
         return
     data=fixed_study(images)
     case=a.input.parent/'case.npz'
-    if case.exists():raise FileExistsError('case.npz already exists')
-    np.savez_compressed(case,observations=data['observations'][0,0],mask=data['masks'][0,0])
+    if case.exists():
+        with np.load(case,allow_pickle=False) as previous:
+            identical=(set(previous.files)=={'observations','mask'}
+                       and np.array_equal(previous['observations'],data['observations'][0,0])
+                       and np.array_equal(previous['mask'],data['masks'][0,0]))
+        if not identical:raise FileExistsError('A different case.npz already exists; preserve it and use a new input directory')
+    else:
+        np.savez_compressed(case,observations=data['observations'][0,0],mask=data['masks'][0,0])
     a.out.mkdir(parents=True,exist_ok=True)
     np.savez_compressed(a.out/'evidence.npz',**data)
     metadata=dict(schema='mnist-inpainting-v1',n=32,mask_names=['random','central-hole'],mask_seed=7001,

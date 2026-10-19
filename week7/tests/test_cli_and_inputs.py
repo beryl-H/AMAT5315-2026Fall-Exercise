@@ -36,3 +36,23 @@ def test_cli_rejects_missing_dct_parameter(tmp_path):
                            '--method','dct','--input',str(source),'--iterations','5','--out',str(tmp_path/'out')],capture_output=True,text=True)
     assert result.returncode==2 and 'requires --k and --iterations' in result.stderr
     assert not (tmp_path/'out').exists()
+
+
+def test_study_new_output_preserves_identical_existing_case(tmp_path):
+    from inpainting import TEST_IDS,VALIDATION_IDS
+    source=tmp_path/'images.npz'
+    np.savez(source,test=np.zeros((10,32,32),np.float32),validation=np.zeros((10,32,32),np.float32),
+             test_ids=TEST_IDS,validation_ids=VALIDATION_IDS,labels=np.arange(10))
+    script=Path(__file__).resolve().parents[1]/'study.py'
+    original_case=None
+    for name in ['first-study','second-study']:
+        result=subprocess.run([sys.executable,str(script),'--input',str(source),'--out',str(tmp_path/name)],capture_output=True,text=True)
+        assert result.returncode==0,result.stderr
+        if original_case is None:original_case=(tmp_path/'case.npz').read_bytes()
+        else:assert original_case==(tmp_path/'case.npz').read_bytes()
+    with np.load(tmp_path/'case.npz') as f:
+        np.testing.assert_array_equal(f['observations'],np.zeros((32,32)))
+    # A different existing case must remain protected.
+    np.savez(tmp_path/'case.npz',observations=np.ones((32,32)),mask=np.ones((32,32),bool))
+    result=subprocess.run([sys.executable,str(script),'--input',str(source),'--out',str(tmp_path/'conflicting-study')],capture_output=True,text=True)
+    assert result.returncode!=0 and 'different case' in result.stderr

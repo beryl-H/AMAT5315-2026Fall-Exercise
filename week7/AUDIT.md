@@ -74,6 +74,10 @@ The working directory for Python commands was the repository's week7/.
   report in the support folder. The tracked scientific audit was intact.
   Command receipts now use a `-command.json` suffix; the support audit was
   restored byte-for-byte from the tracked report. No experiment was rerun.
+- A final repeatability test found that a fresh DCT output directory was blocked
+  by an identical existing `inputs/case.npz`. The regression first failed;
+  the tool now reuses a byte-preserved identical case and still rejects a
+  different case. No scientific solver or stored experiment result changed.
 
 ## Boundaries
 
