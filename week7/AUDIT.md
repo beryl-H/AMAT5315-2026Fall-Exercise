@@ -70,6 +70,10 @@ The working directory for Python commands was the repository's week7/.
   using CPU. Subsequent checks explicitly selected `JAX_PLATFORMS=cpu`.
 - Expected red tests were followed by passing production tests; they are
   development evidence, not unresolved implementation failures.
+- The local command wrapper used the same JSON filename as the Part 3 audit
+  report in the support folder. The tracked scientific audit was intact.
+  Command receipts now use a `-command.json` suffix; the support audit was
+  restored byte-for-byte from the tracked report. No experiment was rerun.
 
 ## Boundaries
 
