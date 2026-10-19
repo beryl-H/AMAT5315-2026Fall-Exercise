@@ -44,3 +44,17 @@ Monte Carlo estimate of pi.
 ## Repository marker
 
 Memory probe: W1-MEMORY-5315
+
+<!-- amat5315-wsl-pi-workflow:v1 -->
+## Coursework agent workflow
+
+- Use the native `pi` agent installed inside WSL to assist with AMAT5315
+  coursework implementation. Keep the student's existing provider/model
+  selection unless the student explicitly changes it.
+- The coordinating agent reviews the work and independently verifies the
+  required tests, numerical evidence, figures, and delivery state.
+- If WSL or pi cannot run, explain the blocker and ask before replacing the
+  pi-assisted workflow with direct implementation by another agent.
+- Record the agents and commands actually used. This instruction applies to
+  future work; do not retroactively attribute earlier direct Codex work to pi.
+<!-- /amat5315-wsl-pi-workflow -->
