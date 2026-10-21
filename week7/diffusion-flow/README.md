@@ -140,6 +140,13 @@ paths of the first 10 shared starts included.
 
 ![paired trajectories](evidence/part2_trajectories.png)
 
+Figure recomputed by `scripts/part2_trajectories_fix.py` (render-only; the
+earlier version with a blank third panel is preserved at
+`artifacts/failed-attempts/part2_trajectories-blank-panel3.png`). DDPM-B
+trajectories are replayed from the original PRNGKey(2027) stream with
+full-2000-shaped draws sliced to 10; DDIM run 2 is overlaid dashed but is
+hidden beneath run 1 because the two runs are bit-identical (maxdiff 0.0).
+
 - Learned DDIM run twice from the exactly same `xT`: maximum endpoint
   difference **0.0** and maximum difference across all 1000 retained states
   **0.0** (exactly deterministic; no hidden RNG anywhere in `ddim_sample`).
@@ -168,15 +175,17 @@ assignment; every number in `evidence/part2_stats.json`):
 **Gate 1 (DDIM fraction errors < 0.015): PASS** for learned and exact DDIM.
 
 **Gate 2 (learned widths within 0.29–0.32): honestly reported FAIL** under
-the strict reading — learned DDIM min coordinate std 0.2795 and DDPM A
-0.2839 fall below 0.29 (also under a per-cluster pooled reading: 0.284 and
-0.2897). However the independent exact target reference of the same sample
-size excurses identically (min coordinate std 0.2790, pooled 0.286): the
-excursions lie within the sampling fluctuation of a 2000-point width
-estimate (SE ≈ 0.005) rather than indicating a sampler defect. Per the task
-rules the results are retained, the implementation was inspected (all 50
-repo tests pass, DDIM verified deterministic and hand-checked), and no
-retraining or reseed was performed.
+the strict per-coordinate reading — learned DDIM min coordinate std 0.2795
+and DDPM A 0.2839 fall below 0.29. Pooled per-cluster widths (0.284 and
+0.2897) are recorded as supplementary diagnostics only, not a replacement
+for the strict gate. The width standard error uses the per-cluster sample
+size (n ≈ 500), so SE(std) ≈ 0.3/sqrt(2·(n−1)) ≈ 0.0095. The independent
+exact target reference excurses similarly (min coordinate std 0.2790),
+showing finite sampling contributes to the excursions — this does NOT prove
+the network or sampler is error-free. Per the task rules the results are
+retained, the implementation was inspected (all repo tests pass, DDIM
+verified deterministic and hand-checked), and no retraining or reseed was
+performed.
 
 ## Test evidence
 

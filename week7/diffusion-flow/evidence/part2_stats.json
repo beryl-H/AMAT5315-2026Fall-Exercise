@@ -301,7 +301,8 @@
       "ddpm_b": true
     },
     "width_gate_strict_per_coordinate": "FAIL for learned_ddim (min per-cluster per-coordinate std 0.2795 < 0.29) and ddpm_a (0.2839); ddpm_b passes",
-    "width_gate_status_overall": "FAIL for learned_ddim and ddpm_a under both the strict per-coordinate reading (min std 0.2795 / 0.2839 < 0.29) and the per-cluster pooled reading (0.284 / 0.2897 < 0.29). The independent exact target reference of the same size excurses identically (min coordinate std 0.2790, pooled 0.286), so these excursions are within the sampling fluctuation of a 2000-point width estimate (SE ~0.005), not evidence of a sampler defect. Implementation inspected, 50 tests pass, no retraining or reseed performed; result reported honestly as outside the strict band."
+    "width_gate_status_overall": "FAIL for learned_ddim and ddpm_a under the strict per-coordinate reading (min std 0.2795 / 0.2839 < 0.29); ddpm_b passes. Pooled widths are recorded as supplementary diagnostics only, NOT a replacement for the strict gate. The exact-target/oracle reference excurses similarly (min 0.2790), which shows finite sampling (per-cluster SE ~ 0.0095) contributes; it does NOT prove the network/sampler is error-free. Implementation inspected, 50 tests pass, no retraining or reseed.",
+    "width_se_note": "Width standard error uses per-cluster sample size n~500, so SE(std) ~ 0.3/sqrt(2*(n-1)) ~ 0.0095, not 0.0047/0.005 computed from the total N=2000. Excursions of the exact-target reference show finite sampling contributes to the observed width spread; this does NOT prove the network or sampler has zero error."
   },
   "pooled_per_cluster_widths": {
     "learned_ddim": [
