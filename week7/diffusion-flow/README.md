@@ -291,3 +291,32 @@ max|state|). The earlier cropped-title GIF is preserved at
 `artifacts/failed-attempts/training_movie-cropped-title.gif`. No resampling
 or retraining was done; the trajectories are bit-identical to the audited
 raw arrays.
+
+---
+
+# Part 4 — status (source phase; validation PENDING)
+
+The fixed-weight JAX float32 port of the official diffusers v0.40.0
+`UNet2DModel` is written (`src/cifar_unet.py`): strict loader for the pinned
+checkpoint (328/328 header tensors matched exactly by key, shape and F32
+dtype — old attention names query/key/value/proj_attn used directly),
+NCHW↔NHWC/OIHW mapping with bias on every convolution, GroupNorm(32,
+eps 1e-6, biased variance), positional time features with denominator 63
+and sin-then-cos (no Part 1 −1 offset), ResNet order and 1x1 shortcuts,
+single-head attention with 1/sqrt(C) scaling and residual, downsample
+right/bottom pad 1 + stride-2 valid conv, nearest-2x upsample + conv,
+12-skip up path with per-resnet input channels (512×6, 384, 256×2, 128 out)
+and `predict_at_level` applying t→t−1 exactly once.
+
+`tests/test_cifar_unet.py` (10 tests) covers hand-computed convolution
+orientation/padding/bias, PyTorch [out,in] dense orientation, independent
+NumPy GroupNorm and attention references, the time-feature formula and
+scalar/vector model-index handling, and strict header/loader validation.
+Suite: 78 passed.
+
+**PENDING**: whole-model equivalence against official diffusers on CPU
+(script `scripts/part4_reference_check.py`, predeclared input seed 7400,
+indices 0/499/999, tolerances max|diff| < 1e-3 and rel RMS < 1e-4), the
+1000-step DDPM generation, and all Part 4 evidence. These wait for the
+root-verified weights and reference environment. No Part 4 claim of
+completion is made here.
