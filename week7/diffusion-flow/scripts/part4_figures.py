@@ -8,6 +8,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import sys
+
 import numpy as np
 
 BASE = Path(__file__).resolve().parents[1]
@@ -52,38 +54,24 @@ fig.tight_layout()
 fig.savefig(EVID / "part4_generated_gallery.png", dpi=130)
 plt.close(fig)
 
-# comparison panel: real CIFAR-10 examples (deterministic first examples)
-TAR = BASE.parent.parent / "week6/energy-based/inputs/cifar10/" \
-    "cifar-10-binary.tar.gz"
-gallery_png = BASE.parent.parent / "week6/energy-based/evidence/" \
-    "cifar10_test_gallery.png"
-real = None
-if TAR.exists():
-    import tarfile
-    with tarfile.open(TAR) as tf:
-        for m in tf.getmembers():
-            if m.name.endswith("test_batch.bin"):
-                data = tf.extractfile(m).read(3073 * 8)  # first 8 examples
-                break
-    recs = np.frombuffer(data, dtype=np.uint8).reshape(8, 3073)
-    labels = recs[:, 0]
-    imgs = recs[:, 1:].reshape(8, 3, 32, 32).transpose(0, 2, 3, 1) / 255.0
-    real = (imgs[:4], labels[:4])
+# comparison panel via the ACTUAL Week 6 gallery scripts (lecture requirement)
+repo = Path(__file__).resolve().parents[3]
+ebm = repo / "week6/energy-based"
+sys.path.insert(0, str(ebm / "src"))
+from ebm.data import load_cifar10_tar          # noqa: E402
+from ebm.viz import CIFAR10_CLASSES, image_gallery  # noqa: E402
 
-if real is not None:
-    imgs, labels = real
-    fig, axes = plt.subplots(1, 4, figsize=(8, 2.4))
-    for i, ax in enumerate(axes):
-        ax.imshow(imgs[i], interpolation="nearest")
-        ax.set_xticks([]); ax.set_yticks([])
-        ax.set_xlabel(f"label {labels[i]}", fontsize=8)
-    fig.suptitle("Real CIFAR-10 test examples (first 4, deterministic; "
-                 "from the Week 6 original tarball)")
-    fig.tight_layout()
-    fig.savefig(EVID / "part4_real_cifar_comparison.png", dpi=130)
-    plt.close(fig)
-    print("real comparison panel written; Week 6 gallery exists:",
-          gallery_png.exists())
-else:
-    print("CIFAR tarball not found; real comparison skipped")
+tar = ebm / "inputs/cifar10/cifar-10-binary.tar.gz"
+if not tar.exists():
+    raise SystemExit(f"Week 6 CIFAR tarball missing: {tar}")
+imgs, labs = load_cifar10_tar(tar, member="cifar-10-batches-bin/test_batch.bin")
+assert imgs.dtype == np.uint8 and imgs.shape[1:] == (32, 32, 3)
+# Week 6 loader output is already native RGB NHWC uint8.
+disp = imgs[:4]
+image_gallery(disp, labels=labs[:4], class_names=CIFAR10_CLASSES,
+              path=str(EVID / "part4_real_cifar_comparison.png"), ncols=4,
+              cmap=None,
+              title="Real CIFAR-10 test examples (first 4, deterministic; "
+                    "Week 6 gallery scripts)")
+print("week6 gallery comparison written; labels:", list(labs[:4]))
 print("part4 figures written")
