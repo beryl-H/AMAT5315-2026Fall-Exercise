@@ -1,3 +1,4 @@
+from pathlib import Path
 """Part 4 source-phase tests: synthetic op references (independent NumPy),
 time-feature formula, level wrapper, and a strict header map comparison.
 
@@ -16,8 +17,7 @@ import pytest
 
 from src import cifar_unet as cu
 
-HEADER = ("/mnt/d/Keria/Course/AMAT5315/week7-support/diffusion-flow-20261021"
-          "/reference/cifar-model/weights-header.json")
+HEADER = str(Path(__file__).parent / "fixtures/cifar-header.json")
 
 
 def numpy_group_norm(x_nchw, weight, bias, groups=32, eps=1e-6):

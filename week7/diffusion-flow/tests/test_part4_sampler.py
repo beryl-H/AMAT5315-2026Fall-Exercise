@@ -49,8 +49,8 @@ def test_chunked_sampler_hand_two_steps():
     mu2 = (1.0 - 0.5 / math.sqrt(0.625) * 1.0) / math.sqrt(0.5)
     x1 = mu2 + math.sqrt(0.5) * 0.5
     x0 = x1 / math.sqrt(0.75)
-    np.testing.assert_allclose(states[1, 0, 0, 0], x1, rtol=1e-5)
-    np.testing.assert_allclose(states[2, 0, 0, 0], x0, rtol=1e-5)
+    np.testing.assert_allclose(states[1, 0, 0, 0, 0], x1, rtol=1e-5)
+    np.testing.assert_allclose(states[2, 0, 0, 0, 0], x0, rtol=1e-5)
     # explicit defect emulation: predictions = loop index (0 then 1)
     counter = {"n": 0}
 
@@ -120,6 +120,6 @@ def test_chunked_final_noise_omitted_and_no_clipping():
     np.testing.assert_array_equal(states, states2)
     # zero predictor telescopes x_{t-1} = x_t / sqrt(alpha_t), unclipped
     expected = 50.0 / math.sqrt(0.75) / math.sqrt(0.5)
-    np.testing.assert_allclose(float(states2[-1, 0, 0, 0]), expected,
+    np.testing.assert_allclose(float(states2[-1, 0, 0, 0, 0]), expected,
                                rtol=1e-5)
     assert expected > 10.0
