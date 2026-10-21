@@ -113,3 +113,76 @@ in `evidence/stats.json`; thresholds 0.04 / 0.05 / 0.03):
 3. The evidence driver's first attempts failed on interface/figure issues;
    all failure logs are preserved under `artifacts/failed-attempts/`, and the
    successful run is `artifacts/evidence-attempt6.log` (EXIT=0).
+
+---
+
+# Part 2 — Deterministic sampling with DDIM
+
+Production code: `src/ddim.py` — `ddim_sample` (Algorithm 3, `lax.scan`,
+explicit decreasing original integer levels, strict grid validation, no
+clipping) and `mixture_exact_noise` (analytic exact conditional-mean noise,
+derived in the module docstring and checked in tests against the independent
+score identity `E[eps|x] = -sqrt(1-abar) * grad log p_t`).
+
+## Reproduce
+
+```bash
+.venv/bin/python -m pytest tests/test_ddim.py -q      # 17 tests (red->green log kept)
+PYTHONPATH=. .venv/bin/python scripts/part2_experiments.py   # seed 2027, N=2000
+```
+
+Predeclared seeds: `PRNGKey(2027)` split into shared starts `xT`, DDPM noise
+stream A, DDPM noise stream B, and the independent target reference. All runs
+use all 1000 levels. Raw arrays: `artifacts/part2/raw/` (gitignored), full
+paths of the first 10 shared starts included.
+
+## VERIFY 1 — DDIM's reverse step is deterministic; DDPM's is not
+
+![paired trajectories](evidence/part2_trajectories.png)
+
+- Learned DDIM run twice from the exactly same `xT`: maximum endpoint
+  difference **0.0** and maximum difference across all 1000 retained states
+  **0.0** (exactly deterministic; no hidden RNG anywhere in `ddim_sample`).
+- DDPM from the same starts with two independent noise streams: the two runs
+  land in the same cluster for **0.2455** of the 2000 shared starts — about
+  the 1/4 chance expected for four equally populated clusters (descriptive,
+  not a threshold).
+
+![DDPM A/B](evidence/part2_ddpm_ab.png)
+
+## Both samplers still reproduce the target
+
+![final distributions](evidence/part2_final_distributions.png)
+
+Cluster statistics for 2000 samples per distribution (nearest-centre
+assignment; every number in `evidence/part2_stats.json`):
+
+| run | max fraction error | max centre error | per-coord std range |
+|---|---|---|---|
+| learned DDIM | 0.0075 | 0.0247 | 0.2795 – 0.3229 |
+| exact-predictor DDIM | 0.0090 | 0.0195 | 0.2836 – 0.3147 |
+| DDPM A | 0.0075 | 0.0191 | 0.2839 – 0.3022 |
+| DDPM B | 0.0080 | 0.0205 | 0.2928 – 0.3180 |
+| exact target (reference) | 0.0120 | 0.0286 | 0.2790 – 0.3147 |
+
+**Gate 1 (DDIM fraction errors < 0.015): PASS** for learned and exact DDIM.
+
+**Gate 2 (learned widths within 0.29–0.32): honestly reported FAIL** under
+the strict reading — learned DDIM min coordinate std 0.2795 and DDPM A
+0.2839 fall below 0.29 (also under a per-cluster pooled reading: 0.284 and
+0.2897). However the independent exact target reference of the same sample
+size excurses identically (min coordinate std 0.2790, pooled 0.286): the
+excursions lie within the sampling fluctuation of a 2000-point width
+estimate (SE ≈ 0.005) rather than indicating a sampler defect. Per the task
+rules the results are retained, the implementation was inspected (all 50
+repo tests pass, DDIM verified deterministic and hand-checked), and no
+retraining or reseed was performed.
+
+## Test evidence
+
+- Red: `artifacts/test-ddim-red.log` (module absent).
+- Green: `artifacts/test-ddim-green5.log` — 17/17, exit 0; full suite
+  `artifacts/test-all-part2.log` — 50/50, exit 0.
+- Failed experiment attempts preserved:
+  `artifacts/failed-attempts/part2-attempt{1,2}-fail.log` and
+  `part2-experiments-attempt{1,2,3}.log` (unpack/broadcast/panel fixes).
