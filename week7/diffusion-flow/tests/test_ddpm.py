@@ -80,7 +80,7 @@ def test_ddpm_no_clipping():
     xT = jnp.array([[50.0, -50.0]], dtype=jnp.float32)
     z = {2: jnp.zeros((1, 2), dtype=jnp.float32),
          1: jnp.zeros((1, 2), dtype=jnp.float32)}
-    x = ddpm_sample(predict, params, xT, betas, abar, reverse_noise=z)
+    x = ddpm_sample(predict, None, xT, betas, abar, reverse_noise=z)
     # t=2: x1 = xT/sqrt(alpha2); t=1: x0 = x1/sqrt(alpha1)
     expected = xT / math.sqrt(0.5) / math.sqrt(0.75)
     np.testing.assert_allclose(np.asarray(x), np.asarray(expected), rtol=1e-6)
