@@ -314,3 +314,21 @@ def test_energy_distance_same_array_negative_regression():
     # far-apart independent sets give a large positive estimate
     Y = X + 10.0
     assert float(energy_distance_unbiased(X, Y)) > 5.0
+
+
+def test_euler_rejects_grid_not_ending_at_zero():
+    from src.flow import euler_sample
+    with pytest.raises(ValueError):
+        euler_sample(lambda p, x, s: x, None, jnp.zeros((1, 2)),
+                     jnp.array([1.0, 0.5, 0.25]))
+
+
+def test_coarse_ddpm_rejects_grid_not_ending_at_zero():
+    from src.coarse import coarse_ddpm_sample
+    betas = jnp.array([0.1, 0.2], dtype=jnp.float32)
+    abar = jnp.array([1.0, 0.9, 0.72], dtype=jnp.float32)
+    with pytest.raises(ValueError):
+        coarse_ddpm_sample(lambda p, x, t: jnp.zeros_like(x), None,
+                           jnp.zeros((1, 2)), betas, abar,
+                           levels=np.array([2, 1]),
+                           key=jax.random.PRNGKey(0))

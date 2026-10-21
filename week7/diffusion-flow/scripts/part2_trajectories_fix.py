@@ -43,22 +43,28 @@ ddpm_a_states = ddpm_sample(network.predict, params, xT, betas, abar,
 ddpm_b_states = ddpm_sample(network.predict, params, xT, betas, abar,
                             key=k_ddpmB, record_states=True)[1]
 
-def to_path(states):
+def ddim_path(states):  # DDIM scan returns 1000 post-jump states; add xT
     return np.concatenate([np.asarray(xT)[None],
                            np.stack([np.asarray(s) for s in states])], axis=0)
 
+def ddpm_path(states):  # Part 1 DDPM record_states already includes xT
+    return np.stack([np.asarray(s) for s in states])
+
 paths = {k: v[:, :10] for k, v in {
-    "DDIM run 1": to_path(ddim_a_states),
-    "DDIM run 2 (dashed overlay)": to_path(ddim_b_states),
-    "DDPM noise stream A": to_path(ddpm_a_states),
-    "DDPM noise stream B": to_path(ddpm_b_states)}.items()}
+    "DDIM run 1": ddim_path(ddim_a_states),
+    "DDIM run 2 (dashed overlay)": ddim_path(ddim_b_states),
+    "DDPM noise stream A": ddpm_path(ddpm_a_states),
+    "DDPM noise stream B": ddpm_path(ddpm_b_states)}.items()}
+assert paths["DDIM run 1"].shape == (1001, 10, 2)
+assert paths["DDPM noise stream A"].shape == (1001, 10, 2)
 np.savez("artifacts/part2/raw/part2_paths_first10_fixed.npz",
          levels=np.arange(1000, -1, -1),
          **{f"{k}_first10": v[:, :10] for k, v in paths.items()})
 
 show = np.arange(0, 1001, 10)
 fig, axes = plt.subplots(1, 3, figsize=(15, 5.2), sharex=True, sharey=True)
-panels = [("DDIM run 1 (deterministic)", paths["DDIM run 1"], None),
+panels = [("DDIM run 1 (deterministic; run 2 dashed, identical)",
+           paths["DDIM run 1"], paths["DDIM run 2 (dashed overlay)"]),
           ("DDPM noise stream A", paths["DDPM noise stream A"], None),
           ("DDPM noise stream B", paths["DDPM noise stream B"], None)]
 for ax, (name, path, overlay) in zip(axes, panels):
@@ -73,7 +79,7 @@ for ax, (name, path, overlay) in zip(axes, panels):
     ax.scatter(path[-1][:, 0], path[-1][:, 1], s=45, marker="*",
                color="crimson", zorder=6, label="endpoints (t=0)")
     ax.set_xlim(-LIM, LIM); ax.set_ylim(-LIM, LIM); ax.set_aspect("equal")
-    ax.set_title(f"{name}\n(unclipped; levels outside [-5,5] not shown)")
+    ax.set_title(f"{name}\nunclipped; levels outside [-5,5] not shown")
     ax.set_xlabel("$x_1$"); ax.legend(fontsize=7)
 axes[0].set_ylabel("$x_2$")
 fig.suptitle("10 shared starts, seed 2027: deterministic DDIM (runs 1/2 "

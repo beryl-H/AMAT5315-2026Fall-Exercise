@@ -20,6 +20,8 @@ def _validate_levels(levels, t_levels):
         raise ValueError("levels must be strictly decreasing")
     if lv[0] != t_levels:
         raise ValueError("levels must start at T")
+    if lv[-1] != 0:
+        raise ValueError("levels must end at 0")
     if lv.min() < 0 or lv.max() > t_levels:
         raise ValueError("levels out of range")
     return lv

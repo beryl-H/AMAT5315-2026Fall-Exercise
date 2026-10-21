@@ -1,4 +1,8 @@
-# Week 7: Diffusion and flow matching (Part 1 this turn)
+# Week 7: Diffusion and flow matching (Parts 1–3 complete; Parts 4–5 pending)
+
+Scope: Parts 1–3 are implemented and measured in this directory. Parts 4
+(CIFAR-10 pretrained predictor) and 5 (RePaint) remain planned below and are
+NOT implemented yet, per the coordinator's per-Part verification.
 
 Source of truth: `learning-sheet.txt` (19 pages, PDF SHA256
 `4147c45cc6ac9f6e1815ba33684a1c4ed50c87d8d89ffb14f3dccab6bcfddbd5`), the lecture
@@ -64,13 +68,13 @@ silently change seeds/budget/tolerances):
 
 ## Parts 2–5 (later turns, fixed here for the plan)
 
-- **Part 2 — DDIM**: deterministic sampling over a selectable level grid with
+- **Part 2 — DDIM (COMPLETE)**: deterministic sampling over a selectable level grid with
   the trained predictor, plus the mixture's exact conditional-mean noise
   prediction. Verify: two DDIM runs from the same noise agree exactly
   (max diff printed, reference prints 0); DDPM from the same start with two
   noise draws lands in the same cluster ~1/4 of the time; DDIM fractions
   within 0.015 of 0.25, both samplers' widths in 0.29–0.32.
-- **Part 3 — Flow matching**: train a velocity network from scratch with
+- **Part 3 — Flow matching (COMPLETE)**: train a velocity network from scratch with
   `flow.toml` (seed 2029, features use `1000*s`), path `x_s=(1-s)x_0+s z`,
   target velocity `z-x_0`; Euler sampling `s=1 -> 0`; exact marginal velocity
   of the mixture. Verify: relative RMS difference vs exact field < 0.1 at

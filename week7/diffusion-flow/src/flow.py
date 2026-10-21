@@ -175,6 +175,8 @@ def euler_sample(velocity, params, x1, times, record_states=False):
         raise ValueError("times must be strictly decreasing")
     if t[0] != 1.0:
         raise ValueError("times must start at s = 1")
+    if t[-1] != 0.0:
+        raise ValueError("times must end at s = 0")
     tj = jnp.asarray(t, dtype=jnp.float32)
 
     def body(x, i):

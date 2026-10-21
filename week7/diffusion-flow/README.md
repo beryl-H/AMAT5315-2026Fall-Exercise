@@ -1,4 +1,4 @@
-# Week 7 — Diffusion and flow matching (Part 1)
+# Week 7 — Diffusion and flow matching (Parts 1–3)
 
 Part 1 of the AMAT5315 Week 7 lecture: a noise predictor trained on a
 four-cluster Gaussian mixture, DDPM generation, and the lecture's three
@@ -195,3 +195,99 @@ performed.
 - Failed experiment attempts preserved:
   `artifacts/failed-attempts/part2-attempt{1,2}-fail.log` and
   `part2-experiments-attempt{1,2,3}.log` (unpack/broadcast/panel fixes).
+
+---
+
+# Part 3 — Flow matching and the cost of fewer steps
+
+Production code: `src/flow.py` (`flow.toml` block saved verbatim; Algorithm 4
+training, seed 2029, 25 000 updates x 512, Adam 0.9/0.999/1e-8, cosine lr
+0.001 -> 0, float32, wall time 71.7 s; target velocity `z - x0` with respect
+to `s`, no factor 1000; features use phase `1000*s*omega_j`, no -1 offset),
+the analytic exact marginal velocity, and the Euler sampler;
+`src/coarse.py` (coarse DDPM jumps, adjacent == Part 1 checked by test);
+`src/energy.py` (unbiased distinct-pairs energy distance).
+
+## Reproduce
+
+```bash
+.venv/bin/python -m pytest tests/test_flow.py -q        # 18 tests
+.venv/bin/python -m scripts.run_flow_train              # real training, seed 2029
+PYTHONPATH=. .venv/bin/python scripts/part3_experiments.py
+PYTHONPATH=. .venv/bin/python scripts/part1_gif_title_fix.py   # render-only title fix
+```
+
+## Velocity fields on the predeclared 9x9 grid [-4,4]^2
+
+![velocity fields](evidence/part3_velocity_fields.png)
+
+Relative RMS (all 81 unweighted grid points; raw unclipped vectors in
+`artifacts/part3-validated/raw/field_evaluation.npz`):
+
+| s | full grid | marginal 4096 (supplementary) |
+|---|---|---|
+| 0.1 | 0.336 | 0.0077 |
+| 0.5 | 0.285 | 0.0141 |
+| 0.9 | 0.073 | 0.0421 |
+
+**Full-grid gate (< 0.1 at every s): honestly reported FAIL** at s=0.1 and
+s=0.5. The errors concentrate in far corners (e.g. (-4,-4) at s=0.1) that
+have essentially zero training density for `x_s`, so the network is
+unconstrained there; near the data the learned field matches the exact one
+within a few percent. The supplementary 4096-point marginal evaluation
+(clearly named, never a substitute; test points drawn from the actual `x_s`
+per Eq. 18) gives 0.008/0.014/0.042. No domain, seed or budget change was
+made; the measured result is retained.
+
+## Step-count study (N = 4000, seeds 2032/2033/2034)
+
+![cost study](evidence/part3_cost_study.png)
+
+RNG protocol: index = method_id*10000 + S; `fold_in(PRNGKey(2032), index)`
+split into separate start and noise keys (raw uint32 keys and starts saved
+per run in `artifacts/part3-validated/raw/`). An earlier attempt that reused
+one key for both draws is recorded as INVALID_RNG in
+`artifacts/part3/INVALID_RNG.md` with its logs preserved.
+
+Energy distances (raw unbiased values, plotted floored at 1e-4; null 95%
+quantile 0.00192 from 20 independent exact pairs, seed 2034):
+
+| steps | DDPM | DDIM | flow |
+|---|---|---|---|
+| 1 | 0.818 | 0.845 | 2.203 |
+| 2 | 0.654 | 0.648 | 0.190 |
+| 5 | 0.0204 | 0.0262 | 0.0044 |
+| 10 | 0.00129 | 0.0099 | 0.00027 |
+| 20 | 0.00057 | 0.00043 | 0.00027 |
+| 50 | 0.00010 | 0.00037 | 0.00010 |
+| 100 | 0.00010 | 0.00026 | 0.00010 |
+| 1000 | 0.00018 | 0.00010 | — |
+
+**Flow-20 gates: PASS** — energy 0.00027 < 0.005 and max width error
+0.0261 < 0.03. Flow reaches the null band by ~5–10 steps; DDPM/DDIM need
+tens of steps, consistent with the lecture's qualitative claim (reference
+numbers are quoted as claims, not measured results here).
+
+## Coarse-grid collapse controls (exact predictors)
+
+![collapse controls](evidence/part3_collapse_controls.png)
+
+With the ORACLE predictor (exact noise / exact velocity) the coarsest grids
+still fail: at S=1 all three samplers collapse toward the mean (mean |x|:
+DDPM 0.036, DDIM 0.037, flow 9.1e-8 — flow's 1-step update is exactly the
+origin), with energy ~2.21–2.26 versus the null quantile 0.00192. At S=2
+they partially recover (mean |x| 1.38–2.24, energy 0.19–0.73). This proves
+the S=1/S=2 failure is sampling-step discretization, not predictor error.
+Per-cluster counts/centres/widths for every run, including explicit
+empty-cluster None handling and tie-break notes, are in
+`evidence/part3_stats.json` (valid JSON, `allow_nan=False`).
+
+## Part 1 training-movie title fix (render-only)
+
+`evidence/training_movie.gif` was re-rendered by
+`scripts/part1_gif_title_fix.py` from the SAVED raw paths/losses only
+(3-line readable titles: update number, path description, unclipped
+max|state|). The earlier cropped-title GIF is preserved at
+`artifacts/failed-attempts/training_movie-cropped-title.gif`. No resampling
+or retraining was done; the trajectories are bit-identical to the audited
+raw arrays.
