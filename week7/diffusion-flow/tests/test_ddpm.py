@@ -117,3 +117,61 @@ def test_ddpm_full_schedule_matches_moments():
     # x_{t-1} = x_t / sqrt(alpha_t) => x0 = xT / sqrt(abar_1000)
     expected = xT / math.sqrt(float(abar[1000]))
     np.testing.assert_allclose(np.asarray(x), np.asarray(expected), rtol=1e-4)
+
+
+# ---------- regression: fresh-noise production branch (coordinator review) ----------
+
+def test_ddpm_fresh_key_mode_independent_innovations():
+    """Production fresh-key path: innovations (x_{t-1}-mu)/sqrt(beta_t) must
+    be independent draws, not one repeated array."""
+    betas, alphas, abar = tiny_schedule()
+    def predict(params, x, t):
+        return jnp.zeros_like(x)
+    xT = jnp.array([[0.3, -0.7], [1.0, 0.5], [-0.2, 0.9]],
+                   dtype=jnp.float32)
+    x, states = ddpm_sample(predict, None, xT, betas, abar,
+                            key=jax.random.PRNGKey(11), record_states=True)
+    # states: [xT, x1, x0]; innovation at t=2 (first reverse step)
+    mu2 = (xT - 0.5 / math.sqrt(1 - 0.375) * 0.0) / math.sqrt(0.5)
+    innov2 = (states[1] - mu2) / math.sqrt(0.5)
+    mu1 = states[1] / math.sqrt(0.75)  # zero predictor, t=1
+    innov1 = (states[2] - mu1) / math.sqrt(0.25)  # must be zero (t=1 no noise)
+    assert float(jnp.abs(innov1).max()) == 0.0
+    # successive innovations differ (not one repeated array)
+    assert float(jnp.abs(innov2).sum()) > 1e-6
+    # a different sampler key changes the output; same key reproduces it
+    xa = ddpm_sample(predict, None, xT, betas, abar, key=jax.random.PRNGKey(11))
+    xb = ddpm_sample(predict, None, xT, betas, abar, key=jax.random.PRNGKey(12))
+    xc = ddpm_sample(predict, None, xT, betas, abar, key=jax.random.PRNGKey(11))
+    assert float(jnp.abs(xa - xb).max()) > 1e-6
+    assert float(jnp.abs(xa - xc).max()) == 0.0
+
+
+def test_ddpm_fresh_key_mode_large_sample_uncorrelated():
+    """1000 shared-start paths: innovations across samples near zero mean."""
+    betas = beta_schedule()
+    abar = abar_from_betas(betas)
+    def predict(params, x, t):
+        return jnp.zeros_like(x)
+    n = 4000
+    xT = jnp.zeros((n, 2), dtype=jnp.float32)
+    x, states = ddpm_sample(predict, None, xT, betas, abar,
+                            key=jax.random.PRNGKey(3), record_states=True)
+    states = [jnp.asarray(s) for s in states]
+    t = 500
+    a_t = float(abar[t]); beta_t = float(betas[t - 1]); alpha_t = 1 - beta_t
+    mu = states[1000 - t] / math.sqrt(alpha_t)  # zero predictor
+    innov = (states[1000 - t + 1] - mu) / math.sqrt(beta_t)
+    assert abs(float(innov.mean())) < 0.05  # zero-mean fresh noise
+    # empirical correlation between the two coordinates near zero
+    c = float(jnp.mean((innov[:, 0] - innov[:, 0].mean())
+                       * (innov[:, 1] - innov[:, 1].mean())))
+    assert abs(c) < 0.05
+
+
+def test_ddpm_missing_key_rejected_in_fresh_mode():
+    betas, alphas, abar = tiny_schedule()
+    def predict(params, x, t):
+        return jnp.zeros_like(x)
+    with pytest.raises(ValueError):
+        ddpm_sample(predict, None, jnp.zeros((1, 2)), betas, abar)
