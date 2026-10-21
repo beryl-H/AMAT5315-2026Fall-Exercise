@@ -18,7 +18,6 @@ verbatim (the t=1 entry is ignored), so demonstrations can share one initial
 Gaussian and one reverse-step noise stream across training stages.
 """
 
-import functools
 
 import jax
 import jax.numpy as jnp
@@ -49,7 +48,7 @@ def ddpm_sample(predict, params, xT, betas, abar, key=None,
     betas_j = jnp.asarray(betas)
     alpha_j = 1.0 - betas_j
     abar_j = jnp.asarray(abar)
-    predict_jit = jax.jit(functools.partial(predict, params))
+    predict_jit = jax.jit(lambda x, t: predict(params, x, t))
 
     def body(x, i):
         t = T - i  # mathematical level

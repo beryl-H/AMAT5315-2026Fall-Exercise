@@ -1,0 +1,156 @@
+{
+  "forward": {
+    "n_points": 2000,
+    "levels": [
+      0,
+      50,
+      100,
+      200,
+      400,
+      600,
+      800,
+      1000
+    ],
+    "t1000_coord_means": [
+      -0.03889288008213043,
+      -0.003048409940674901
+    ],
+    "t1000_coord_variances": [
+      0.9903162121772766,
+      1.010617733001709
+    ],
+    "threshold_mean_abs": 0.1,
+    "threshold_var_within": 0.1,
+    "pass_mean": true,
+    "pass_var": true,
+    "rng_convention": "PRNGKey(100) split into (target key, Markov-chain key)"
+  },
+  "reverse": {
+    "n_samples": 2000,
+    "steps": 1000,
+    "clusters": [
+      {
+        "centre_target": [
+          3.0,
+          0.0
+        ],
+        "centre_measured": [
+          3.0178442001342773,
+          -0.0030029877088963985
+        ],
+        "centre_error_abs": [
+          0.017844200134277344,
+          0.0030029877088963985
+        ],
+        "fraction": 0.256,
+        "std_per_coordinate": [
+          0.30939731001853943,
+          0.29995349049568176
+        ],
+        "std_error_abs": [
+          0.009397298097610474,
+          4.652142524719238e-05
+        ]
+      },
+      {
+        "centre_target": [
+          0.0,
+          3.0
+        ],
+        "centre_measured": [
+          -0.0055589741095900536,
+          3.0244863033294678
+        ],
+        "centre_error_abs": [
+          0.0055589741095900536,
+          0.024486303329467773
+        ],
+        "fraction": 0.2655,
+        "std_per_coordinate": [
+          0.2765856981277466,
+          0.3228886127471924
+        ],
+        "std_error_abs": [
+          0.023414313793182373,
+          0.022888600826263428
+        ]
+      },
+      {
+        "centre_target": [
+          -3.0,
+          0.0
+        ],
+        "centre_measured": [
+          -3.005707025527954,
+          0.0006769343744963408
+        ],
+        "centre_error_abs": [
+          0.0057070255279541016,
+          0.0006769343744963408
+        ],
+        "fraction": 0.2425,
+        "std_per_coordinate": [
+          0.31147778034210205,
+          0.29933106899261475
+        ],
+        "std_error_abs": [
+          0.011477768421173096,
+          0.000668942928314209
+        ]
+      },
+      {
+        "centre_target": [
+          0.0,
+          -3.0
+        ],
+        "centre_measured": [
+          -0.01354260090738535,
+          -3.0013606548309326
+        ],
+        "centre_error_abs": [
+          0.01354260090738535,
+          0.0013606548309326172
+        ],
+        "fraction": 0.236,
+        "std_per_coordinate": [
+          0.3097170293331146,
+          0.2761198580265045
+        ],
+        "std_error_abs": [
+          0.009717017412185669,
+          0.02388015389442444
+        ]
+      }
+    ],
+    "threshold_fraction": 0.04,
+    "threshold_centre": 0.05,
+    "threshold_std": 0.03,
+    "pass_fractions": true,
+    "pass_centres": true,
+    "pass_stds": true
+  },
+  "training": {
+    "stages": [
+      0,
+      50,
+      100,
+      200,
+      500,
+      1000,
+      2000,
+      5000,
+      10000,
+      25000
+    ],
+    "final_loss": 0.22291110455989838,
+    "loss_records": 25000,
+    "loss_last1000_mean": 0.2462203949689865
+  },
+  "seeds": {
+    "forward": 100,
+    "training_movie": 200,
+    "reverse": 300,
+    "target_reference": 400,
+    "training": 2026
+  }
+}
