@@ -294,7 +294,7 @@ raw arrays.
 
 ---
 
-# Part 4 — status (source phase; validation PENDING)
+# Part 4 — pretrained CIFAR-10 predictor (COMPLETE)
 
 The fixed-weight JAX float32 port of the official diffusers v0.40.0
 `UNet2DModel` is written (`src/cifar_unet.py`): strict loader for the pinned
@@ -314,9 +314,83 @@ NumPy GroupNorm and attention references, the time-feature formula and
 scalar/vector model-index handling, and strict header/loader validation.
 Suite: 78 passed.
 
-**PENDING**: whole-model equivalence against official diffusers on CPU
-(script `scripts/part4_reference_check.py`, predeclared input seed 7400,
-indices 0/499/999, tolerances max|diff| < 1e-3 and rel RMS < 1e-4), the
-1000-step DDPM generation, and all Part 4 evidence. These wait for the
-root-verified weights and reference environment. No Part 4 claim of
-completion is made here.
+## Reference validation vs official diffusers (PASSED)
+
+`scripts/part4_reference_check.py` (fixed input `numpy.default_rng(7400)`,
+model indices 0/499/999; tolerances max|diff| < 1e-3 AND relative RMS
+< 1e-4 predeclared):
+
+| model index | max abs diff | relative RMS |
+|---|---|---|
+| 0 | 2.384e-06 | 3.33e-07 |
+| 499 | 1.669e-06 | 2.40e-07 |
+| 999 | 1.192e-06 | 2.06e-07 |
+
+The official loader accounts for ALL 328 state-dict arrays exactly (old
+attention names query/key/value/proj_attn mapped to to_q/to_k/to_v/to_out.0;
+no missing, extra, mismatched or non-finite arrays; float32; CPU only).
+Weights hash before/after sampling unchanged. Inputs/outputs:
+`artifacts/part4/reference/` (input_seed7400.npz, torch_outputs.npz,
+jax_output_index_*.npz); summary `evidence/part4_reference_check.json`.
+Reference environment (root-owned): torch 2.8.0+cpu, diffusers 0.40.0,
+safetensors 0.8.0, numpy 2.2.6.
+
+## 1000-step DDPM generation (seed 7401, four images, no selection)
+
+```bash
+PYTHONPATH=. .venv/bin/python scripts/part4_generate.py     # run ONCE; refuses overwrite
+.venv/bin/python scripts/part4_figures.py
+```
+
+![reverse stages](evidence/part4_reverse_stages.png)
+
+![generated gallery](evidence/part4_generated_gallery.png)
+
+Four images from `PRNGKey(7401)` split into independent start/noise keys,
+1000 adjacent DDPM steps (reverse variance beta[t-1], model index t-1, no
+noise at t=1, no state clipping), exactly 1000 predictor evaluations,
+wall time 150.5 s (4 CPU cores, JAX 0.6.2), all 1001 states saved
+(`artifacts/part4/generation/states_1001.npy`, plus seed/keys, the full
+innovation stack, and `generation_meta.json` with before/after weights
+hashes — unchanged). Images qualitatively recognisable (quadrupeds/bird);
+this is a human visual judgement, not a metric.
+
+Real CIFAR-10 comparison (deterministic first 4 test examples from the
+original Week 6 tarball; the full Week 6 gallery lives at
+`../../week6/energy-based/evidence/cifar10_test_gallery.png`):
+
+![real comparison](evidence/part4_real_cifar_comparison.png)
+
+## Part 4 — model provenance and download record (validation PENDING)
+
+Pinned model: `google/ddpm-cifar10-32`, revision
+`267b167dc01f0e4e61923ea244e8b988f84deb80`. The lecturer's reproducible
+command is:
+
+```bash
+uv run --with huggingface-hub==1.33.0 hf download google/ddpm-cifar10-32 \
+  config.json diffusion_pytorch_model.safetensors \
+  --revision 267b167dc01f0e4e61923ea244e8b988f84deb80 --local-dir inputs/cifar-model
+```
+
+Actual download (network record, honestly stated): the `hf` CLI could not
+complete here — `uv run --with huggingface-hub==1.33.0` exited 2 during
+dependency transport and repeated direct TLS connections to huggingface.co
+failed with `SSL_ERROR_SYSCALL` (logs preserved:
+`artifacts/failed-attempts/part4-download-attempt1-fail.log`,
+`part4-download-curl2-tlsfail.log`). The files were instead obtained with
+plain verified HTTPS (curl, normal certificates, no verification disabled,
+no mirrors) from the exact pinned revision resolve URLs; the coordinator
+additionally completed the transfer with standard HTTP Range requests and
+per-range validation (records:
+`support/reference/cifar-model/cifar-range-parts-20261021-220721/resume-receipt-*.json`).
+Verified files in `inputs/cifar-model/` (gitignored):
+
+- `config.json` — 699 bytes, SHA256 `49579448cd5728fb83f14186de12464eee143d2f5dccb11b8e13744d712eae9d`
+- `diffusion_pytorch_model.safetensors` — 143 020 084 bytes, SHA256
+  `1558dbe3fb093b0857d473e376b711eeda1b186c557be5e85b3a56300cd49f0f`
+
+The weights were learned by their original authors before this download;
+Part 4 runs no training — the fixed predictor plus our numerical sampler
+performs iterative inference only. Visual recognizability of generated
+images is a qualitative judgement, not a score.

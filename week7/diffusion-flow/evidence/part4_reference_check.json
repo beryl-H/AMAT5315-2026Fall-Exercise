@@ -1,0 +1,60 @@
+{
+  "env": "2.8.0+cpu 0.40.0 0.8.0 2.2.6",
+  "key_map": [
+    ".query. -> .to_q.",
+    ".key. -> .to_k.",
+    ".value. -> .to_v.",
+    ".proj_attn. -> .to_out.0."
+  ],
+  "official_loader_accounting": {
+    "n_state_dict": 328,
+    "n_mapped": 328,
+    "missing": [],
+    "n_missing": 0,
+    "extra": [],
+    "n_extra": 0,
+    "mismatched": [],
+    "n_mismatched": 0,
+    "nonfinite": [],
+    "dtype_float32": true
+  },
+  "compile_and_first_eval_s": 1.200279492,
+  "0": {
+    "max_abs": 2.384185791015625e-06,
+    "relative_rms": 3.3278169553341286e-07,
+    "shape": [
+      1,
+      3,
+      32,
+      32
+    ]
+  },
+  "499": {
+    "max_abs": 1.6689300537109375e-06,
+    "relative_rms": 2.400485925591056e-07,
+    "shape": [
+      1,
+      3,
+      32,
+      32
+    ]
+  },
+  "999": {
+    "max_abs": 1.1920928955078125e-06,
+    "relative_rms": 2.0594612237800902e-07,
+    "shape": [
+      1,
+      3,
+      32,
+      32
+    ]
+  },
+  "weights_hash_before": "c35165b672140a1afa6b293b46553e81fd8d56c9f4872fc8b9c1826afd1f6c04",
+  "weights_hash_after": "c35165b672140a1afa6b293b46553e81fd8d56c9f4872fc8b9c1826afd1f6c04",
+  "weights_unchanged": true,
+  "tolerances": {
+    "max_abs": 0.001,
+    "rel_rms": 0.0001,
+    "pass": true
+  }
+}

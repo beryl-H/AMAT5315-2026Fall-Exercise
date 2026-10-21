@@ -1,8 +1,12 @@
 # Week 7: Diffusion and flow matching (Parts 1–3 complete; Parts 4–5 pending)
 
-Scope: Parts 1–3 are implemented and measured in this directory. Parts 4
-(CIFAR-10 pretrained predictor) and 5 (RePaint) remain planned below and are
-NOT implemented yet, per the coordinator's per-Part verification.
+Scope: Parts 1–4 are implemented and measured in this directory. Part 5
+(RePaint inpainting) remains planned below and is NOT implemented yet, per
+the coordinator's per-Part verification. Explicit standing FAIL results:
+Part 2 learned-width strict gate (learned DDIM 0.2795 / DDPM-A 0.2839 < 0.29)
+and Part 3 full-uniform-grid velocity-field gate (0.336/0.285/0.0725 vs
+< 0.1); the Part 3 marginal-field metric and all Part 1/Part 3 flow-20 gates
+PASS. Not all course numerical gates pass.
 
 Source of truth: `learning-sheet.txt` (19 pages, PDF SHA256
 `4147c45cc6ac9f6e1815ba33684a1c4ed50c87d8d89ffb14f3dccab6bcfddbd5`), the lecture

@@ -93,6 +93,9 @@ def param_hash(weights):
 def main():
     from src.cifar_unet import load_cifar_unet
     raw_dir = BASE / "artifacts/part4/generation"
+    if (raw_dir / "generation_meta.json").exists():
+        raise SystemExit(f"refusing to overwrite completed generation: "
+                         f"{raw_dir}/generation_meta.json exists")
     raw_dir.mkdir(parents=True, exist_ok=True)
     (BASE / "evidence").mkdir(exist_ok=True)
 
