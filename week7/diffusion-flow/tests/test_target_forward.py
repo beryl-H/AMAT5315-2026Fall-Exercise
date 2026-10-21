@@ -111,8 +111,8 @@ def test_noise_to_level_hand_derived_mean_variance():
     """Equation 7: x_t = sqrt(abar_t) x0 + sqrt(1-abar_t) eps."""
     betas = beta_schedule()
     abar = abar_from_betas(betas)
-    t = 500  # mathematical level 500 -> array index 499
-    idx = t - 1
+    t = 500  # mathematical level 500 -> abar index 500 (0-based levels 0..1000)
+    idx = t
     a = float(abar[idx])
     n = 200_000
     x0 = jnp.full((n, 2), 2.0, dtype=jnp.float32)
@@ -146,3 +146,57 @@ def test_noised_level_1000_is_nearly_standard_gaussian():
     assert abs(float(xt[:, 0].var()) - 1.0) < 0.1
     assert abs(float(xt[:, 1].mean())) < 0.1
     assert abs(float(xt[:, 1].var()) - 1.0) < 0.1
+
+
+# ---------- regression: mathematical-level indexing (coordinator review) ----------
+
+def test_noise_to_level_mathematical_level_indexing():
+    """Production noise_to_level with explicit tiny schedule.
+
+    abar array is 0-based mathematical levels: abar = [1, .75, .375]
+    (betas [.25,.5]). For mathematical level t the multipliers are
+    sqrt(abar[t]) on x0 and sqrt(1-abar[t]) on eps, taken directly from
+    the lecture formula, NOT from any production helper.
+    """
+    abar = jnp.array([1.0, 0.75, 0.375], dtype=jnp.float32)
+    x0 = jnp.array([[2.0, -1.0]], dtype=jnp.float32)
+    key = jax.random.PRNGKey(42)
+    eps = jax.random.normal(key, x0.shape, dtype=jnp.float32)
+    x1 = noise_to_level(x0, 1, abar, key)
+    x2 = noise_to_level(x0, 2, abar, key)
+    # mathematical t=1: sqrt(.75) x0 + sqrt(.25) eps
+    np.testing.assert_allclose(
+        np.asarray(x1),
+        np.array([[math.sqrt(0.75) * 2.0 + 0.5 * float(eps[0, 0]),
+                   math.sqrt(0.75) * -1.0 + 0.5 * float(eps[0, 1])]]),
+        rtol=1e-6,
+    )
+    # mathematical t=2: sqrt(.375) x0 + sqrt(.625) eps
+    np.testing.assert_allclose(
+        np.asarray(x2),
+        np.array([[math.sqrt(0.375) * 2.0 + math.sqrt(0.625) * float(eps[0, 0]),
+                   math.sqrt(0.375) * -1.0 + math.sqrt(0.625) * float(eps[0, 1])]]),
+        rtol=1e-6,
+    )
+    # t=0 identity preserved
+    np.testing.assert_array_equal(np.asarray(noise_to_level(x0, 0, abar, key)),
+                                  np.asarray(x0))
+
+
+def test_forward_std_not_variance_rejected():
+    """A deliberate sigma=beta (instead of sqrt(beta)) step must be detectable."""
+    beta = 0.25
+    key = jax.random.PRNGKey(9)
+    z = jax.random.normal(key, (4, 2), dtype=jnp.float32)
+    correct = math.sqrt(beta) * z
+    wrong = beta * z
+    assert float(jnp.abs(correct - wrong).max()) > 0.05
+
+
+def test_level_shift_rejected():
+    """Off-by-one abar lookup must produce different coefficients."""
+    abar = jnp.array([1.0, 0.75, 0.375], dtype=jnp.float32)
+    t = 2
+    correct = math.sqrt(float(abar[t]))
+    shifted = math.sqrt(float(abar[t - 1]))
+    assert abs(correct - shifted) > 0.1

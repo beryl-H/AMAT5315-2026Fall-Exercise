@@ -48,10 +48,12 @@ def forward_step(x, alpha, beta, key):
 def noise_to_level(x0, t, abar, key):
     """Direct noising to mathematical level t (Equation 7).
 
-    t = 0 returns x0 unchanged; t >= 1 uses abar[t-1] and fresh noise.
+    Convention: abar has length T+1 and is indexed by the mathematical
+    level t (abar[0] = 1, abar[t] = prod_{s<=t} alpha_s). t = 0 returns
+    x0 unchanged; t >= 1 uses abar[t] and fresh noise.
     """
     if t == 0:
         return x0
-    a = abar[t - 1]
+    a = abar[t]
     eps = jax.random.normal(key, x0.shape, dtype=x0.dtype)
     return jnp.sqrt(a) * x0 + jnp.sqrt(1.0 - a) * eps
