@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "all_updates": 25000,
+  "finite_checkpoints": 10,
+  "checkpoint_sha256": {
+    "0": "a239e2bda7b039baadf32cb53832e9f3f367985e69ca646ac21dc5b9253a431f",
+    "50": "25fa4b98d70b4caabfe03f71550394baa6bdac3fc72ab168e37d03ed79d5accf",
+    "100": "98cf319742885170213b83356ed3df8e02aaa7f45cc8bd5a7afb93eb1e912473",
+    "200": "f3aa87a264ff1078261d589274199afc9b5b85c4c923f06bb8790ea0eca6a174",
+    "500": "41a43cfe69c19d7bf04f580a5043d5bf419715923cec137f5053a87cf7093124",
+    "1000": "a29d359a2deb45417fc9f4183e92978aa650cc56c5714959da7cf1fddab2155c",
+    "2000": "f3308a847dd196353cddc85595b8753e84894030357e1a41c07a56913f4c1f9f",
+    "5000": "8165c81f6a39d2abdc858a7cb58d0fc623e7f5a927767957728fa6f64aaa0fd9",
+    "10000": "3ac0afb5eba6eb4c5bd5ff67eff18743ae4e659bf00844e61df24559b060def1",
+    "25000": "c2a32d4ecc9afa3b51b908030ff0bc22a17eeb73da30191a9270cd54411aa709"
+  },
+  "independent_first50_loss_max_difference": 7.748603820800781e-07,
+  "independent_checkpoint50_parameter_max_difference": 2.682209014892578e-07,
+  "first_loss": 1.0296075344085693,
+  "final_loss": 0.22291110455989838,
+  "last1000_mean": 0.2462203949689865,
+  "training_seconds": 87.31322455406189,
+  "note": "Replay uses independent equation implementation and float64-reference cumulative schedule; all checkpoint arrays/loss records verified."
+}

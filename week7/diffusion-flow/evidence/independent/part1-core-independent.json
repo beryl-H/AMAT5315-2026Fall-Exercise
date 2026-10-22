@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "src/diffusion.py": "a004d336ffb83b7d543f070a19d2c863c66963c55aaa7daa64233bbfaad5eac6",
+    "src/network.py": "2f175130958925ac8607f8aa2485e36f9f8d6ad6e18f023f0602e30b108ec961"
+  },
+  "schedule_max_difference": 2.4768675355169023e-07,
+  "time_features_max_difference": 1.364763323541407e-05,
+  "independent_numpy_MLP_max_difference": 4.929087069061033e-07,
+  "forward_wrong_index_and_wrong_sigma_controls_rejected": true,
+  "target_draws": 100000,
+  "target_statistics": [
+    {
+      "fraction": 0.25022,
+      "centre": [
+        3.0045149036185954,
+        -0.0037882618880661625
+      ],
+      "spread": [
+        0.30024609751533926,
+        0.30197483790263013
+      ]
+    },
+    {
+      "fraction": 0.25043,
+      "centre": [
+        -0.0014366187134527266,
+        3.000447003094908
+      ],
+      "spread": [
+        0.2983580549027258,
+        0.29995268676063475
+      ]
+    },
+    {
+      "fraction": 0.24602,
+      "centre": [
+        -2.9982878399490294,
+        -0.0010406325985585106
+      ],
+      "spread": [
+        0.2998525013912515,
+        0.30161690054499735
+      ]
+    },
+    {
+      "fraction": 0.25333,
+      "centre": [
+        0.0020175410893503993,
+        -3.0005300609790555
+      ],
+      "spread": [
+        0.29748083381650603,
+        0.30238908050736185
+      ]
+    }
+  ]
+}

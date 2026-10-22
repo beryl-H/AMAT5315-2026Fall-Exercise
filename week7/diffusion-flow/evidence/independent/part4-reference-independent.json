@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "versions": {
+    "torch": "2.8.0+cpu",
+    "diffusers": "0.40.0",
+    "safetensors": "0.8.0",
+    "numpy": "2.2.6"
+  },
+  "official_arrays_exactly_equal": 328,
+  "parameter_hash": "c35165b672140a1afa6b293b46553e81fd8d56c9f4872fc8b9c1826afd1f6c04",
+  "fixed_input_seed": 7400,
+  "indices": {
+    "0": {
+      "independent_Torch_vs_JAX_max_abs": 2.384185791015625e-06,
+      "relative_RMS": 3.3278169553341286e-07,
+      "independent_Torch_vs_saved_Torch_max_abs": 0.0
+    },
+    "499": {
+      "independent_Torch_vs_JAX_max_abs": 1.6689300537109375e-06,
+      "relative_RMS": 2.400485925591056e-07,
+      "independent_Torch_vs_saved_Torch_max_abs": 0.0
+    },
+    "999": {
+      "independent_Torch_vs_JAX_max_abs": 1.1920928955078125e-06,
+      "relative_RMS": 2.059461081671543e-07,
+      "independent_Torch_vs_saved_Torch_max_abs": 0.0
+    }
+  }
+}

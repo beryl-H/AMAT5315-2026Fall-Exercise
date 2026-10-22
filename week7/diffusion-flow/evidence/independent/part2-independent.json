@@ -1,0 +1,444 @@
+{
+  "engineering_audit": "PASS",
+  "ddim_independent_replay_max_difference": 0.0,
+  "analytic_noise_reference_max_difference": 6.491425035726195e-06,
+  "ddim_repeat_max_difference": 0,
+  "ddpm_same_cluster_fraction": 0.2455,
+  "metrics": {
+    "learned_ddim": [
+      {
+        "n": 490,
+        "fraction": 0.245,
+        "std": [
+          0.30169931054115295,
+          0.3065823018550873
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.28420888213008755,
+            0.3222027280803931
+          ],
+          [
+            0.28880878908468033,
+            0.3274175635865099
+          ]
+        ]
+      },
+      {
+        "n": 503,
+        "fraction": 0.2515,
+        "std": [
+          0.31318148970603943,
+          0.28953325748443604
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.29524414874397364,
+            0.33416523856439617
+          ],
+          [
+            0.27295035300853726,
+            0.30893252319262343
+          ]
+        ]
+      },
+      {
+        "n": 492,
+        "fraction": 0.246,
+        "std": [
+          0.2794783115386963,
+          0.2885294258594513
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.26330659865689054,
+            0.298429666226507
+          ],
+          [
+            0.27183398091653693,
+            0.30809453544935633
+          ]
+        ]
+      },
+      {
+        "n": 515,
+        "fraction": 0.2575,
+        "std": [
+          0.2973848581314087,
+          0.2904655337333679
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.280537306734716,
+            0.3170573976327171
+          ],
+          [
+            0.27400997966136703,
+            0.30968034907022196
+          ]
+        ]
+      }
+    ],
+    "ddpm_a": [
+      {
+        "n": 515,
+        "fraction": 0.2575,
+        "std": [
+          0.286350816488266,
+          0.3014674186706543
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.27012837987363186,
+            0.305293446159962
+          ],
+          [
+            0.2843885922905888,
+            0.32141004003204054
+          ]
+        ]
+      },
+      {
+        "n": 494,
+        "fraction": 0.247,
+        "std": [
+          0.2839072048664093,
+          0.2953564524650574
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.26751004465590966,
+            0.30311659021094206
+          ],
+          [
+            0.2782980429566171,
+            0.31534050974382544
+          ]
+        ]
+      },
+      {
+        "n": 488,
+        "fraction": 0.244,
+        "std": [
+          0.3021593689918518,
+          0.29858288168907166
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.28460908911323596,
+            0.32273965855916537
+          ],
+          [
+            0.281240341962513,
+            0.3189195827190578
+          ]
+        ]
+      },
+      {
+        "n": 503,
+        "fraction": 0.2515,
+        "std": [
+          0.2942420244216919,
+          0.29661428928375244
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.27738943216742273,
+            0.31395679192900927
+          ],
+          [
+            0.27962583011851116,
+            0.316488007053948
+          ]
+        ]
+      }
+    ],
+    "ddpm_b": [
+      {
+        "n": 500,
+        "fraction": 0.25,
+        "std": [
+          0.31804031133651733,
+          0.3031972646713257
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2997741551284957,
+            0.33941880279145475
+          ],
+          [
+            0.285783591245129,
+            0.3235780094394254
+          ]
+        ]
+      },
+      {
+        "n": 484,
+        "fraction": 0.242,
+        "std": [
+          0.29276978969573975,
+          0.2970351278781891
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2757000132106329,
+            0.3127997883120822
+          ],
+          [
+            0.2797166706737486,
+            0.31735695024164967
+          ]
+        ]
+      },
+      {
+        "n": 514,
+        "fraction": 0.257,
+        "std": [
+          0.29605141282081604,
+          0.2993491291999817
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2792642961050285,
+            0.3156563690124769
+          ],
+          [
+            0.2823750109068673,
+            0.31917245378620857
+          ]
+        ]
+      },
+      {
+        "n": 502,
+        "fraction": 0.251,
+        "std": [
+          0.2983252704143524,
+          0.29927271604537964
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2812230557022558,
+            0.3183351865169354
+          ],
+          [
+            0.2821161901717274,
+            0.31934618516074836
+          ]
+        ]
+      }
+    ],
+    "exact_ddim": [
+      {
+        "n": 485,
+        "fraction": 0.2425,
+        "std": [
+          0.2910758852958679,
+          0.3003842830657959
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2741210775646009,
+            0.31096771845872717
+          ],
+          [
+            0.2828872687755455,
+            0.32091223824778986
+          ]
+        ]
+      },
+      {
+        "n": 501,
+        "fraction": 0.2505,
+        "std": [
+          0.30987024307250977,
+          0.2836242616176605
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2920897785054648,
+            0.3306770039865578
+          ],
+          [
+            0.26734979764190664,
+            0.30266868821287485
+          ]
+        ]
+      },
+      {
+        "n": 496,
+        "fraction": 0.248,
+        "std": [
+          0.2863937318325043,
+          0.29697170853614807
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.26988385990646324,
+            0.3057289474963651
+          ],
+          [
+            0.27985204423871596,
+            0.3170210733219169
+          ]
+        ]
+      },
+      {
+        "n": 518,
+        "fraction": 0.259,
+        "std": [
+          0.29902297258377075,
+          0.2978816032409668
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2821281778409945,
+            0.3187417949455052
+          ],
+          [
+            0.2810513025989859,
+            0.3175251665668835
+          ]
+        ]
+      }
+    ],
+    "target": [
+      {
+        "n": 511,
+        "fraction": 0.2555,
+        "std": [
+          0.31469008326530457,
+          0.3118398189544678
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2967976115771334,
+            0.3355954644529922
+          ],
+          [
+            0.2941094019202704,
+            0.33255584778105174
+          ]
+        ]
+      },
+      {
+        "n": 505,
+        "fraction": 0.2525,
+        "std": [
+          0.30897846817970276,
+          0.29428115487098694
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.2913143484223914,
+            0.3296361447988864
+          ],
+          [
+            0.2774572761195767,
+            0.3139562034680317
+          ]
+        ]
+      },
+      {
+        "n": 508,
+        "fraction": 0.254,
+        "std": [
+          0.3021802604198456,
+          0.29704606533050537
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.28495211816178406,
+            0.3223186978998701
+          ],
+          [
+            0.28011063604559694,
+            0.3168423384972391
+          ]
+        ]
+      },
+      {
+        "n": 476,
+        "fraction": 0.238,
+        "std": [
+          0.2929527163505554,
+          0.27895110845565796
+        ],
+        "std_gaussian_pointwise95CI": [
+          [
+            0.27574016712726723,
+            0.3131774192649994
+          ],
+          [
+            0.26256123382807117,
+            0.2982091817307021
+          ]
+        ]
+      }
+    ]
+  },
+  "lecture_gates": {
+    "ddim_fraction_abs_error_lt": 0.015,
+    "learned_widths_in": [
+      0.29,
+      0.32
+    ],
+    "ddim_fraction_errors": {
+      "learned_ddim": 0.007500000000000007,
+      "exact_ddim": 0.009000000000000008
+    },
+    "learned_width_ranges": {
+      "learned_ddim": [
+        0.2794783115386963,
+        0.31318148970603943
+      ],
+      "ddpm_a": [
+        0.2839072048664093,
+        0.3021593689918518
+      ],
+      "ddpm_b": [
+        0.29276978969573975,
+        0.31804031133651733
+      ]
+    },
+    "pass_ddim_fractions": true,
+    "pass_learned_widths": {
+      "learned_ddim": false,
+      "ddpm_a": false,
+      "ddpm_b": true
+    },
+    "pooled_width_ranges": {
+      "learned_ddim": [
+        0.2840399146080017,
+        0.30415061116218567
+      ],
+      "ddpm_a": [
+        0.289688378572464,
+        0.30037644505500793
+      ],
+      "ddpm_b": [
+        0.294910192489624,
+        0.3107074499130249
+      ],
+      "exact_ddim": [
+        0.2917306423187256,
+        0.29845282435417175
+      ],
+      "target": [
+        0.2860375940799713,
+        0.31326818466186523
+      ]
+    },
+    "pass_learned_widths_pooled": {
+      "learned_ddim": false,
+      "ddpm_a": false,
+      "ddpm_b": true
+    },
+    "width_gate_strict_per_coordinate": "FAIL for learnedDDIM and DDPM-A. Per-cluster n is approximately500, so Gaussian std SE is approximately0.0095. Exact-target excursions suggest finite sampling contributes but do not rule out model/sampler error. No reseeding/retraining.",
+    "width_gate_status_overall": "FAIL for learnedDDIM and DDPM-A. Per-cluster n is approximately500, so Gaussian std SE is approximately0.0095. Exact-target excursions suggest finite sampling contributes but do not rule out model/sampler error. No reseeding/retraining."
+  },
+  "warning": "Part2 narrow width targets FAIL for learnedDDIM and DDPM-A; exact oracle and independent exact-target samples also have some widths below .29. This suggests finite sampling contributes, but does not prove network error absent. No seed search or retraining.",
+  "explanatory_text_corrections": {
+    "width_gate_strict_per_coordinate": "FAIL for learned_ddim (min std 0.2795 < 0.29) and ddpm_a (0.2839); exact target reference itself shows min coordinate std 0.2790, within exact-sampling fluctuation (SE of std ~0.0047 at N=2000)",
+    "width_gate_status_overall": "FAIL for learned_ddim and ddpm_a under both the strict per-coordinate reading (min std 0.2795 / 0.2839 < 0.29) and the per-cluster pooled reading (0.284 / 0.2897 < 0.29). The independent exact target reference of the same size excurses identically (min coordinate std 0.2790, pooled 0.286), so these excursions are within the sampling fluctuation of a 2000-point width estimate (SE ~0.005), not evidence of a sampler defect. Implementation inspected, 50 tests pass, no retraining or reseed performed; result reported honestly as outside the strict band."
+  }
+}

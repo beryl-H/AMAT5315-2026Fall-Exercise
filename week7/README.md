@@ -1,3 +1,10 @@
+<!-- updated-week7-diffusion-flow:20261022 -->
+# Current Week 7 learning sheet
+
+The updated 19-page Diffusion and flow matching exercise is in [diffusion-flow](diffusion-flow/README.md). Its five parts and independent audits are complete, with explicit numerical failures retained. The historical inverse-problems exercise below is preserved as a separate earlier PDF version.
+
+---
+
 # Week 7: inverse problems and generative priors
 
 This is the local-PDF version identified in [SOURCE.md](SOURCE.md). The live

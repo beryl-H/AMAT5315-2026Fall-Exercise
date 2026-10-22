@@ -1,0 +1,32 @@
+{
+  "grid_spec": "9x9 Cartesian [-4,4]^2, all81 unweighted; fixed before training",
+  "grid": {
+    "0.1": {
+      "relative_RMS": 0.3361455280124901,
+      "pass_lt_point1": false
+    },
+    "0.5": {
+      "relative_RMS": 0.28523694410060135,
+      "pass_lt_point1": false
+    },
+    "0.9": {
+      "relative_RMS": 0.07254515439730945,
+      "pass_lt_point1": true
+    }
+  },
+  "supplemental_marginal": {
+    "0.1": {
+      "relative_RMS": 0.007430262322991247,
+      "pass_lt_point1": true
+    },
+    "0.5": {
+      "relative_RMS": 0.014286620357994623,
+      "pass_lt_point1": true
+    },
+    "0.9": {
+      "relative_RMS": 0.04144144253845785,
+      "pass_lt_point1": true
+    }
+  },
+  "supplemental_note": "Fresh 4096 marginal points per time, NumPy default_rng2035. Additional diagnostic; does not replace or retroactively pass the grid gate."
+}

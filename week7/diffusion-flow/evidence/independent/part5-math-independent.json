@@ -1,0 +1,21 @@
+{
+  "engineering_audit": "PASS",
+  "independent_float64_max_error": 1.547953676350744e-07,
+  "fresh_compiled_float64_max_error": 1.4031621553556306e-07,
+  "tiny_normal_draw_keys_distinct": 10,
+  "compiled_core_reused": true,
+  "compiled_cache_entries": 1,
+  "compiled_closure_names": [
+    "predict"
+  ],
+  "negative_control_max_differences": {
+    "wrong_variance": 1.1147740038588987,
+    "wrong_index": 0.17156341246166307,
+    "wrong_state_clip": 0.49689715330599005,
+    "omit_merge": 2.622955552824017
+  },
+  "observed_final_exact": true,
+  "hidden_truth_perturbation_identical": true,
+  "source_sha256": "d3cdba112ff74e2da098a115137568c2068b7fa208d35d24192b093890b61720",
+  "scope": "both explicit-stream and fresh compiled production paths; formal model/result audit separate"
+}

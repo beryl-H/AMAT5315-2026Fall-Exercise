@@ -1,0 +1,69 @@
+{
+  "inspection": "PASS",
+  "source_url": "https://giggleliu.github.io/AMAT5315-2026Fall/downloads/week7-images.npz",
+  "bytes": 36444,
+  "sha256": "edce7ff8b6c2cd8b134846cdab7d7555c22ce2c0da89c97364c438575b4e344c",
+  "arrays": {
+    "test": {
+      "shape": [
+        4,
+        3,
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "minimum": -1.0,
+      "maximum": 1.0,
+      "finite": true
+    },
+    "validation": {
+      "shape": [
+        4,
+        3,
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "minimum": -1.0,
+      "maximum": 1.0,
+      "finite": true
+    },
+    "test_ids": {
+      "shape": [
+        4
+      ],
+      "dtype": "int64",
+      "minimum": 0.0,
+      "maximum": 3.0,
+      "finite": true
+    },
+    "validation_ids": {
+      "shape": [
+        4
+      ],
+      "dtype": "int64",
+      "minimum": 4.0,
+      "maximum": 7.0,
+      "finite": true
+    },
+    "labels": {
+      "shape": [
+        4
+      ],
+      "dtype": "int64",
+      "minimum": 0.0,
+      "maximum": 8.0,
+      "finite": true
+    },
+    "validation_labels": {
+      "shape": [
+        4
+      ],
+      "dtype": "int64",
+      "minimum": 1.0,
+      "maximum": 6.0,
+      "finite": true
+    }
+  },
+  "note": "Downloaded by native pi; independently inspected by coordinator. Original bytes retained. Truth is for evaluation only."
+}

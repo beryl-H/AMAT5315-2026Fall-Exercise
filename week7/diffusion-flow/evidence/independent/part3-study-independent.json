@@ -1,0 +1,205 @@
+{
+  "engineering_audit": "PASS",
+  "runs_verified": 29,
+  "distinct_keys": 58,
+  "energy_max_recompute_difference": 1.0658141036401503e-14,
+  "null_q95": 0.0019242730737125033,
+  "null_min": -0.001478576416530597,
+  "null_max": 0.004474692594935714,
+  "flow20": {
+    "energy": 0.0002657403313919282,
+    "max_fraction_error": 0.012750000000000011,
+    "max_width_error": 0.026116937398910522,
+    "mean_radial_norm": 2.944575309753418
+  },
+  "lecture_gates": {
+    "field_rel_rms_lt_0.1_all_s_FULL_GRID": false,
+    "field_rel_rms_marginal_4096": {
+      "s0.1": 0.007683293428272009,
+      "s0.5": 0.01413275022059679,
+      "s0.9": 0.04214034974575043
+    },
+    "field_note": "Full-grid FAIL retained. Far corners have very low marginal density, not zero Gaussian density. Supplemental marginal metric does not replace the grid or uniquely establish the failure cause.",
+    "flow_20_energy_lt_0.005": true,
+    "flow_20_max_width_error_lt_0.03": true,
+    "flow_20_empty_clusters": [],
+    "fraction_2se_band": 0.013693063937629153
+  },
+  "runs": {
+    "ddpm_S1": {
+      "energy": 0.8176213301551281,
+      "max_fraction_error": 0.30100000000000005,
+      "max_width_error": 2.08327317237854,
+      "mean_radial_norm": 2.1281518936157227
+    },
+    "ddpm_S2": {
+      "energy": 0.6539696105250741,
+      "max_fraction_error": 0.07050000000000001,
+      "max_width_error": 0.3183669447898865,
+      "mean_radial_norm": 1.5200798511505127
+    },
+    "ddpm_S5": {
+      "energy": 0.02221742252551895,
+      "max_fraction_error": 0.004500000000000004,
+      "max_width_error": 0.1854102909564972,
+      "mean_radial_norm": 2.7511019706726074
+    },
+    "ddpm_S10": {
+      "energy": 0.0014219896895610873,
+      "max_fraction_error": 0.005750000000000005,
+      "max_width_error": 0.06660562753677368,
+      "mean_radial_norm": 2.9333248138427734
+    },
+    "ddpm_S20": {
+      "energy": 0.000875790071828586,
+      "max_fraction_error": 0.010000000000000009,
+      "max_width_error": 0.05418774485588074,
+      "mean_radial_norm": 2.9804439544677734
+    },
+    "ddpm_S50": {
+      "energy": 0.0006496793922767807,
+      "max_fraction_error": 0.010000000000000009,
+      "max_width_error": 0.025818049907684326,
+      "mean_radial_norm": 3.000288963317871
+    },
+    "ddpm_S100": {
+      "energy": -0.0008260239754500631,
+      "max_fraction_error": 0.007000000000000006,
+      "max_width_error": 0.02146509289741516,
+      "mean_radial_norm": 3.0152747631073
+    },
+    "ddpm_S1000": {
+      "energy": -0.0007612554313536357,
+      "max_fraction_error": 0.0072500000000000064,
+      "max_width_error": 0.008175432682037354,
+      "mean_radial_norm": 3.014478921890259
+    },
+    "ddim_S1": {
+      "energy": 0.8449476840372832,
+      "max_fraction_error": 0.31100000000000005,
+      "max_width_error": 2.2224080562591553,
+      "mean_radial_norm": 2.135936975479126
+    },
+    "ddim_S2": {
+      "energy": 0.6479759462624477,
+      "max_fraction_error": 0.06375,
+      "max_width_error": 0.42396193742752075,
+      "mean_radial_norm": 1.5745813846588135
+    },
+    "ddim_S5": {
+      "energy": 0.02195923531474442,
+      "max_fraction_error": 0.009250000000000008,
+      "max_width_error": 0.1302800476551056,
+      "mean_radial_norm": 2.7825844287872314
+    },
+    "ddim_S10": {
+      "energy": 0.010223519154083593,
+      "max_fraction_error": 0.014749999999999985,
+      "max_width_error": 0.01629924774169922,
+      "mean_radial_norm": 2.9002392292022705
+    },
+    "ddim_S20": {
+      "energy": 0.0009858427646265433,
+      "max_fraction_error": 0.008750000000000008,
+      "max_width_error": 0.030298322439193726,
+      "mean_radial_norm": 2.95988392829895
+    },
+    "ddim_S50": {
+      "energy": -0.0014777478252692156,
+      "max_fraction_error": 0.007000000000000006,
+      "max_width_error": 0.025631755590438843,
+      "mean_radial_norm": 2.995788812637329
+    },
+    "ddim_S100": {
+      "energy": 0.00042795608027335064,
+      "max_fraction_error": 0.016249999999999987,
+      "max_width_error": 0.024618446826934814,
+      "mean_radial_norm": 3.003899335861206
+    },
+    "ddim_S1000": {
+      "energy": -0.0014202313054778593,
+      "max_fraction_error": 0.009749999999999981,
+      "max_width_error": 0.017815887928009033,
+      "mean_radial_norm": 3.0101685523986816
+    },
+    "flow_S1": {
+      "energy": 2.202833057216438,
+      "max_fraction_error": 0.16699999999999998,
+      "max_width_error": 0.28165870904922485,
+      "mean_radial_norm": 0.0391271710395813
+    },
+    "flow_S2": {
+      "energy": 0.19047552380341592,
+      "max_fraction_error": 0.008250000000000007,
+      "max_width_error": 0.3128610849380493,
+      "mean_radial_norm": 2.2289183139801025
+    },
+    "flow_S5": {
+      "energy": 0.01985488667413815,
+      "max_fraction_error": 0.0010000000000000009,
+      "max_width_error": 0.10350418090820312,
+      "mean_radial_norm": 2.7689082622528076
+    },
+    "flow_S10": {
+      "energy": 0.005482814786039736,
+      "max_fraction_error": 0.01150000000000001,
+      "max_width_error": 0.037723660469055176,
+      "mean_radial_norm": 2.8906099796295166
+    },
+    "flow_S20": {
+      "energy": 0.0002657403313919282,
+      "max_fraction_error": 0.012750000000000011,
+      "max_width_error": 0.026116937398910522,
+      "mean_radial_norm": 2.944575309753418
+    },
+    "flow_S50": {
+      "energy": -0.0009224765320263728,
+      "max_fraction_error": 0.010250000000000009,
+      "max_width_error": 0.013602882623672485,
+      "mean_radial_norm": 2.992696762084961
+    },
+    "flow_S100": {
+      "energy": -0.0006933866338059147,
+      "max_fraction_error": 0.0017500000000000016,
+      "max_width_error": 0.007329732179641724,
+      "mean_radial_norm": 3.004396915435791
+    },
+    "ddpm_exact_S1": {
+      "energy": 2.2057766902880145,
+      "max_fraction_error": 0.011249999999999982,
+      "max_width_error": 0.28280630707740784,
+      "mean_radial_norm": 0.03637925535440445
+    },
+    "ddpm_exact_S2": {
+      "energy": 0.7166349757716288,
+      "max_fraction_error": 0.009500000000000008,
+      "max_width_error": 0.2667781114578247,
+      "mean_radial_norm": 1.3992036581039429
+    },
+    "ddim_exact_S1": {
+      "energy": 2.205570108220771,
+      "max_fraction_error": 0.014250000000000013,
+      "max_width_error": 0.28310060501098633,
+      "mean_radial_norm": 0.03666307032108307
+    },
+    "ddim_exact_S2": {
+      "energy": 0.7334811182241765,
+      "max_fraction_error": 0.007750000000000007,
+      "max_width_error": 0.25701791048049927,
+      "mean_radial_norm": 1.3766417503356934
+    },
+    "flow_exact_S1": {
+      "energy": 2.257076284572361,
+      "max_fraction_error": 0.10325000000000001,
+      "max_width_error": 0.29999998211860657,
+      "mean_radial_norm": 9.122930322291722e-08
+    },
+    "flow_exact_S2": {
+      "energy": 0.18770142758758324,
+      "max_fraction_error": 0.01100000000000001,
+      "max_width_error": 0.31945276260375977,
+      "mean_radial_norm": 2.23958683013916
+    }
+  },
+  "original_field_note": "full-grid gate evaluated honestly; errors concentrate in zero-training-density far corners; marginal metric is supplementary only"
+}

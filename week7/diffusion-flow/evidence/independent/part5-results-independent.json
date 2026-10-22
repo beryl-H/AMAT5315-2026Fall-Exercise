@@ -1,0 +1,122 @@
+{
+  "engineering_audit": "PASS",
+  "completions_verified": 16,
+  "event_states_verified": 396,
+  "distinct_normal_draw_keys": 1192,
+  "used_normal_draws": 992,
+  "known_pixel_all_event_max_replay_error": 6.93020305142511e-07,
+  "real_model_selected_event_errors": {
+    "7201_event0_t1000_s980": 3.2934011162666366e-07,
+    "7201_event1_t1000_s980": 3.6192496022380283e-07,
+    "7201_event50_t500_s480": 3.9901729742553016e-07,
+    "7201_event98_t20_s0": 6.320114098734564e-08,
+    "7202_event0_t1000_s980": 3.404043740218299e-07,
+    "7202_event1_t1000_s980": 3.86481916248016e-07,
+    "7202_event50_t500_s480": 3.6939997150042814e-07,
+    "7202_event98_t20_s0": 5.979233008712725e-08,
+    "7203_event0_t1000_s980": 3.6441243667084677e-07,
+    "7203_event1_t1000_s980": 4.176932779653697e-07,
+    "7203_event50_t500_s480": 3.6332035202590873e-07,
+    "7203_event98_t20_s0": 6.118048390124642e-08,
+    "7204_event0_t1000_s980": 3.426926058480717e-07,
+    "7204_event1_t1000_s980": 6.93020305142511e-07,
+    "7204_event50_t500_s480": 3.9376207716657063e-07,
+    "7204_event98_t20_s0": 6.256850937358394e-08
+  },
+  "real_model_selected_event_tolerance": 1e-05,
+  "model_batch_calls": 396,
+  "evaluations_per_image": 99,
+  "forward_renoises_per_image": 49,
+  "hidden_mse_by_seed_image": [
+    [
+      0.12700984081568484,
+      0.20343192617389416,
+      0.1854495195939233,
+      0.27808442562431407
+    ],
+    [
+      0.10191943529548664,
+      0.17277400639352547,
+      0.20659062197970243,
+      0.14435641607248403
+    ],
+    [
+      0.10447348918554415,
+      0.40290316857637404,
+      0.20806222637294794,
+      0.5797540521495923
+    ],
+    [
+      0.10813303871036453,
+      0.5741522793016652,
+      0.13111089819151572,
+      0.14552402153698948
+    ]
+  ],
+  "hidden_mse_average": 0.2296080853733755,
+  "hidden_mse_per_image": [
+    0.11038395100177004,
+    0.33831534511136474,
+    0.18280331653452236,
+    0.286929728845845
+  ],
+  "hidden_mse_per_seed": [
+    0.1984939280519541,
+    0.15641011993529966,
+    0.32379823407111463,
+    0.23973005943513376
+  ],
+  "observed_changes_by_seed_image": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "max_observed_change": 0,
+  "variance_outside_hole_max": 0,
+  "hidden_variance_max_per_image": [
+    0.15261434687764555,
+    0.45513140944587643,
+    0.2583238644871353,
+    0.5409726605024447
+  ],
+  "rgb_variance_common_max": 0.48157868553051303,
+  "largest_event_state_abs": 5.080251693725586,
+  "weights_parameter_hash": "c35165b672140a1afa6b293b46553e81fd8d56c9f4872fc8b9c1826afd1f6c04",
+  "sampler_source_sha256": "d3cdba112ff74e2da098a115137568c2068b7fa208d35d24192b093890b61720",
+  "generation_driver_commit": "0a0c8a4a05055017a00f9351ab0e94405fdd8547",
+  "original_formal_driver_exit": 1,
+  "original_failure": "KeyError in final summary print after all inference/raw/metrics saved; source IO ordering/print fixed separately, no inference repeated",
+  "formal_wall_time_s": 66.1275640209999,
+  "raw_files": {
+    "completions_4seeds.npy": "66ddc6f119e2d26b863de36f298c5c6ef3b755aef8eab2ccc025addb1102dc01",
+    "event_states_4seeds.npy": "ad2e01924f957fd7c3ac12d15f64d1c2c8aec6c6350f77ecf11c1438ab3c4e15",
+    "events.npz": "82e05fc73a3bd8aae79cb07cbce8383bd8fb00b82b28cbc1643a169da07427c7",
+    "initial_states_4seeds.npy": "2c90df7b98ebdc8a0d571d42f886492dea7b1c133d62da44edd72baedbd7db72",
+    "inputs_used.npz": "27582b55c8c07ec495e7ffe5b20babb24873e993938fee068e17f8986e6c3e1f",
+    "keys_4seeds.npy": "c274d02411c9e80c327d69d0613df0f21ee8eb9736857d97671876fa0023342e",
+    "metrics.npz": "a8c9316b32a0137b234944e5d868617995e13c439992a4d18db532993ed73c94",
+    "run_meta.json": "c919693b8c6d1f13587f4cb765d8389f6435369890962e61f7fce3e8a1901492"
+  },
+  "limitation": "variance is disagreement across four completions, not calibrated uncertainty or truth error"
+}

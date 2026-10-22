@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "updates": 25000,
+  "checkpoint_sha256": {
+    "0": "363ff35cae51540077e0d1a22c644c0c43b15135d87f931a10e6c164636f0bac",
+    "50": "6076207e69d75c4d14bf8c618b1bc94f3c18eae874c672a1699df8e3fed33419",
+    "25000": "9114c7d60c76cf6e1eaf1e21c3055c3c8147022ef642f05baa867713ce0151f5"
+  },
+  "replay50_loss_max_difference": 3.337860107421875e-06,
+  "replay50_param_max_difference": 2.980232238769531e-07,
+  "first_loss": 5.451857566833496,
+  "final_loss": 2.486992597579956,
+  "last1000_mean": 2.612290143966675,
+  "wall_seconds": 71.73489141464233
+}

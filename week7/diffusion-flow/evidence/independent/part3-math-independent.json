@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "exact_velocity_max_difference": 5.727387522025396e-06,
+  "coarse_hand_update_max_difference": 2.6770128513931013e-07,
+  "energy_literal_max_difference": 0.0,
+  "same_array_signed_energy": -0.6584827520690357
+}

@@ -163,9 +163,6 @@ def main():
                                      "6c9f4872fc8b9c1826afd1f6c04")
     assert h_after == meta["expected_weights_hash"], \
         f"weights hash changed: {h_after}"
-    # metadata written LAST, after all raw/metric writes and checks succeed
-    with open(RAW / "run_meta.json", "w") as f:
-        json.dump(meta, f, indent=2)
     np.savez(RAW / "metrics.npz", mses=mses, mean=mean_over_seeds,
              variance=var_over_seeds)
     summary_keys = ("hidden_mse_average", "wall_time_s",
@@ -176,6 +173,9 @@ def main():
         meta["expected_weights_hash"]
     print(json.dumps({k: meta[k] for k in summary_keys}, indent=1))
     print("observed_max_changes:", meta["observed_max_changes"])
+    # metadata written LAST, after all raw/metric writes and checks succeed
+    with open(RAW / "run_meta.json", "w") as f:
+        json.dump(meta, f, indent=2)
 
 
 if __name__ == "__main__":

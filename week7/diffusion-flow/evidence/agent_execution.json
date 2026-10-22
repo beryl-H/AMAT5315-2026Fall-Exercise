@@ -1,0 +1,229 @@
+{
+  "implementation_agent": "native WSL pi",
+  "provider": "agent-plan",
+  "model": "glm-5.3-flash",
+  "coordinator": "Codex: independent audits, portable fixture/scalar and gallery review fixes, final IO-order/hash-validation corrections, fresh-branch regression and documentation",
+  "private_transcripts_excluded": true,
+  "receipts": [
+    {
+      "receipt_file": "pi-pi-part1-20261021-200009.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 22,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part1-continue-20261021-200639.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 20,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part1-evidence-review-20261021-202339.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 31,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part1-math-review-20261021-201000.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 25,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part1-sampler-review-20261021-201652.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 17,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part2-20261021-203608.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 22,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part2-review-20261021-204134.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 21,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part3-20261021-213029.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 14,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part3-evidence-review-20261021-214633.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 20,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part3-review-20261021-213643.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 19,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part4-20261021-215739.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 26,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part4-integrate-20261021-223217.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 15,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part4-ready-20261021-225510.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 16,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part4-sampler-review-20261021-223727.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 28,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part4-source-20261021-221006.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 6,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part4-source-review-20261021-221641.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 17,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part5-20261021-230635.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 4,
+      "last_stop_reason": "error"
+    },
+    {
+      "receipt_file": "pi-pi-part5-engineering-review-20261022-20261022-103228.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 7,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part5-formal-20261022-20261022-104725.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 18,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-pi-part5-postprocess-20261022-20261022-110207.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 5,
+      "last_stop_reason": "stop"
+    },
+    {
+      "receipt_file": "pi-pi-part5-resume-20261022-20261022-102214.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": -2,
+      "tool_calls": 8,
+      "last_stop_reason": "toolUse"
+    },
+    {
+      "receipt_file": "pi-readiness-20261021-195934.receipt.json",
+      "provider": "agent-plan",
+      "model": "glm-5.3-flash",
+      "endpoint": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "pi_executable": "/home/keria_h/.local/share/pi-node/node-v22.23.2-linux-x64/bin/pi",
+      "exit_code": 0,
+      "tool_calls": 0,
+      "last_stop_reason": "stop"
+    }
+  ]
+}

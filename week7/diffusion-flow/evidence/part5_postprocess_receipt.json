@@ -101,7 +101,13 @@
     "seeds_recorded": true,
     "weights_hash_canonical": true,
     "weights_unchanged": true,
-    "file_hashes_present": true
+    "file_hashes_present": true,
+    "actual_file_hashes_match": true,
+    "completion_shape_valid": true,
+    "event_states_shape_valid": true,
+    "initial_states_shape_valid": true,
+    "keys_shape_valid": true,
+    "metrics_finite": true
   },
   "provenance": {
     "files": {

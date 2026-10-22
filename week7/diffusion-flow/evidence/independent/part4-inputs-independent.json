@@ -1,0 +1,21 @@
+{
+  "status": "PASS_INPUTS_AND_LOADER",
+  "revision": "267b167dc01f0e4e61923ea244e8b988f84deb80",
+  "files": [
+    {
+      "file": "/home/keria_h/AMAT5315-2026Fall-Exercise/week7/diffusion-flow/inputs/cifar-model/config.json",
+      "bytes": 699,
+      "sha256": "49579448cd5728fb83f14186de12464eee143d2f5dccb11b8e13744d712eae9d"
+    },
+    {
+      "file": "/home/keria_h/AMAT5315-2026Fall-Exercise/week7/diffusion-flow/inputs/cifar-model/diffusion_pytorch_model.safetensors",
+      "bytes": 143020084,
+      "sha256": "1558dbe3fb093b0857d473e376b711eeda1b186c557be5e85b3a56300cd49f0f"
+    }
+  ],
+  "tensors": 328,
+  "parameters": 35746307,
+  "all_weights_exactly_preserved": true,
+  "jax_version": "0.6.2",
+  "pretrained_forward_equivalence": "PENDING"
+}

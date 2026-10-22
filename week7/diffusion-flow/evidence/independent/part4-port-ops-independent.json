@@ -1,0 +1,14 @@
+{
+  "status": "PASS_OPS_AND_SCHEMA",
+  "checkpoint_tensors": 328,
+  "parameter_count": 35746307,
+  "independent_NumPy_max_errors": {
+    "conv": 5.701496030852127e-07,
+    "dense": 9.5367431640625e-07,
+    "groupnorm": 4.0020439184829115e-07,
+    "time_features": 2.6359961318778158e-05,
+    "attention": 1.5345050008441774e-07,
+    "asymmetric_downsample": 9.333066621763919e-07
+  },
+  "whole_pretrained_model_equivalence": "PENDING"
+}

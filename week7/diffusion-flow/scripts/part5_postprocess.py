@@ -11,6 +11,7 @@ raw arrays and run_meta.json were written; this receipt records that history
 honestly (formal entrypoint EXIT 1, data complete and validated).
 """
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -75,6 +76,25 @@ checks["weights_hash_canonical"] = (
 checks["weights_unchanged"] = meta["weights_unchanged"]
 checks["file_hashes_present"] = sorted(meta["file_hashes"]) == [
     "config", "images_npz", "repaint_source", "weights"]
+
+def file_sha(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+paths = {"config": BASE / "inputs/cifar-model/config.json",
+         "weights": BASE / "inputs/cifar-model/diffusion_pytorch_model.safetensors",
+         "images_npz": BASE / "inputs/images.npz",
+         "repaint_source": BASE / "src/repaint.py"}
+checks["actual_file_hashes_match"] = all(
+    file_sha(path) == meta["file_hashes"][key] for key, path in paths.items())
+checks["completion_shape_valid"] = comps.shape == (4, 4, 3, 32, 32)
+checks["event_states_shape_valid"] = states.shape == (4, 99, 4, 3, 32, 32)
+checks["initial_states_shape_valid"] = init.shape == (4, 4, 3, 32, 32)
+checks["keys_shape_valid"] = keys.shape == (4, 2, 2)
+checks["metrics_finite"] = bool(np.isfinite(mses).all() and np.isfinite(oc).all())
 
 assert all(v is True or (isinstance(v, list) and v) for k, v in checks.items()
            if not isinstance(v, bool)), checks

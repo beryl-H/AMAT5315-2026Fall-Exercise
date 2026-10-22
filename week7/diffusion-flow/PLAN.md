@@ -1,4 +1,4 @@
-# Plan — Week 7 diffusion-flow, Part 1
+# Plan — Week 7 diffusion-flow (original Part1 plan retained)
 
 Per-task order follows the lecture's BLUE-PANEL order. Each task ends with a
 commit scoped to `week7/diffusion-flow/`.
@@ -60,5 +60,5 @@ independent streams, mistake control (a variance/std mistake must fail).
   versions, training time, measured numbers, interpretation of the loss
   plateau without optimality claims. No raw agent thinking in README.
 
-## Stop condition
-STOP after Task 5. Parts 2–5 wait for the coordinator's independent audit.
+## Original stage boundary
+The initial Part1 stage stopped for independent audit. The coordinator subsequently unlocked Parts2–5 in lecture order; all final checks and remaining numerical failures are recorded in AUDIT.md.

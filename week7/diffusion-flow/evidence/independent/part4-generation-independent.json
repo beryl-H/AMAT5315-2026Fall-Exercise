@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "states": 1001,
+  "images": 4,
+  "shape": [
+    1001,
+    4,
+    3,
+    32,
+    32
+  ],
+  "weight_file_sha256": "1558dbe3fb093b0857d473e376b711eeda1b186c557be5e85b3a56300cd49f0f",
+  "parameter_hash": "c35165b672140a1afa6b293b46553e81fd8d56c9f4872fc8b9c1826afd1f6c04",
+  "selected_step_numpy_equation_max_errors": {
+    "1000": 3.6413462289885956e-07,
+    "501": 3.599676192678203e-07,
+    "51": 2.0076533058244195e-07,
+    "1": 2.588420949606318e-06
+  },
+  "wall_seconds": 150.54534169599998,
+  "final_range": [
+    -1.0294480323791504,
+    0.9782218933105469
+  ],
+  "all_states_absmax": 4.574552536010742,
+  "raw_rng_reproduction": "exact",
+  "generator_source_sha256": "6fcf3e2ef4598989afc469c34af3397c06c69fff14caa43b7bc3e1f7da9ce6eb"
+}

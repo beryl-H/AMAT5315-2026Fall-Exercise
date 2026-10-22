@@ -1,12 +1,9 @@
-# Week 7: Diffusion and flow matching (Parts 1–3 complete; Parts 4–5 pending)
+# Week 7: Diffusion and flow matching
 
-Scope: Parts 1–4 are implemented and measured in this directory. Part 5
-(RePaint inpainting) remains planned below and is NOT implemented yet, per
-the coordinator's per-Part verification. Explicit standing FAIL results:
-Part 2 learned-width strict gate (learned DDIM 0.2795 / DDPM-A 0.2839 < 0.29)
-and Part 3 full-uniform-grid velocity-field gate (0.336/0.285/0.0725 vs
-< 0.1); the Part 3 marginal-field metric and all Part 1/Part 3 flow-20 gates
-PASS. Not all course numerical gates pass.
+Scope: all five parts are implemented, executed and independently audited.
+Standing numerical FAIL results remain: Part2 learnedDDIM/DDPM-A width gate
+and Part3 uniform-grid velocity gate at s=.1,.5. Engineering checks do not
+override these measured scientific criteria. See README.md and AUDIT.md.
 
 Source of truth: `learning-sheet.txt` (19 pages, PDF SHA256
 `4147c45cc6ac9f6e1815ba33684a1c4ed50c87d8d89ffb14f3dccab6bcfddbd5`), the lecture
@@ -17,7 +14,7 @@ week7 inverse-prior exercise is untouched).
 All Part 1 computation is local CPU only, float32, JAX. No cloud compute, no
 model downloads before Part 4, no new MNIST training.
 
-## Part 1 — Diffusion models on a Gaussian mixture (THIS TURN)
+## Part 1 — Diffusion models on a Gaussian mixture
 
 Correctness is defined by the lecture's VERIFY items:
 
@@ -70,7 +67,7 @@ silently change seeds/budget/tolerances):
   in README beside the exact generating commands, with seeds, settings,
   software versions, training time and measured numbers.
 
-## Parts 2–5 (later turns, fixed here for the plan)
+## Parts 2–5 — requirements and recorded scope
 
 - **Part 2 — DDIM (COMPLETE)**: deterministic sampling over a selectable level grid with
   the trained predictor, plus the mixture's exact conditional-mean noise
@@ -97,5 +94,4 @@ silently change seeds/budget/tolerances):
   observed-pixel change < 1e-5.
 
 Repository rules: commit after each task; raw runs/checkpoints/downloads stay
-out of git (tracked small summaries and evidence figures only); nothing from
-Parts 2–5 implemented before the coordinator's continuation.
+out of git (tracked small summaries and evidence figures only); each part proceeded after the preceding independent coordinator checkpoint.

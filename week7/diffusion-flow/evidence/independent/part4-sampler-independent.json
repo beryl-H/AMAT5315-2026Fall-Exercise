@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "hand_recurrence_max_difference": 3.663014918053875e-07,
+  "tail_chunk_covered": true,
+  "final_noise_ignored": true,
+  "no_clipping": true,
+  "model_index_t_minus1": true
+}

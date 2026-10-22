@@ -28,3 +28,7 @@ is within `1e-2` of `math.pi`.
 ## Week 1 verification
 
 ![Week 1 pytest verification showing one passing test](assets/week1-pytest-green.png)
+
+## Week 7
+
+See [Diffusion and flow matching](week7/diffusion-flow/README.md) for the updated five-part exercise, figures and independent audits. The previous PDF topic remains in week7/.

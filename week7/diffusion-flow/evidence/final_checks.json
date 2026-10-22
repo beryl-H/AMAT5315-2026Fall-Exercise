@@ -1,0 +1,200 @@
+{
+  "status": "PASS",
+  "pytest_summary": "95 passed in 22.20s",
+  "tests_passed": 95,
+  "checks": [
+    {
+      "name": "saved-data-postprocess",
+      "command": [
+        "/home/keria_h/AMAT5315-2026Fall-Exercise/week7/diffusion-flow/.venv/bin/python",
+        "scripts/part5_postprocess.py"
+      ],
+      "exit_code": 0,
+      "summary": [
+        "}"
+      ]
+    },
+    {
+      "name": "stage-authorized-files",
+      "command": [
+        "git",
+        "add",
+        "--",
+        "README.md",
+        "week7/README.md",
+        "week7/diffusion-flow"
+      ],
+      "exit_code": 0,
+      "summary": [
+        ""
+      ]
+    },
+    {
+      "name": "staged-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit_code": 0,
+      "summary": [
+        ""
+      ]
+    },
+    {
+      "name": "pytest",
+      "command": [
+        "/home/keria_h/AMAT5315-2026Fall-Exercise/week7/diffusion-flow/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "summary": [
+        "95 passed in 22.20s"
+      ]
+    },
+    {
+      "name": "compileall",
+      "command": [
+        "/home/keria_h/AMAT5315-2026Fall-Exercise/week7/diffusion-flow/.venv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "scripts",
+        "tests"
+      ],
+      "exit_code": 0,
+      "summary": [
+        ""
+      ]
+    },
+    {
+      "name": "locked-environment",
+      "command": [
+        "/home/keria_h/.local/bin/uv",
+        "lock",
+        "--check",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "summary": [
+        "Resolved 23 packages in 1ms"
+      ]
+    },
+    {
+      "name": "working-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "summary": [
+        ""
+      ]
+    }
+  ],
+  "public_file_sha256": {
+    "README.md": "983fd26a357cb8fc12474e1d680a924138d2381636115246fb145719de9c7376",
+    "week7/README.md": "97a2d03fdb4490777d2c9c001d34184086572e576e62a0369160e6cc12aaf0fa",
+    "week7/diffusion-flow/.gitignore": "bcd676035a7faa54abf5732cb9dea56cb1d03179ece0cd0edb1fb597829473e8",
+    "week7/diffusion-flow/AUDIT.md": "8deeb12cda369ff7e01d58d350c3075e9ad5fb59d805f8349f361cf257041693",
+    "week7/diffusion-flow/PLAN.md": "081e824e54a8b8f197fe32b2725d9db9375d1ca27822aa35da2281dd2cd4ad8a",
+    "week7/diffusion-flow/README.md": "200479445b6e068c200952fc3b0f400fd04011e24ae1d05175be76e886c46e46",
+    "week7/diffusion-flow/SOURCE.md": "23f596e9beeff5e8d11756969e1167538b58f2306153197caddca8b539bfb1fb",
+    "week7/diffusion-flow/SPEC.md": "ba8c55e81fbdd58b2e31de57a98005748e161d6a4f406db68e2e44fb4e97e6e1",
+    "week7/diffusion-flow/diffusion.toml": "c7bb41806e2c8e82a27ba5fba8c79c1487698e847efdd206e6e96d980ff2854a",
+    "week7/diffusion-flow/evidence/agent_execution.json": "2f214515926e76eef83e2b3a3599f96653acb61d8f4a58cfe8a53f9802ae09fc",
+    "week7/diffusion-flow/evidence/final_scatter.png": "fcc75e46cfc0224ac23de3e52e679663e9b3640b309b867f9182854b4ad0f174",
+    "week7/diffusion-flow/evidence/forward_movie.gif": "150a813b3067e8ebf246f84b52fd750830e1ec1fbf3034652bbf3297cb9e48f2",
+    "week7/diffusion-flow/evidence/forward_panels.png": "0714b5d6256d9836c0218d2fe9d1b2d42d0277e5439d367c34adb99ef9571a9a",
+    "week7/diffusion-flow/evidence/independent/part1-core-independent.json": "f73cab006870afddc66f87be0fda2a0aaea3add0d264a17d793b2a71551e4a27",
+    "week7/diffusion-flow/evidence/independent/part1-evidence-independent.json": "649249fd83f7e10a381e421dddfa5d5510a5640cee12bdb3a8e7006658713e0c",
+    "week7/diffusion-flow/evidence/independent/part1-training-independent.json": "1eeaf92c96dd500c3389c453ca13b84006785a0fa6c02ba020bea4b78aebe3a9",
+    "week7/diffusion-flow/evidence/independent/part2-independent.json": "7b360dfc6b879ebc0c126c1529e94bc297908a3d84b5b3082edec746ba836f9a",
+    "week7/diffusion-flow/evidence/independent/part3-fields-independent.json": "a735b2df5b73871aff53c72d8888ae8194aa8ad3290638f187d39b03263b7fe5",
+    "week7/diffusion-flow/evidence/independent/part3-math-independent.json": "7b44ca6ac61c4c713718522499f3568fdb8cbb124b301db5301206c2a02f4d03",
+    "week7/diffusion-flow/evidence/independent/part3-study-independent.json": "5756c87f15c533244976bdee2a0c4ffeae7f1702d032f212cd9436dfeced048d",
+    "week7/diffusion-flow/evidence/independent/part3-training-independent.json": "a7b8bc24d9d621f50e6ad64a77719985c09327591625c25a09d22e02901f6dac",
+    "week7/diffusion-flow/evidence/independent/part4-generation-independent.json": "4a4dbf5fa130a9dcacb54e6b95b47b4249be720635ac75b3ead6ccb5c94787b0",
+    "week7/diffusion-flow/evidence/independent/part4-inputs-independent.json": "804aff578da9418767137e4fe4ec0f944e85835f216babe1c531b7fb02b457fb",
+    "week7/diffusion-flow/evidence/independent/part4-port-ops-independent.json": "2c3f89095de9fe5c2247f63b56d3e9d7b9944bf315e2356c06f30f60300ff275",
+    "week7/diffusion-flow/evidence/independent/part4-reference-independent.json": "748fb1c3efd1d3d1e579e21ea006a7e8b5a19d95e79bbfdc0abca73ec9f4689f",
+    "week7/diffusion-flow/evidence/independent/part4-sampler-independent.json": "8344cd5700bb9bc2fb8caee838ee81a6e3e1a7eb3bbb7d5857c2cb0c49536fe6",
+    "week7/diffusion-flow/evidence/independent/part5-inputs-independent.json": "12181605487981deff572c1475b82673a7d85dc03c9ed0aa61c0ab5687f5cdd8",
+    "week7/diffusion-flow/evidence/independent/part5-math-independent.json": "12355895ed250da713cf5802340a99dacf2b6441b9d1544148dabcb132032d15",
+    "week7/diffusion-flow/evidence/independent/part5-results-independent.json": "675e1bdd4a5179f1af7a78046fc3bc62084e13e6416366f51493279f81264a98",
+    "week7/diffusion-flow/evidence/independent/render-corrections-independent.json": "041667faa1fc8e8ffdc07c3ce8f47e1702f9e65fc6bc4e09a79767c044460a30",
+    "week7/diffusion-flow/evidence/loss_history.png": "7100cb47acbff0e7a81da9b0b44ba140a4c7ffedb0fd0f176039910442655e11",
+    "week7/diffusion-flow/evidence/part2_ddpm_ab.png": "2f1bfc5dedae394d93118b9d99457a5eaad3b898eb91edc399ce3d6cbbc57d75",
+    "week7/diffusion-flow/evidence/part2_final_distributions.png": "0da2de972bdf3ee5b17e574c55da354fba49ba1f3db318efbf07b46102e54001",
+    "week7/diffusion-flow/evidence/part2_stats.json": "709b854a243f4134861a9055384dbee31775a533be96c3c85b3b6526032ae416",
+    "week7/diffusion-flow/evidence/part2_trajectories.png": "7998e5e8412e58cbde484486918f409c1de5430061a9bbf64ff591cf677b1666",
+    "week7/diffusion-flow/evidence/part3_collapse_controls.png": "54668fa41917510ae200b0cb1de395b74ffe8dc527926ed7b07883f13cddf864",
+    "week7/diffusion-flow/evidence/part3_cost_study.png": "94b7c3de0f3fea6e68c4b5091c32e376f3772a4b3b4759c1223b57c4a79b2585",
+    "week7/diffusion-flow/evidence/part3_stats.json": "40c9625d74bb2f314fdbff82d55861fc814771a5401d459d10900e1bdf1eb682",
+    "week7/diffusion-flow/evidence/part3_velocity_fields.png": "aa75ae597dfc4ead23c6549aedf91a95e5b620a9cfa9f6ea67e1751a6038cc95",
+    "week7/diffusion-flow/evidence/part4_generated_gallery.png": "e7e251bd135b3064b5110a52eef0698146e325550e007200570775e5aade678e",
+    "week7/diffusion-flow/evidence/part4_real_cifar_comparison.png": "d815f62460e5d23cb6ded99b33c42f2e456cc086a24606f624696c3085220e9b",
+    "week7/diffusion-flow/evidence/part4_reference_check.json": "19ccba07ed4cac8378d83bb4be47deba794287e5858b63f0e672eefae3942315",
+    "week7/diffusion-flow/evidence/part4_reverse_stages.png": "f9fc6a655dd7d54946879981cc4f12f1024475d6b1bde5c3b4a59a1af173e28d",
+    "week7/diffusion-flow/evidence/part5_postprocess_receipt.json": "48a819ec748679b8eeb711ec8f96c633b7720769c5a5d967b99a657b0312066f",
+    "week7/diffusion-flow/evidence/part5_repaint_image0.png": "0d56e27962efcac000cd47131e599c77e846c7f2a0b232478ce7a8b07d6c9447",
+    "week7/diffusion-flow/evidence/part5_repaint_image1.png": "c2d5ade7c3ec47a3ff89d1aca176e8cf15028753f704f68f615a3c470e74c4c5",
+    "week7/diffusion-flow/evidence/part5_repaint_image2.png": "e25f46df33af4a5b44c19e96320b1f77342551066ed628c567285259d06d3585",
+    "week7/diffusion-flow/evidence/part5_repaint_image3.png": "91a2a6270a03e76dae218a65aa5e0eee17fe9df70eeb198b24304bc18c061233",
+    "week7/diffusion-flow/evidence/reverse_movie.gif": "0febfe062b3aea23c8354b2b568d89f0c82abdc50f0ed4943d242ebd17c6dd58",
+    "week7/diffusion-flow/evidence/stats.json": "a7b64d8f0874387b6b985bc475ff100bfadc98dd342a5abacf99048471b7b8bb",
+    "week7/diffusion-flow/evidence/training_movie.gif": "993495fd296a8090152b742d61de473af468efd09bee415701ab9dcfe335bd1b",
+    "week7/diffusion-flow/flow.toml": "446a01c44b5d14ab983d5d88fa726d731f63d8fd809578f779d1d5cd64796c10",
+    "week7/diffusion-flow/pyproject.toml": "2b3215c1ca4c456db1a1f5f5cbfa223393b189804f893aeb3f5f45fcbf8df5f8",
+    "week7/diffusion-flow/scripts/make_evidence.py": "02bdcb7d431b3509e88e324b45d795a89dd7d8309eaf5892b34f51d10034faa1",
+    "week7/diffusion-flow/scripts/part1_gif_title_fix.py": "cc3f4bd5dc2fea0825631470b49f4f4069e058f15576cc76e257fc470345fe94",
+    "week7/diffusion-flow/scripts/part2_experiments.py": "06704cdfb1a9020b6cd7cf0ae794ebcc353d1c77d337589739993f4fd80b0b7a",
+    "week7/diffusion-flow/scripts/part2_trajectories_fix.py": "c62ca7d321b438bb62371594fb73dd096872a6cf82af19fe13e2050a3b1d6ae2",
+    "week7/diffusion-flow/scripts/part3_experiments.py": "2fae3a61c929be628b869faff1d3213170c1b4689ab57a9d65be175f778338d3",
+    "week7/diffusion-flow/scripts/part4_figures.py": "88bb9e3efc4ea6f308a80f6327f40f5fc1df0a2a67c3f2e1a474b54378683ca3",
+    "week7/diffusion-flow/scripts/part4_generate.py": "6fcf3e2ef4598989afc469c34af3397c06c69fff14caa43b7bc3e1f7da9ce6eb",
+    "week7/diffusion-flow/scripts/part4_reference_check.py": "9cf7c313b3439951811f1de6e4fa6fad8948ea2f870fc8ce86b53f6d9b7bb5eb",
+    "week7/diffusion-flow/scripts/part5_figures.py": "6943b1aed371a778f79b32ae2787512433b6d982dfaf5f2fefb31d408db1c5b6",
+    "week7/diffusion-flow/scripts/part5_postprocess.py": "f9b757383d318901ad3fe125c57fb73c6f1f8ab7f0223587a002e0237409dfd2",
+    "week7/diffusion-flow/scripts/part5_run.py": "7774a2c66006556e62b4eac728e2c7195817024fbf9b24e90748d5f626a271da",
+    "week7/diffusion-flow/scripts/run_flow_train.py": "5b5c46ae6dea0ca51c903ac50748e2dbd153b3911e6792bb52d2326592b72059",
+    "week7/diffusion-flow/scripts/run_train.py": "3535b6acbdcd93e26ccecddb64d5bf97da0c996d9e9d644d8052d1adab8f5fbe",
+    "week7/diffusion-flow/src/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "week7/diffusion-flow/src/checkpoints.py": "299af24156e087215a094cc71f4acd3edff93f2b7e73280ae0136071657e583c",
+    "week7/diffusion-flow/src/cifar_unet.py": "24f47be87b8f3492497607172c43116f9504b2a381187186d24f8ace0564a6c5",
+    "week7/diffusion-flow/src/coarse.py": "885268d6f4b6c8bdb8a071715bfa77ea06fd6eb0291308c2b8bb8fd6540a37f7",
+    "week7/diffusion-flow/src/ddim.py": "a71e382a5b1cbee83669eea661f280bb55668f627cbe1ea720f424d9bba22d47",
+    "week7/diffusion-flow/src/diffusion.py": "a004d336ffb83b7d543f070a19d2c863c66963c55aaa7daa64233bbfaad5eac6",
+    "week7/diffusion-flow/src/energy.py": "4f5025fff4a01e9639372539c55e38629caeae309ee84daa5b37c68cca2be00b",
+    "week7/diffusion-flow/src/flow.py": "c59f1f8d73b98d378cd3dcffbdb577918537396f6ff58d84ca3a0bc6520dd67c",
+    "week7/diffusion-flow/src/network.py": "2f175130958925ac8607f8aa2485e36f9f8d6ad6e18f023f0602e30b108ec961",
+    "week7/diffusion-flow/src/repaint.py": "d3cdba112ff74e2da098a115137568c2068b7fa208d35d24192b093890b61720",
+    "week7/diffusion-flow/src/sample.py": "f6e00029d12cd19b6885f4ab808aaa6baff101207dfb6b13f3989e0ce1c670f9",
+    "week7/diffusion-flow/src/train.py": "cc37ec0b4fd6d86487289bf7795963a3bdb200a5f8abd0c7037c2423285b9548",
+    "week7/diffusion-flow/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "week7/diffusion-flow/tests/fixtures/cifar-header-provenance.json": "951ea2a622201535c94050005af875e77b00128efa0907a438ccbbbd8f9e58d1",
+    "week7/diffusion-flow/tests/fixtures/cifar-header.json": "9863d52eaee365e6cae8c537271438163e9ab8e9fc8e4a2c56ac93ffab30e03e",
+    "week7/diffusion-flow/tests/test_checkpoints.py": "4e5e1b90495fbaa579301c933766443687c6e084ca40daa30adf727ec71589f4",
+    "week7/diffusion-flow/tests/test_cifar_unet.py": "a7cdb6dbf389a0aa1701bc96d055204da5edf9642f26bb058eae30ba6807e2eb",
+    "week7/diffusion-flow/tests/test_ddim.py": "9280a58989cf5d8253011dff3773f5f888c09ffa5d8e027eaf33dd4e7075a92c",
+    "week7/diffusion-flow/tests/test_ddpm.py": "e19c99a9bf47560c691a14122d29b6774022a0297b7a6b8630a854e84a796718",
+    "week7/diffusion-flow/tests/test_flow.py": "5ee4420fac6c8f9389b8b611ff570c6dc6bd6d355be11e11743c573f65b3082b",
+    "week7/diffusion-flow/tests/test_network.py": "99ebad5d6c02816b613d722235b8274cd7e060bd9b62d4e13b8355e9cc2cb0a4",
+    "week7/diffusion-flow/tests/test_part4_sampler.py": "c4d0484b7e2b31e44cae77529473b51ca1b70b392153f57dea0e87b3e2f6d9ab",
+    "week7/diffusion-flow/tests/test_repaint.py": "290268838e0bfc9308e0c1113628d7040da35fc3e0617164279aa0b9214773f7",
+    "week7/diffusion-flow/tests/test_repaint_fresh_reference.py": "bacefe8b87f035cd28fe280c060fad590183a8b83981bf903bdf96898c2d93fd",
+    "week7/diffusion-flow/tests/test_target_forward.py": "c8e529f8a8c3b439459ef7d1c5f67a5da3de4ece1588adff18cd31387f332867",
+    "week7/diffusion-flow/tests/test_train.py": "4c57692cd2c866156a5bbd36d7a6a96b5b4140333bf2312ef045988696512729",
+    "week7/diffusion-flow/uv.lock": "44a47610d0685c103d6044813c8e73914f74151fb2c0ce8b5679bd12e1df1372"
+  },
+  "historical_parent_readme_body_preserved": true,
+  "no_files_deleted": true,
+  "raw_part5_unchanged": true,
+  "scope": "Engineering verification; Part2 width and Part3 grid-field numerical FAILs remain",
+  "part5_independent_audit": "part5-results-independent.json"
+}

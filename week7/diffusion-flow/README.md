@@ -1,10 +1,16 @@
-# Week 7 — Diffusion and flow matching (Parts 1–3)
+# Week 7 — Diffusion and flow matching
 
-Part 1 of the AMAT5315 Week 7 lecture: a noise predictor trained on a
-four-cluster Gaussian mixture, DDPM generation, and the lecture's three
-VERIFY checks. Everything runs locally on CPU in float32 JAX.
-Parts 2–5 (DDIM, flow matching, CIFAR-10, RePaint) are planned in
-`SPEC.md`/`PLAN.md` and are **not** implemented here yet.
+Solutions for all five parts of the updated 19-page AMAT5315 learning sheet
+(PDF SHA256 `4147c45cc6ac9f6e1815ba33684a1c4ed50c87d8d89ffb14f3dccab6bcfddbd5`).
+All five experiments have been run and independently audited. Native WSL
+pi assisted implementation using the existing Coding Plan/provider/model;
+Codex coordinated and independently verified equations, raw runs and figures.
+See [AUDIT.md](AUDIT.md) for actual provenance, checks, corrections and limits.
+
+**Not all numerical gates pass:** Part2 learnedDDIM/DDPM-A widths and Part3
+uniform-grid velocity errors retain their strict FAIL results. No seeds,
+budgets or tolerances were changed to remove these failures. The historical
+inverse-problems exercise in the parent directory is preserved separately.
 
 ## Environment
 
@@ -25,7 +31,7 @@ time features use phase `(t-1)*omega_j` with `omega_j = 10000**(-j/16)`.
 
 ```bash
 uv sync                                              # environment
-.venv/bin/python -m pytest tests/ -q                 # 33 tests
+.venv/bin/python -m pytest tests/ -q                 # initial Part1 checkpoint: 33 tests
 .venv/bin/python -m scripts.run_train                # real training run (seed 2026)
 PYTHONPATH=. .venv/bin/python scripts/make_evidence.py   # all figures + stats.json
 ```
@@ -95,7 +101,7 @@ in `evidence/stats.json`; thresholds 0.04 / 0.05 / 0.03):
   training-movie inputs and full paths `[10, 1001, 10, 2]`, reverse states,
   final generated/target samples.
 - `artifacts/failed-attempts/`: failed evidence-driver logs, preserved.
-- Tests: 33 passing (`tests/`), including hand-derived schedule/noising
+- Part1-stage tests: 33 passing (`tests/`), including hand-derived schedule/noising
   checks, a production-indexing regression test, DDPM tests against a
   scripted predictor with hand-computed means, a negative control (wrong
   reverse variance fails), fresh-key independence tests, training
@@ -111,7 +117,7 @@ in `evidence/stats.json`; thresholds 0.04 / 0.05 / 0.03):
    key; replaced by an explicit sampler-key convention (independent draws per
    level) with red tests added first.
 3. The evidence driver's first attempts failed on interface/figure issues;
-   all failure logs are preserved under `artifacts/failed-attempts/`, and the
+   available failure logs are retained under `artifacts/failed-attempts/`, and the
    successful run is `artifacts/evidence-attempt6.log` (EXIT=0).
 
 ---
@@ -157,20 +163,20 @@ hidden beneath run 1 because the two runs are bit-identical (maxdiff 0.0).
 
 ![DDPM A/B](evidence/part2_ddpm_ab.png)
 
-## Both samplers still reproduce the target
+## Distribution checks and remaining width failures
 
 ![final distributions](evidence/part2_final_distributions.png)
 
 Cluster statistics for 2000 samples per distribution (nearest-centre
 assignment; every number in `evidence/part2_stats.json`):
 
-| run | max fraction error | max centre error | per-coord std range |
-|---|---|---|---|
-| learned DDIM | 0.0075 | 0.0247 | 0.2795 – 0.3229 |
-| exact-predictor DDIM | 0.0090 | 0.0195 | 0.2836 – 0.3147 |
-| DDPM A | 0.0075 | 0.0191 | 0.2839 – 0.3022 |
-| DDPM B | 0.0080 | 0.0205 | 0.2928 – 0.3180 |
-| exact target (reference) | 0.0120 | 0.0286 | 0.2790 – 0.3147 |
+| Run | Max fraction error | Per-coordinate std range |
+|---|---:|---:|
+| learned DDIM | 0.0075 | 0.279478 – 0.313181 |
+| exact-predictor DDIM | 0.0090 | 0.283624 – 0.309870 |
+| DDPM A | 0.0075 | 0.283907 – 0.302159 |
+| DDPM B | 0.0080 | 0.292770 – 0.318040 |
+| exact target (reference) | 0.0120 | 0.278951 – 0.314690 |
 
 **Gate 1 (DDIM fraction errors < 0.015): PASS** for learned and exact DDIM.
 
@@ -231,10 +237,7 @@ Relative RMS (all 81 unweighted grid points; raw unclipped vectors in
 | 0.9 | 0.073 | 0.0421 |
 
 **Full-grid gate (< 0.1 at every s): honestly reported FAIL** at s=0.1 and
-s=0.5. The errors concentrate in far corners (e.g. (-4,-4) at s=0.1) that
-have essentially zero training density for `x_s`, so the network is
-unconstrained there; near the data the learned field matches the exact one
-within a few percent. The supplementary 4096-point marginal evaluation
+s=0.5. The errors concentrate in far corners with very low marginal density. Gaussian tails have positive density; the observed association does not uniquely establish the cause. The supplemental on-marginal diagnostic measures a different weighting of space. The supplementary 4096-point marginal evaluation
 (clearly named, never a substitute; test points drawn from the actual `x_s`
 per Eq. 18) gives 0.008/0.014/0.042. No domain, seed or budget change was
 made; the measured result is retained.
@@ -252,21 +255,19 @@ one key for both draws is recorded as INVALID_RNG in
 Energy distances (raw unbiased values, plotted floored at 1e-4; null 95%
 quantile 0.00192 from 20 independent exact pairs, seed 2034):
 
-| steps | DDPM | DDIM | flow |
-|---|---|---|---|
-| 1 | 0.818 | 0.845 | 2.203 |
-| 2 | 0.654 | 0.648 | 0.190 |
-| 5 | 0.0204 | 0.0262 | 0.0044 |
-| 10 | 0.00129 | 0.0099 | 0.00027 |
-| 20 | 0.00057 | 0.00043 | 0.00027 |
-| 50 | 0.00010 | 0.00037 | 0.00010 |
-| 100 | 0.00010 | 0.00026 | 0.00010 |
-| 1000 | 0.00018 | 0.00010 | — |
+| Steps / evaluations | DDPM energy | DDIM energy | Flow energy |
+|---|---:|---:|---:|
+| 1 | 0.817621 | 0.844948 | 2.202833 |
+| 2 | 0.653970 | 0.647976 | 0.190476 |
+| 5 | 0.022217 | 0.021959 | 0.019855 |
+| 10 | 0.001422 | 0.010224 | 0.005483 |
+| 20 | 0.000876 | 0.000986 | 0.000266 |
+| 50 | 0.000650 | -0.001478 | -0.000922 |
+| 100 | -0.000826 | 0.000428 | -0.000693 |
+| 1000 | -0.000761 | -0.001420 | — |
 
 **Flow-20 gates: PASS** — energy 0.00027 < 0.005 and max width error
-0.0261 < 0.03. Flow reaches the null band by ~5–10 steps; DDPM/DDIM need
-tens of steps, consistent with the lecture's qualitative claim (reference
-numbers are quoted as claims, not measured results here).
+0.0261 < 0.03. Flow reaches the null band at 20 steps in this measured run. The signed raw distances are retained above; only the logarithmic figure uses a 1e-4 display floor. DDPM needs about 50 steps to pass the same width criterion here. Lecture reference values are not substituted for these results.
 
 ## Coarse-grid collapse controls (exact predictors)
 
@@ -276,8 +277,7 @@ With the ORACLE predictor (exact noise / exact velocity) the coarsest grids
 still fail: at S=1 all three samplers collapse toward the mean (mean |x|:
 DDPM 0.036, DDIM 0.037, flow 9.1e-8 — flow's 1-step update is exactly the
 origin), with energy ~2.21–2.26 versus the null quantile 0.00192. At S=2
-they partially recover (mean |x| 1.38–2.24, energy 0.19–0.73). This proves
-the S=1/S=2 failure is sampling-step discretization, not predictor error.
+they partially recover (mean |x| 1.38–2.24, energy 0.19–0.73). These exact-predictor controls demonstrate coarse-grid failure even without learning error; they do not establish the trained predictors are error-free on other grids.
 Per-cluster counts/centres/widths for every run, including explicit
 empty-cluster None handling and tie-break notes, are in
 `evidence/part3_stats.json` (valid JSON, `allow_nan=False`).
@@ -312,9 +312,13 @@ and `predict_at_level` applying t→t−1 exactly once.
 orientation/padding/bias, PyTorch [out,in] dense orientation, independent
 NumPy GroupNorm and attention references, the time-feature formula and
 scalar/vector model-index handling, and strict header/loader validation.
-Suite: 78 passed.
+At the Part4 port checkpoint, 78 tests passed; later checks are recorded in AUDIT.md.
 
 ## Reference validation vs official diffusers (PASSED)
+
+```bash
+PYTHONPATH=. .venv/bin/python scripts/part4_reference_check.py
+```
 
 `scripts/part4_reference_check.py` (fixed input `numpy.default_rng(7400)`,
 model indices 0/499/999; tolerances max|diff| < 1e-3 AND relative RMS
@@ -361,7 +365,7 @@ original Week 6 tarball; the full Week 6 gallery lives at
 
 ![real comparison](evidence/part4_real_cifar_comparison.png)
 
-## Part 4 — model provenance and download record (validation PENDING)
+## Part 4 — model provenance and verified download
 
 Pinned model: `google/ddpm-cifar10-32`, revision
 `267b167dc01f0e4e61923ea244e8b988f84deb80`. The lecturer's reproducible
@@ -419,7 +423,7 @@ exactly restored at s=0 — every completion's observed max change is 0.0
 (threshold 1e-5). The **posterior** variance
 `(1−āˢ)(1−a)/(1−āᵗ)` (0.2 in the tiny test) differs from the coarse-DDPM
 variance (1−a) (0.5) — the coarse choice would overshoot the reverse step.
-Clipping applies ONLY to the x0 estimate inside the predictor call; noisy
+Clipping applies ONLY to the x0 estimate after noise prediction; noisy
 and merged states are never clipped. The sampler receives observations and
 mask only — a hidden-truth perturbation control gives bit-identical
 completions.
@@ -437,12 +441,12 @@ PYTHONPATH=. .venv/bin/python scripts/part5_run.py        # formal run (refuses 
 Hidden-pixel MSE = sum of squared errors over the 400×3 hidden values /
 1200 (evaluation in float64 outside the sampler):
 
-| image | seed 7201 | seed 7202 | seed 7203 | seed 7204 |
-|---|---|---|---|---|
-| 0 | 0.1270 | 0.2034 | 0.1854 | 0.2781 |
-| 1 | 0.1019 | 0.1728 | 0.2066 | 0.1444 |
-| 2 | 0.1045 | 0.4029 | 0.2081 | 0.5798 |
-| 3 | 0.1081 | 0.5742 | 0.1311 | 0.1455 |
+| Image / test ID | Seed 7201 | Seed 7202 | Seed 7203 | Seed 7204 |
+|---|---:|---:|---:|---:|
+| 0 | 0.127010 | 0.101919 | 0.104473 | 0.108133 |
+| 1 | 0.203432 | 0.172774 | 0.402903 | 0.574152 |
+| 2 | 0.185450 | 0.206591 | 0.208062 | 0.131111 |
+| 3 | 0.278084 | 0.144356 | 0.579754 | 0.145524 |
 
 Average **0.2296** (measured). The lecture's ≈0.24 reference is descriptive,
 not a target. Observed max change across all 16 completions: **0.0**; all
@@ -466,9 +470,19 @@ arrays and run_meta.json (66.1 s run) and then exited 1 on a stale
 summary-key print — log preserved at
 `artifacts/failed-attempts/part5-formal-attempt1-fail.log`. No regeneration
 occurred: `scripts/part5_postprocess.py` (exit 0) revalidated the saved
-data independently (`evidence/part5_postprocess_receipt.json`) and the
+data without another inference run (`evidence/part5_postprocess_receipt.json`) and the
 figures were rendered from the saved raw arrays only.
 
 Standing caveats remain: Part 2 learned-width strict gate and Part 3
 full-uniform-grid velocity-field gate are FAILs; this Part 5 average MSE is
 a measurement, not a passed target.
+
+All four per-image evidence figures (same producing command `scripts/part5_figures.py`):
+
+![RePaint image 1](evidence/part5_repaint_image1.png)
+
+![RePaint image 3](evidence/part5_repaint_image3.png)
+
+## Delivery
+
+Show the completed evidence at the start of Week8; nothing is submitted to the course platform. Source, locked environment and small evidence are public. Raw arrays, fixed model files, environments and private agent transcripts remain outside Git. Independent JSON audits are in [evidence/independent](evidence/independent).
