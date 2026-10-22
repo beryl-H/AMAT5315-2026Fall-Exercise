@@ -29,7 +29,10 @@ def disp(x):
     return np.clip((np.transpose(x, (0, 2, 3, 1)) + 1.0) / 2.0, 0.0, 1.0)
 
 
-CUT = (0.0, 0.25)  # common variance colour scale across image panels
+# shared scale across ALL four images from the actual global variance max
+VMAX = float(max(np.transpose(var[i], (1, 2, 0)).mean(-1).max()
+                 for i in range(4)))
+CUT = (0.0, VMAX)
 
 for ii in range(4):
     panels = [("truth", disp(truth[ii:ii + 1])[0]),
@@ -51,7 +54,7 @@ for ii in range(4):
     im = axes[-1].imshow(var_disp, interpolation="nearest", cmap="viridis",
                          vmin=CUT[0], vmax=CUT[1])
     axes[-1].set_title(f"pixelwise variance\n(population /4, RGB-avg; "
-                       f"scale {CUT[0]}-{CUT[1]})", fontsize=8)
+                       f"common 0-{VMAX:.3f})", fontsize=8)
     axes[-1].set_xticks([]); axes[-1].set_yticks([])
     fig.colorbar(im, ax=axes[-1], fraction=0.046)
     fig.suptitle(f"RePaint image {ii}: truth / observation / 4 completions / "

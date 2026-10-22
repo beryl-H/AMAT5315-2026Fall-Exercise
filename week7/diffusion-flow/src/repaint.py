@@ -160,11 +160,36 @@ def repaint_sample(weights, observations, mask, betas, abar, levels,
     _validate_schedule(betas, abar, levels)
     obs = jnp.asarray(observations, dtype=jnp.float32)
     m = jnp.asarray(mask, dtype=jnp.float32)
+    if obs.ndim != 4 or obs.shape[0] < 1 or obs.shape[1] < 1 \
+            or obs.shape[2] < 1 or obs.shape[3] < 1:
+        raise ValueError(f"observations must be nonempty 4-D, got "
+                         f"{obs.shape}")
     if obs.shape != m.shape:
         raise ValueError(f"observations shape {obs.shape} != mask "
                          f"{m.shape}")
+    if not bool(jnp.all(jnp.isfinite(obs))):
+        raise ValueError("observations contain non-finite values")
+    if not bool(jnp.all(jnp.isfinite(m))):
+        raise ValueError("mask contains non-finite values")
+    if not bool(((m == 0.0) | (m == 1.0)).all()):
+        raise ValueError("mask must be binary 0/1")
     if not bool((obs * (1.0 - m) == 0).all()):
         raise ValueError("observations must be zero at hidden entries")
+    betas_j = jnp.asarray(betas, dtype=jnp.float32)
+    if betas_j.ndim != 1 or not bool(jnp.all(jnp.isfinite(betas_j))) \
+            or not bool(jnp.all((betas_j > 0) & (betas_j < 1))):
+        raise ValueError("betas must be a finite 1-D schedule in (0,1)")
+    if xT is not None and tuple(jnp.asarray(xT).shape) != tuple(obs.shape):
+        raise ValueError(f"xT shape {jnp.asarray(xT).shape} != obs "
+                         f"{obs.shape}")
+    if noise_stream is not None:
+        for k in ("xi", "eta", "f"):
+            arr = jnp.asarray(noise_stream[k])
+            if arr.shape[0] != len(events) \
+                    or arr.shape[1:] != obs.shape:
+                raise ValueError(f"noise_stream['{k}'] shape {arr.shape} "
+                                 f"incompatible with "
+                                 f"({len(events)}, *obs.shape)")
     abar_j = jnp.asarray(abar, dtype=jnp.float32)
     ev_t = jnp.array([e["t"] for e in events], dtype=jnp.int32)
     ev_s = jnp.array([e["s"] for e in events], dtype=jnp.int32)
@@ -173,12 +198,9 @@ def repaint_sample(weights, observations, mask, betas, abar, levels,
     if noise_stream is not None or xT is not None:
         # test/replay mode: explicit streams and initial state (no RNG)
         n = len(events)
-        xi_all = jnp.asarray(noise_stream["xi"], dtype=jnp.float32) \
-            .reshape((n, *obs.shape))
-        eta_all = jnp.asarray(noise_stream["eta"], dtype=jnp.float32) \
-            .reshape((n, *obs.shape))
-        f_all = jnp.asarray(noise_stream["f"], dtype=jnp.float32) \
-            .reshape((n, *obs.shape))
+        xi_all = jnp.asarray(noise_stream["xi"], dtype=jnp.float32)
+        eta_all = jnp.asarray(noise_stream["eta"], dtype=jnp.float32)
+        f_all = jnp.asarray(noise_stream["f"], dtype=jnp.float32)
         if xT is None:
             raise ValueError("stream mode requires explicit xT")
         x = jnp.asarray(xT, dtype=jnp.float32)

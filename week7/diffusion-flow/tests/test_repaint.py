@@ -68,7 +68,8 @@ def test_event_and_level_validation():
     with pytest.raises(ValueError):
         repaint_sample({}, jnp.zeros((1, 1, 2, 2)), jnp.ones((1, 1, 2, 2)),
                        jnp.array([0.25, 0.5]), jnp.array([1.0, 0.75]),
-                       [2, 1, 0], key=jax.random.PRNGKey(0))  # abar len
+                       [2, 1, 0], attempts=2,
+                       key=jax.random.PRNGKey(0))  # abar len
     with pytest.raises(ValueError):
         repaint_sample({}, jnp.zeros((1, 1, 2, 2)), jnp.ones((1, 1, 2, 2)),
                        jnp.array([0.25, 0.5]),
@@ -87,14 +88,18 @@ def test_first_event_posterior_mean_variance_and_replacement():
     xT = jnp.array([[[[2.0]]]], dtype=jnp.float32)
     obs = jnp.zeros((1, 1, 1, 1), dtype=jnp.float32)   # observed value 0
     mask = jnp.ones((1, 1, 1, 1), dtype=jnp.float32)
-    xi = [0.6, 0.0, 0.0]
-    eta = [-0.4, 0.0, 0.0]
+    def stream(vals):
+        a = np.asarray(vals, dtype=np.float32).reshape(3, 1, 1, 1, 1)
+        return jnp.broadcast_to(a, (3, 1, 1, 1, 1))
+    xi, eta = [0.6, 0.0, 0.0], [-0.4, 0.0, 0.0]
     states = repaint_sample(
         {}, obs, mask, TINY_BETAS, TINY_ABAR, LEVELS, attempts=2,
         key=jax.random.PRNGKey(0), predict=eps_index_predictor,
         record_states=True,
-        noise_stream={"xi": xi, "eta": eta, "f": [0.0, 0.0, 0.0]},
+        noise_stream={"xi": stream(xi), "eta": stream(eta),
+                      "f": stream([0.0, 0.0, 0.0])},
         xT=xT)[1]
+    assert states.shape[1:] == xT.shape
     a = 0.5
     x0hat = clip((2.0 - math.sqrt(0.625) * 1.0) / math.sqrt(0.375))
     assert x0hat == 1.0  # genuinely clipped
@@ -121,10 +126,14 @@ def test_hidden_pixel_hand_posterior_and_retry_step():
     xi = [0.6, -0.3, 0.0]
     eta = [0.1, 0.2, 0.0]
     f = [0.0, 0.7, 0.0]
+    def stream2(vals):
+        a = np.asarray(vals, dtype=np.float32).reshape(3, 1, 1, 1, 1)
+        return jnp.broadcast_to(a, (3, 1, 1, 1, 1))
     states = repaint_sample(
         {}, obs, mask, TINY_BETAS, TINY_ABAR, LEVELS, attempts=2,
         key=jax.random.PRNGKey(0), predict=eps_index_predictor,
-        record_states=True, noise_stream={"xi": xi, "eta": eta, "f": f},
+        record_states=True, noise_stream={"xi": stream2(xi),
+        "eta": stream2(eta), "f": stream2(f)},
         xT=xT)[1]
     a = 0.5
     # attempt 1 (t=2, index 1): x0hat clipped to 1
@@ -169,8 +178,10 @@ def test_clipping_applies_only_to_x0_estimate():
         {}, obs, mask, TINY_BETAS, TINY_ABAR, LEVELS, attempts=2,
         key=jax.random.PRNGKey(1), predict=lambda w, x, i: jnp.zeros_like(x),
         record_states=True,
-        noise_stream={"xi": [0.0, 0.0, 0.0], "eta": [0.0, 0.0, 0.0],
-                      "f": [0.0, 0.0, 0.0]}, xT=xT)[1]
+        noise_stream={"xi": np.zeros((3, 1, 1, 1, 1), np.float32),
+                      "eta": np.zeros((3, 1, 1, 1, 1), np.float32),
+                      "f": np.zeros((3, 1, 1, 1, 1), np.float32)},
+        xT=xT)[1]
     a = 0.5
     mean = (math.sqrt(0.75) * 0.5 / 0.625 * 1.0
             + math.sqrt(0.5) * 0.25 / 0.625 * 50.0)
@@ -231,3 +242,47 @@ def test_hidden_observation_rejected():
         repaint_sample({}, obs, mask, TINY_BETAS, TINY_ABAR, LEVELS,
                        attempts=2, key=jax.random.PRNGKey(0),
                        predict=eps_index_predictor)
+
+
+# ---------- input validation regressions ----------
+
+def test_input_validation_regressions():
+    mask = tiny_mask()
+    ok_obs = jnp.zeros((1, 1, 6, 6), dtype=jnp.float32)
+    kw = dict(betas=TINY_BETAS, abar=TINY_ABAR, levels=LEVELS,
+              attempts=2, key=jax.random.PRNGKey(0),
+              predict=eps_index_predictor)
+    # fractional mask rejected
+    bad_mask = jnp.ones((1, 1, 6, 6), dtype=jnp.float32).at[0, 0, 0, 0].set(0.5)
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, bad_mask, **kw)
+    # non-finite observations rejected
+    with pytest.raises(ValueError):
+        repaint_sample({}, jnp.asarray(np.full((1, 1, 6, 6), np.nan)),
+                       mask, **kw)
+    # shape mismatch rejected
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, jnp.ones((1, 1, 8, 8)), **kw)
+    # non-1-D / illegal betas rejected
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, mask, jnp.ones((2, 2)) * 0.1,
+                       TINY_ABAR, LEVELS, key=jax.random.PRNGKey(0),
+                       predict=eps_index_predictor)
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, mask, jnp.array([-0.1, 0.5]),
+                       TINY_ABAR, LEVELS, key=jax.random.PRNGKey(0),
+                       predict=eps_index_predictor)
+    # xT shape mismatch rejected
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, mask, betas=TINY_BETAS, abar=TINY_ABAR,
+                       levels=LEVELS, xT=jnp.zeros((1, 1, 8, 8)),
+                       key=jax.random.PRNGKey(0),
+                       predict=eps_index_predictor)
+    # incompatible stream shapes rejected
+    with pytest.raises(ValueError):
+        repaint_sample({}, ok_obs, mask,
+                       noise_stream={
+                           "xi": jnp.zeros((3, 1, 1, 8, 8)),
+                           "eta": jnp.zeros((3, 1, 1, 6, 6)),
+                           "f": jnp.zeros((3, 1, 1, 6, 6))},
+                       xT=jnp.zeros((1, 1, 6, 6)), **kw)

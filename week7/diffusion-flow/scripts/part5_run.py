@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 import jax
+import jax.numpy as jnp
 import numpy as np
 
 from src.repaint import OFFICIAL_LEVELS, make_hole_mask, repaint_events, \
@@ -52,41 +53,64 @@ def main():
     np.savez(RAW / "inputs_used.npz", truth=truth, observations=obs,
              mask=mask, test_ids=data["test_ids"], labels=data["labels"])
 
-    betas = np.asarray(__import__("src.diffusion", fromlist=["beta_schedule"])
-                       .beta_schedule())
-    from src.diffusion import abar_from_betas
+    from src.diffusion import abar_from_betas, beta_schedule
+    betas = np.asarray(beta_schedule())
     abar = np.asarray(abar_from_betas(jnp.asarray(betas)))
     events = repaint_events(OFFICIAL_LEVELS, attempts=2)
 
     completions = np.zeros((4, 4, 3, 32, 32), dtype=np.float32)
-    states_seed0 = None
+    event_states = np.zeros((4, 99, 4, 3, 32, 32), dtype=np.float32)
+    initial_states = np.zeros((4, 4, 3, 32, 32), dtype=np.float32)
+    key_arrays = np.zeros((4, 2, 2), dtype=np.uint32)  # [seed, (init,carry)]
     t0 = time.perf_counter()
     for si, seed in enumerate(SEEDS):
         key = jax.random.PRNGKey(seed)
+        k_init, k_carry = jax.random.split(key)
+        key_arrays[si, 0] = np.asarray(k_init, dtype=np.uint32)
+        key_arrays[si, 1] = np.asarray(k_carry, dtype=np.uint32)
+        initial_states[si] = np.asarray(
+            jax.random.normal(k_init, obs.shape, dtype=jnp.float32))
         x0, xs = repaint_sample(weights, obs, mask, betas, abar,
                                 OFFICIAL_LEVELS, attempts=2, key=key,
                                 record_states=True)
         completions[si] = np.asarray(x0)
-        if si == 0:
-            states_seed0 = np.asarray(xs)     # (99,4,3,32,32) for replay
+        event_states[si] = np.asarray(xs)
         print(f"seed {seed} done", flush=True)
     wall = time.perf_counter() - t0
     np.save(RAW / "completions_4seeds.npy", completions)
-    np.save(RAW / "event_states_seed7201.npy", states_seed0)
+    np.save(RAW / "event_states_4seeds.npy", event_states)
+    np.save(RAW / "initial_states_4seeds.npy", initial_states)
+    np.save(RAW / "keys_4seeds.npy", key_arrays)
+    np.savez(RAW / "events.npz",
+             t=np.array([e["t"] for e in events], dtype=np.int32),
+             s=np.array([e["s"] for e in events], dtype=np.int32),
+             is_retry=np.array([e["is_retry"] for e in events]),
+             betas=betas, abar=abar, seeds=np.array(SEEDS))
 
-    # metrics (evaluation OUTSIDE the sampler)
+    # metrics in float64 for stable mean/variance/MSE (sampler stays f32)
+    assert np.all(np.isfinite(completions)) and np.all(np.isfinite(event_states))
     hidden = mask == 0
-    n_hidden = int(hidden.sum())             # 400*3*4 images per batch
     mses = np.zeros((4, 4))
-    max_obs_change = 0.0
+    obs_changes = np.zeros((4, 4))
+    c64 = completions.astype(np.float64)
+    t64 = truth.astype(np.float64)
+    m64 = mask.astype(np.float64)
     for si in range(4):
         for ii in range(4):
-            err = (completions[si, ii] - truth[ii])[hidden[ii]]
+            err = (c64[si, ii] - t64[ii])[hidden[ii]]
             mses[si, ii] = float((err ** 2).sum() / (400 * 3))
-            max_obs_change = max(max_obs_change, float(
-                np.abs((completions[si, ii] - truth[ii])[~hidden[ii]]).max()))
-    mean_over_seeds = completions.mean(axis=0)               # population mean
-    var_over_seeds = completions.var(axis=0, ddof=0)         # population /4
+            obs_changes[si, ii] = float(
+                np.abs((c64[si, ii] - t64[ii])[~hidden[ii]]).max())
+    assert np.all(obs_changes < 1e-5), obs_changes.max()
+    for ii in range(4):
+        # observed values identical across seeds, zero variance outside hole
+        assert np.all(c64[:, ii][:, ~hidden[ii]] ==
+                      c64[0, ii][~hidden[ii]])
+        assert float(c64[:, ii][:, ~hidden[ii]].var(axis=0).max()) == 0.0
+        assert float(c64[:, ii][:, hidden[ii]].var(axis=0).max()) > 0.0
+    mean_over_seeds = c64.mean(axis=0).astype(np.float32)  # population mean
+    var_over_seeds = c64.var(axis=0, ddof=0).astype(np.float32)  # divisor 4
+    assert np.all(var_over_seeds[..., ~hidden[0]] == 0.0)
 
     h_after = param_hash(weights)
     meta = {
@@ -107,9 +131,38 @@ def main():
         "jax_version": jax.__version__,
         "hidden_mse_sum_sq_over_400x3": mses.tolist(),
         "hidden_mse_average": float(mses.mean()),
-        "max_observed_change": max_obs_change,
+        "observed_max_changes": obs_changes.tolist(),
+        "normal_draws_per_seed": "298 drawn (1 initial + 99*3); "
+                                 "248 used (1 initial + 99*2 + 49 f); "
+                                 "50 unused f draws",
+        "model_evaluations_per_image": 99,
+        "forward_renoises": 49,
         "n_hidden_pixels_per_image": int(hidden[0].sum() // 3),
     }
+    # file provenance hashes
+    import hashlib
+    def fsha(p):
+        h = hashlib.sha256()
+        with open(p, "rb") as fh:
+            for ch in iter(lambda: fh.read(1 << 20), b""):
+                h.update(ch)
+        return h.hexdigest()
+    meta["file_hashes"] = {
+        "config": fsha(BASE / "inputs/cifar-model/config.json"),
+        "weights": fsha(BASE / "inputs/cifar-model/"
+                        "diffusion_pytorch_model.safetensors"),
+        "images_npz": fsha(BASE / "inputs/images.npz"),
+        "repaint_source": fsha(BASE / "src/repaint.py"),
+    }
+    meta["versions"] = {"python": __import__("sys").version.split()[0],
+                        "numpy": np.__version__,
+                        "jax": jax.__version__,
+                        "jaxlib": __import__("jaxlib").__version__}
+    meta["expected_weights_hash"] = ("c35165b672140a1afa6b293b46553e81fd8d5"
+                                     "6c9f4872fc8b9c1826afd1f6c04")
+    assert h_after == meta["expected_weights_hash"], \
+        f"weights hash changed: {h_after}"
+    # metadata written LAST, after all raw/metric writes and checks succeed
     with open(RAW / "run_meta.json", "w") as f:
         json.dump(meta, f, indent=2)
     np.savez(RAW / "metrics.npz", mses=mses, mean=mean_over_seeds,
