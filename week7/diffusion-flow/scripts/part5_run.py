@@ -35,8 +35,9 @@ def param_hash(weights):
 
 
 def main():
-    if (RAW / "run_meta.json").exists():
-        raise SystemExit(f"refusing to overwrite completed run: {RAW}")
+    if RAW.exists() and any(RAW.iterdir()):
+        raise SystemExit(f"refusing to overwrite populated run directory: "
+                         f"{RAW} (use a fresh attempt directory)")
     RAW.mkdir(parents=True, exist_ok=True)
     from src.cifar_unet import load_cifar_unet
     weights = load_cifar_unet(BASE / "inputs/cifar-model/"
@@ -167,10 +168,14 @@ def main():
         json.dump(meta, f, indent=2)
     np.savez(RAW / "metrics.npz", mses=mses, mean=mean_over_seeds,
              variance=var_over_seeds)
-    print(json.dumps({k: meta[k] for k in
-                      ("hidden_mse_average", "max_observed_change",
-                       "wall_time_s", "weights_unchanged",
-                       "predictor_evaluations", "n_retries")}, indent=1))
+    summary_keys = ("hidden_mse_average", "wall_time_s",
+                    "weights_unchanged", "predictor_evaluations",
+                    "n_retries")
+    assert all(k in meta for k in summary_keys)
+    assert meta["weights_unchanged"] and meta["weights_sha256_after"] == \
+        meta["expected_weights_hash"]
+    print(json.dumps({k: meta[k] for k in summary_keys}, indent=1))
+    print("observed_max_changes:", meta["observed_max_changes"])
 
 
 if __name__ == "__main__":

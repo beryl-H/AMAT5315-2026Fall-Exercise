@@ -1,0 +1,127 @@
+{
+  "original_formal_driver_exit": 1,
+  "original_failure": "stale summary key max_observed_change AFTER all raw arrays and run_meta.json were written; no computation lost; no regeneration performed",
+  "postprocess_exit": 0,
+  "data_validated": true,
+  "hidden_mse_sum_sq_over_400x3": [
+    [
+      0.12700984081568484,
+      0.20343192617389416,
+      0.1854495195939233,
+      0.27808442562431407
+    ],
+    [
+      0.10191943529548664,
+      0.17277400639352547,
+      0.20659062197970243,
+      0.14435641607248403
+    ],
+    [
+      0.10447348918554415,
+      0.40290316857637404,
+      0.20806222637294794,
+      0.5797540521495923
+    ],
+    [
+      0.10813303871036453,
+      0.5741522793016652,
+      0.13111089819151572,
+      0.14552402153698948
+    ]
+  ],
+  "hidden_mse_average": 0.2296080853733755,
+  "observed_max_changes": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "global_observed_max_change": 0.0,
+  "variance_convention": "population over seeds, divisor 4 (ddof=0)",
+  "checks": {
+    "completions_shape": [
+      4,
+      4,
+      3,
+      32,
+      32
+    ],
+    "completions_finite": true,
+    "event_states_shape": [
+      4,
+      99,
+      4,
+      3,
+      32,
+      32
+    ],
+    "event_states_finite": true,
+    "initial_states_shape": [
+      4,
+      4,
+      3,
+      32,
+      32
+    ],
+    "initial_states_finite": true,
+    "keys_shape": [
+      4,
+      2,
+      2
+    ],
+    "mse_matches_saved": true,
+    "observed_changes_match_saved": true,
+    "all_observed_changes_below_1e-5": true,
+    "observed_identical_across_seeds": true,
+    "zero_variance_outside_hole": true,
+    "positive_variance_inside_hole": true,
+    "levels_1000_to_0": true,
+    "n_events_99": true,
+    "n_retries_49": true,
+    "seeds_recorded": true,
+    "weights_hash_canonical": true,
+    "weights_unchanged": true,
+    "file_hashes_present": true
+  },
+  "provenance": {
+    "files": {
+      "config": "49579448cd5728fb83f14186de12464eee143d2f5dccb11b8e13744d712eae9d",
+      "weights": "1558dbe3fb093b0857d473e376b711eeda1b186c557be5e85b3a56300cd49f0f",
+      "images_npz": "edce7ff8b6c2cd8b134846cdab7d7555c22ce2c0da89c97364c438575b4e344c",
+      "repaint_source": "d3cdba112ff74e2da098a115137568c2068b7fa208d35d24192b093890b61720"
+    },
+    "versions": {
+      "python": "3.11.17",
+      "numpy": "2.2.6",
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2"
+    },
+    "wall_time_s": 66.1275640209999,
+    "seeds": [
+      7201,
+      7202,
+      7203,
+      7204
+    ]
+  }
+}

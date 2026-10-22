@@ -394,3 +394,81 @@ The weights were learned by their original authors before this download;
 Part 4 runs no training — the fixed predictor plus our numerical sampler
 performs iterative inference only. Visual recognizability of generated
 images is a qualitative judgement, not a score.
+
+---
+
+# Part 5 — RePaint inpainting (COMPLETE)
+
+Exact Algorithm 6 (`src/repaint.py`): original levels 1000,980,…,20,0, 50
+jumps, **99 predictor evaluations and 49 forward re-noises** per image, two
+attempts per jump except the final one. One module-level compiled core with
+weights/observations/mask/key as dynamic arguments (no 140 MB closure
+constants) is reused across all four seeds.
+
+**Key/draw convention:** `PRNGKey(seed)` is split into (initial, carry)
+keys; the carry advances per event into (f, xi, eta, next) keys, all draws
+full [4,3,32,32] batch arrays — 298 Normals drawn per seed (1 + 99×3),
+248 used (1 + 99×2 + 49 retries), 50 unused f draws, no key reuse. Raw
+initial/event states and uint32 keys saved for replay.
+
+Mechanics: the retry re-noises the PREVIOUS merged state back to its
+original level before re-predicting, so the hidden fill can respond to the
+observed boundary; observed pixels are overwritten after every attempt by
+their forward-noised values (`known = sqrt(āˢ)·obs + sqrt(1−āˢ)·η`), and
+exactly restored at s=0 — every completion's observed max change is 0.0
+(threshold 1e-5). The **posterior** variance
+`(1−āˢ)(1−a)/(1−āᵗ)` (0.2 in the tiny test) differs from the coarse-DDPM
+variance (1−a) (0.5) — the coarse choice would overshoot the reverse step.
+Clipping applies ONLY to the x0 estimate inside the predictor call; noisy
+and merged states are never clipped. The sampler receives observations and
+mask only — a hidden-truth perturbation control gives bit-identical
+completions.
+
+## Reproduce
+
+```bash
+PYTHONPATH=. .venv/bin/python scripts/part5_run.py        # formal run (refuses overwrite)
+.venv/bin/python scripts/part5_postprocess.py             # saved-data validation receipt
+.venv/bin/python scripts/part5_figures.py                 # figures from saved raw only
+```
+
+## Measured results (seeds 7201–7204, four TEST images, all 16 kept)
+
+Hidden-pixel MSE = sum of squared errors over the 400×3 hidden values /
+1200 (evaluation in float64 outside the sampler):
+
+| image | seed 7201 | seed 7202 | seed 7203 | seed 7204 |
+|---|---|---|---|---|
+| 0 | 0.1270 | 0.2034 | 0.1854 | 0.2781 |
+| 1 | 0.1019 | 0.1728 | 0.2066 | 0.1444 |
+| 2 | 0.1045 | 0.4029 | 0.2081 | 0.5798 |
+| 3 | 0.1081 | 0.5742 | 0.1311 | 0.1455 |
+
+Average **0.2296** (measured). The lecture's ≈0.24 reference is descriptive,
+not a target. Observed max change across all 16 completions: **0.0**; all
+completions/event states finite; canonical weights hash
+`c35165b6…` unchanged before/after; wall time 66.1 s.
+
+![RePaint image 2](evidence/part5_repaint_image2.png)
+
+Figures for all four images (`part5_repaint_image{0..3}.png`): truth,
+observation with hole boundary, all four completions labeled seed+MSE,
+mean over seeds, and the pixelwise disagreement map (population variance
+over seeds, divisor 4, RGB-averaged for display; shared colour scale
+0–0.482 from the actual global maximum). Pixelwise variation measures
+DISAGREEMENT among plausible completions, not calibrated uncertainty and
+not error against the withheld truth.
+
+![RePaint image 0](evidence/part5_repaint_image0.png)
+
+**Recovery record (honest):** the original formal driver wrote all raw
+arrays and run_meta.json (66.1 s run) and then exited 1 on a stale
+summary-key print — log preserved at
+`artifacts/failed-attempts/part5-formal-attempt1-fail.log`. No regeneration
+occurred: `scripts/part5_postprocess.py` (exit 0) revalidated the saved
+data independently (`evidence/part5_postprocess_receipt.json`) and the
+figures were rendered from the saved raw arrays only.
+
+Standing caveats remain: Part 2 learned-width strict gate and Part 3
+full-uniform-grid velocity-field gate are FAILs; this Part 5 average MSE is
+a measurement, not a passed target.
