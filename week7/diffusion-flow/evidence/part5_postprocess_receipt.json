@@ -107,7 +107,14 @@
     "event_states_shape_valid": true,
     "initial_states_shape_valid": true,
     "keys_shape_valid": true,
-    "metrics_finite": true
+    "metrics_finite": true,
+    "saved_mse_shape_valid": true,
+    "saved_mean_shape_valid": true,
+    "saved_variance_shape_valid": true,
+    "saved_metrics_finite": true,
+    "saved_mse_matches": true,
+    "saved_mean_matches": true,
+    "saved_variance_matches": true
   },
   "provenance": {
     "files": {

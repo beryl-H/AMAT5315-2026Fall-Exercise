@@ -96,6 +96,20 @@ checks["initial_states_shape_valid"] = init.shape == (4, 4, 3, 32, 32)
 checks["keys_shape_valid"] = keys.shape == (4, 2, 2)
 checks["metrics_finite"] = bool(np.isfinite(mses).all() and np.isfinite(oc).all())
 
+# Figures consume these SAVED arrays, so validate them against the raw
+# completions rather than checking only freshly recomputed statistics.
+checks["saved_mse_shape_valid"] = metrics["mses"].shape == (4, 4)
+checks["saved_mean_shape_valid"] = metrics["mean"].shape == (4, 3, 32, 32)
+checks["saved_variance_shape_valid"] = metrics["variance"].shape == (4, 3, 32, 32)
+checks["saved_metrics_finite"] = all(
+    bool(np.isfinite(metrics[key]).all()) for key in ["mses", "mean", "variance"])
+checks["saved_mse_matches"] = checks["saved_mse_shape_valid"] and bool(
+    np.allclose(metrics["mses"], mses, atol=0, rtol=1e-12))
+checks["saved_mean_matches"] = checks["saved_mean_shape_valid"] and bool(
+    np.array_equal(metrics["mean"], c64.mean(axis=0).astype(np.float32)))
+checks["saved_variance_matches"] = checks["saved_variance_shape_valid"] and bool(
+    np.array_equal(metrics["variance"], var.astype(np.float32)))
+
 assert all(v is True or (isinstance(v, list) and v) for k, v in checks.items()
            if not isinstance(v, bool)), checks
 receipt = {

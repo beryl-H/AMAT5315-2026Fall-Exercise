@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "controls": [
+    {
+      "case": "nan_variance",
+      "exit_code": 1,
+      "expected_check": "saved_metrics_finite",
+      "receipt_written": false
+    },
+    {
+      "case": "wrong_mean",
+      "exit_code": 1,
+      "expected_check": "saved_mean_matches",
+      "receipt_written": false
+    },
+    {
+      "case": "wrong_mse",
+      "exit_code": 1,
+      "expected_check": "saved_mse_matches",
+      "receipt_written": false
+    }
+  ],
+  "original_raw_modified": false,
+  "model_or_sampler_invoked": false
+}

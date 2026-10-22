@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "pytest_summary": "95 passed in 22.20s",
+  "pytest_summary": "95 passed in 22.84s",
   "tests_passed": 95,
   "checks": [
     {
@@ -52,7 +52,7 @@
       ],
       "exit_code": 0,
       "summary": [
-        "95 passed in 22.20s"
+        "95 passed in 22.84s"
       ]
     },
     {
@@ -141,11 +141,12 @@
     "week7/diffusion-flow/evidence/part4_real_cifar_comparison.png": "d815f62460e5d23cb6ded99b33c42f2e456cc086a24606f624696c3085220e9b",
     "week7/diffusion-flow/evidence/part4_reference_check.json": "19ccba07ed4cac8378d83bb4be47deba794287e5858b63f0e672eefae3942315",
     "week7/diffusion-flow/evidence/part4_reverse_stages.png": "f9fc6a655dd7d54946879981cc4f12f1024475d6b1bde5c3b4a59a1af173e28d",
-    "week7/diffusion-flow/evidence/part5_postprocess_receipt.json": "48a819ec748679b8eeb711ec8f96c633b7720769c5a5d967b99a657b0312066f",
+    "week7/diffusion-flow/evidence/part5_postprocess_receipt.json": "9a487049120d885ad54d7cfe66244ef77c18e1f4f9b5ddb52fd4316e1b2369f2",
     "week7/diffusion-flow/evidence/part5_repaint_image0.png": "0d56e27962efcac000cd47131e599c77e846c7f2a0b232478ce7a8b07d6c9447",
     "week7/diffusion-flow/evidence/part5_repaint_image1.png": "c2d5ade7c3ec47a3ff89d1aca176e8cf15028753f704f68f615a3c470e74c4c5",
     "week7/diffusion-flow/evidence/part5_repaint_image2.png": "e25f46df33af4a5b44c19e96320b1f77342551066ed628c567285259d06d3585",
     "week7/diffusion-flow/evidence/part5_repaint_image3.png": "91a2a6270a03e76dae218a65aa5e0eee17fe9df70eeb198b24304bc18c061233",
+    "week7/diffusion-flow/evidence/postprocess_negative_controls.json": "177dd387526e41b30ef3ff557a0de316e79fa68eccb868e928cae394e0082deb",
     "week7/diffusion-flow/evidence/reverse_movie.gif": "0febfe062b3aea23c8354b2b568d89f0c82abdc50f0ed4943d242ebd17c6dd58",
     "week7/diffusion-flow/evidence/stats.json": "a7b64d8f0874387b6b985bc475ff100bfadc98dd342a5abacf99048471b7b8bb",
     "week7/diffusion-flow/evidence/training_movie.gif": "993495fd296a8090152b742d61de473af468efd09bee415701ab9dcfe335bd1b",
@@ -160,7 +161,7 @@
     "week7/diffusion-flow/scripts/part4_generate.py": "6fcf3e2ef4598989afc469c34af3397c06c69fff14caa43b7bc3e1f7da9ce6eb",
     "week7/diffusion-flow/scripts/part4_reference_check.py": "9cf7c313b3439951811f1de6e4fa6fad8948ea2f870fc8ce86b53f6d9b7bb5eb",
     "week7/diffusion-flow/scripts/part5_figures.py": "6943b1aed371a778f79b32ae2787512433b6d982dfaf5f2fefb31d408db1c5b6",
-    "week7/diffusion-flow/scripts/part5_postprocess.py": "f9b757383d318901ad3fe125c57fb73c6f1f8ab7f0223587a002e0237409dfd2",
+    "week7/diffusion-flow/scripts/part5_postprocess.py": "db5ce91589401b15d4f4075e7656bede5bd6f79ae5499d59c38d7ff1460945e1",
     "week7/diffusion-flow/scripts/part5_run.py": "7774a2c66006556e62b4eac728e2c7195817024fbf9b24e90748d5f626a271da",
     "week7/diffusion-flow/scripts/run_flow_train.py": "5b5c46ae6dea0ca51c903ac50748e2dbd153b3911e6792bb52d2326592b72059",
     "week7/diffusion-flow/scripts/run_train.py": "3535b6acbdcd93e26ccecddb64d5bf97da0c996d9e9d644d8052d1adab8f5fbe",
