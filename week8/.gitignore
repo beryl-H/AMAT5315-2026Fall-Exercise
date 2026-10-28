@@ -1,0 +1,10 @@
+# Downloads, raw runs and checkpoints stay out of git
+data/
+artifacts/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.npy
+*.npz
+*.msgpack
+*.flax
