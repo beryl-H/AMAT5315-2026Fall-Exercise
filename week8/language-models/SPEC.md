@@ -99,13 +99,22 @@ control below (all pairs shown; nothing cherry-picked).
   Gate: exactly **24,867 train / 2,763 validation** stories.
 - Encode both splits with `tok512.model` (SentencePiece), EOS token between
   stories, no BOS, no silent normalizer/preprocessing changes.
-- Gate: ≈ 2.05 characters per token on the corpus; decoding returns every
-  validation story exactly except **3** (tokenizer merges a double space into
-  one) — the 3 exceptions must be identified and recorded, others round-trip.
-- Bits-per-character denominators use Unicode characters of the original story
-  texts (not decoded text); the EOS contributes loss but no characters; the
-  first token of the stream is conditioned on the EOS context. This
-  normalization is shared with Part 5.
+- **Accounting convention (frozen, root-verified):** the single EOS prepended
+  before the first story is a *context sentinel*, not a corpus token and never
+  a loss target. The actual corpus token streams contain EOS **between stories
+  only**: train **9,667,034** / validation **1,078,995** actual tokens
+  (inter-story EOS included). With the one sentinel the encoded streams are
+  9,667,035 / 1,078,996. Scoring always uses `stream[1:]`, i.e. exactly the
+  **1,078,995** actual validation tokens — the common target count shared by
+  the n-gram, MLP and transformer models. No BOS, no added trailing EOS.
+- Unicode character totals (denominator of every bpc): train **19,853,989**,
+  validation **2,213,915** (original story texts; EOS tokens add no characters).
+  Uniform validation bpc = 1,078,995 · ln 512 / 2,213,915 ≈ **4.386327**.
+- n-gram histories are left-padded with (n−1) EOS so the first n−1 validation
+  targets are scored, none lost; no counts cross the train/val split.
+- Gate: ≈ 2.05 characters per token (19,853,989 / 9,667,034 ≈ 2.054); decoding
+  returns every validation story exactly except **3** (tokenizer merges a
+  double space into one) — the 3 exceptions must be identified and recorded.
 
 **DO (later phase).** Uniform + n-gram models n = 1..6 from BPE training-token
 counts (memory-efficient sparse counts — never a 512^6 dense table). Add-k
