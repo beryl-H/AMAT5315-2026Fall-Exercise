@@ -1,0 +1,14 @@
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_part3_review.py::test_scorer_heads2_matches_explicit_forward_and_differs_from_heads4
+FAILED tests/test_part3_review.py::test_train_step_grad_heads2_matches_manual_reference
+FAILED tests/test_part3_review.py::test_worker_cmds_are_executable_env_taskset_argv
+FAILED tests/test_part3_review.py::test_receipt_separates_target_width_and_target_n
+FAILED tests/test_part3_review.py::test_blind_protocol_requires_double_nonembedding_parameters
+FAILED tests/test_part3_review.py::test_utc_timestamp_true_timezone_parsing
+FAILED tests/test_part3_review.py::test_worker_refuses_any_nonempty_outdir - ...
+FAILED tests/test_part3_review.py::test_worker_saves_settings_before_step1_and_checkpoint_before_scoring
+FAILED tests/test_part3_review.py::test_scorer_batch_size_produces_matching_scores
+FAILED tests/test_part3_review.py::test_total_worker_rss_measurement - Attrib...
+10 failed, 3 passed, 14 warnings in 12.70s
