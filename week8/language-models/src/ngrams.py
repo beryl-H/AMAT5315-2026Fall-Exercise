@@ -154,34 +154,65 @@ def two_lag_sample_bigram(P: np.ndarray, n_tokens: int, seed: int) -> list[int]:
     return out
 
 
-def pooled_chi2_bigram(sampled: np.ndarray, P: np.ndarray, top_ctx, emin=5.0):
+def pooled_chi2_bigram(sampled: np.ndarray, P: np.ndarray, top_ctx, emin=5.0,
+                       return_meta=False):
     """One pooled chi-squared test over the given contexts.
 
     Per context a with n_a occurrences among sampled transitions:
-    expected E_b = n_a * P[b|a]; bins with E < emin are pooled into one bin.
+    expected E_b = n_a * P[b|a]; bins with E < emin are pooled into one rare
+    bin; if the pooled bin's own expected is still < emin it is merged with
+    the smallest adequate bin (repeatedly) until ALL expected >= emin. If a
+    context is reduced to a single group it contributes 0 statistic and 0 df
+    (uninformative; overall p is nan when no context contributes).
     statistic and df = bins-1 are summed over contexts.
+
+    Returns (stat, df, p) or (stat, df, p, meta) with return_meta=True; meta
+    records minimum expected, bins/df and per-context counts.
     """
     from scipy.stats import chi2
 
     sampled = np.asarray(sampled)
     trans_ctx, trans_nxt = sampled[:-1], sampled[1:]
     stat, df = 0.0, 0
+    meta = {"minimum_expected": None, "bins": 0, "df": 0,
+            "context_counts": {}, "contexts_used": 0}
     for a in top_ctx:
         mask = trans_ctx == a
         n_a = int(mask.sum())
         if n_a == 0:
             continue
+        meta["context_counts"][int(a)] = n_a
         obs = np.bincount(trans_nxt[mask], minlength=V).astype(np.float64)
         exp = n_a * P[a]
         keep = exp >= emin
-        if not keep.any():
-            continue
-        o_k, e_k = obs[keep], exp[keep]
-        stat += float((((o_k - e_k) ** 2) / e_k).sum())
-        o_p = n_a - o_k.sum()
-        e_p = n_a - e_k.sum()
-        if e_p > 0:
-            stat += float((o_p - e_p) ** 2 / e_p)
-        df += int(keep.sum())  # (kept bins + 1 pooled) - 1
-    p = float(chi2.sf(stat, df)) if df > 0 else float("nan")
+        groups = [(float(o), float(e)) for o, e in zip(obs[keep], exp[keep])]
+        rare_o = float(obs[~keep].sum())
+        rare_e = float(exp[~keep].sum())
+        if (~keep).any():
+            # merge the rare pool until its expected reaches emin
+            while rare_e < emin and groups:
+                groups.sort(key=lambda g: g[1])
+                o_g, e_g = groups.pop(0)  # smallest adequate bin
+                rare_o += o_g
+                rare_e += e_g
+            if rare_e > 0 or rare_o > 0:
+                groups.append((rare_o, rare_e))
+        if len(groups) <= 1:
+            continue  # uninformative context: 0 stat, 0 df
+        s_ctx = sum((o - e) ** 2 / e for o, e in groups)
+        stat += float(s_ctx)
+        df += len(groups) - 1
+        meta["contexts_used"] += 1
+        meta["bins"] += len(groups)
+        meta["df"] += len(groups) - 1
+        me = min(e for _, e in groups)
+        meta["minimum_expected"] = me if meta["minimum_expected"] is None \
+            else min(meta["minimum_expected"], me)
+    if df > 0:
+        p = float(chi2.sf(stat, df))
+    else:
+        p = float("nan")
+    meta["df"] = df
+    if return_meta:
+        return stat, df, p, meta
     return stat, df, p
