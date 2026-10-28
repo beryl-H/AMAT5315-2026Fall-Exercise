@@ -73,10 +73,10 @@ def test_orthonormal_keys_zero_interference():
 
 
 def test_aggregate_and_capacity():
-    Ms = [8, 16, 32]
-    curves = {s: {M: np.array([0.5 * M / 64, 1.0, 2.0]) for M in Ms} for s in ["outer"]}
-    agg = aggregate_R(curves["outer"][8])
-    assert agg["median"] == pytest.approx(np.median([0.5 * 8 / 64, 1.0, 2.0]))
+    Ms = [32, 64, 128]
+    curves = {s: {M: np.array([M / 64.0] * 3) for M in Ms} for s in ["outer"]}
+    agg = aggregate_R(curves["outer"][32])
+    assert agg["median"] == pytest.approx(32 / 64.0)
     assert "rms" in agg and "q25" in agg and "q75" in agg
     med_curve = {M: float(np.median(curves["outer"][M])) for M in Ms}
     # R = M/64 exactly: crossing at M = 64, log-log interpolation
