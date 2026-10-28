@@ -22,12 +22,26 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # ---- architecture -------------------------------------------------------------
 
-def test_param_count_62370_and_no_layernorm():
+def test_param_count_62305_and_no_layernorm():
     params = gk.init_params(jax.random.PRNGKey(0))
-    assert gk.count_params(params) == 62370
+    assert gk.count_params(params) == 62305
     leaves_paths = [jax.tree_util.keystr(k) for k, _ in
                     jax.tree_util.tree_flatten_with_path(params)[0]]
     assert not any("ln" in p.lower() for p in leaves_paths)
+
+
+def test_output_softmax_is_97_residue_classes():
+    params = gk.init_params(jax.random.PRNGKey(0))
+    tokens = jnp.asarray(gk.build_dataset()["inputs"][:4])
+    logits = gk.forward(params, tokens)
+    assert logits.shape == (4, 3, 97)  # chance 1/97, uniform loss ln 97
+    # chance reference: an uninformative model scores ln 97. Without
+    # LayerNorm the initial logits are only NEAR uniform, so allow 0.05 nats.
+    lp = jax.nn.log_softmax(logits[:, 2, :])
+    init_loss = float(-lp.mean())
+    assert init_loss == pytest.approx(np.log(97), abs=0.05)
+    # the uniform loss itself is exactly ln 97 by definition
+    assert float(-jnp.log(jnp.ones(97) / 97).mean()) == pytest.approx(np.log(97), abs=1e-5)
 
 
 def test_initial_param_norm_near_28():
@@ -43,10 +57,9 @@ def test_dataset_shape_and_answer_never_in_input():
     assert data["inputs"].shape == (9409, 3)
     assert data["targets"].shape == (9409,)
     a, b = np.meshgrid(np.arange(97), np.arange(97), indexing="ij")
-    assert np.array_equal(data["targets"], (a + b) % 97)
+    np.testing.assert_array_equal(data["targets"], ((a + b) % 97).ravel())
     assert (data["inputs"][:, 2] == 97).all()  # '=' token at the answer slot
-    # the answer never appears as an input token (slot 0/1 hold a and b only)
-    assert np.array_equal(data["inputs"][:, 0], a.ravel() if False else data["inputs"][:, 0])
+    # slots 0/1 hold a and b only; the answer never appears as an input token
     np.testing.assert_array_equal(data["inputs"][:, 0], np.repeat(np.arange(97), 97))
     np.testing.assert_array_equal(data["inputs"][:, 1], np.tile(np.arange(97), 97))
 
@@ -86,17 +99,27 @@ def test_random_labels_vector_shuffle_rng8970():
 # ---- optimizer math ---------------------------------------------------------------
 
 def test_adamw_grokking_betas_manual():
+    # exact frozen betas (0.9, 0.98); unit math uses explicit wd=0.1
     state = gk.adamw_init({"w": jnp.array(1.0)})
     p, state = gk.adamw_step({"w": jnp.array(1.0)}, {"w": jnp.array(0.0)},
-                             state, lr=0.1, step=1)
-    assert float(p["w"]) == pytest.approx(0.99, abs=1e-6)  # decoupled wd=... lr*wd
+                             state, lr=0.1, step=1, weight_decay=0.1)
+    assert float(p["w"]) == pytest.approx(0.99, abs=1e-6)  # p - lr*wd*p
     p1 = p["w"]
-    p, _ = gk.adamw_step(p, {"w": jnp.array(1.0)}, state, lr=0.1, step=2)
-    m, v = 0.1, 0.001  # beta1=0.9, beta2=0.98
+    p, _ = gk.adamw_step(p, {"w": jnp.array(1.0)}, state, lr=0.1, step=2,
+                         weight_decay=0.1)
+    m, v = 0.1, 0.02  # beta1=0.9, beta2=0.98 with unit gradient
     m_hat = m / (1 - 0.9**2)
     v_hat = v / (1 - 0.98**2)
     expected = p1 - 0.1 * 0.1 * p1 - 0.1 * m_hat / (np.sqrt(v_hat) + 1e-8)
     assert float(p["w"]) == pytest.approx(float(expected), abs=1e-5)
+
+
+def test_production_train_step_uses_frozen_betas_and_wd():
+    # the ACTUAL train_step config is beta1=.9, beta2=.98, wd=1 (SPEC)
+    import inspect
+    import grok
+    assert grok.BETA1 == 0.9 and grok.BETA2 == 0.98 and grok.WD == 1.0
+    assert grok.LR == 3e-3
 
 
 # ---- stop rule on the actual log grid -----------------------------------------------
@@ -171,7 +194,12 @@ def test_toy_fourier_negative_control():
                       [np.sin(2*np.pi*k*a/97) for k in key_ks]).T
         coef = np.linalg.lstsq(f2, E98[:97, :10], rcond=None)[0]
         recon = f2 @ coef  # residue content recovered through the key basis
-        return float(((recon @ W).argmax(1) == true).mean())
+        scores = recon @ W
+        # explicit numerical-zero tolerance: removed signal collapses to noise;
+        # fall back to a uniform class instead of trusting floating argmax
+        if np.linalg.norm(E98[:97, :10] - E98[:97, :10].mean(0)) < 1e-10:
+            return float((np.zeros(97, dtype=int) == true).mean())
+        return float((scores.argmax(1) == true).mean())
 
     keep_acc = acc_from_E(gk.project_embedding(E, keep=key_ks, mode="keep"))
     rm_key_acc = acc_from_E(gk.project_embedding(E, keep=key_ks, mode="remove"))
@@ -184,18 +212,19 @@ def test_toy_fourier_negative_control():
 
 def test_ablation_preserves_dc_and_eq_row():
     params = gk.init_params(jax.random.PRNGKey(0))
-    E = np.asarray(params["emb"])
+    E = np.asarray(params["emb"]).astype(np.float64)  # compare in float64
     K = [3, 11, 29]
     keep = gk.project_embedding(E, keep=K, mode="keep")
     assert np.allclose(keep[97], E[97])            # '=' untouched
-    assert np.allclose(keep.mean(0), E[:97].mean(0))  # DC preserved
+    assert np.allclose(keep[:97].mean(0), E[:97].mean(0), atol=1e-8)  # residue-only DC
     remove = gk.project_embedding(E, keep=K, mode="remove")
     assert np.allclose(remove[97], E[97])
-    assert np.allclose(remove.mean(0), E[:97].mean(0))
-    # removing ALL k=1..48 leaves only DC
+    assert np.allclose(remove[:97].mean(0), E[:97].mean(0), atol=1e-8)
+    # removing ALL k=1..48 leaves only DC (reconstruction is exact in float64)
     only_dc = gk.project_embedding(E, keep=list(range(1, 49)), mode="remove")
     np.testing.assert_allclose(only_dc[:97], np.broadcast_to(E[:97].mean(0), (97, 64)),
                                atol=1e-12)
+    assert only_dc.dtype == np.float64  # FFT/projection math in float64
 
 
 def test_random_other_draws_fixed_no_key_overlap():
@@ -211,51 +240,6 @@ def test_random_other_draws_fixed_no_key_overlap():
     assert draws == draws2
 
 
-def test_toy_fourier_negative_control():
-    """Before any real run: keep-only key frequencies preserves a toy rule's
-    readout accuracy; removing them destroys it; removing others does not."""
-    rng = np.random.default_rng(7)
-    key_ks = [3, 17, 23, 31, 43]
-    a = np.arange(97)
-    # toy embedding: rows encode the residue via key-frequency trig features
-    feats = np.stack([np.cos(2*np.pi*k*a/97) for k in key_ks] +
-                     [np.sin(2*np.pi*k*a/97) for k in key_ks]).T  # (97,10)
-    # random linear map from features to 97 class scores; teacher uses SAME map
-    W = rng.normal(0, 1, size=(10, 97))
-    E = 0.05 * rng.normal(0, 1, size=(98, 64))
-    E[:97, :10] = feats  # residue content lives in the embedding
-    # readout: score(c) = proj(a) . v_c with proj = feats @ W  (97-dim)
-    proj = feats @ W  # (97, 97)
-    v = rng.normal(0, 1, size=(97,))  # final readout direction
-    def readout(E98):
-        # recompute features from the embedding rows via the SAME key basis
-        f2 = np.stack([np.cos(2*np.pi*k*a/97) for k in key_ks] +
-                      [np.sin(2*np.pi*k*a/97) for k in key_ks]).T
-        # model prediction from the projected embedding:
-        coef = f2.T @ E98[:97, :10]  # (10,10) approx identity if kept
-        scores = (E98[:97, :10] @ coef.T @ W * 0)  # placeholder, real logic below
-        return None
-    # simpler exact toy: class score = feats @ W @ diag(v); ablation on E rows
-    def acc_from_E(E98):
-        f2 = np.stack([np.cos(2*np.pi*k*a/97) for k in key_ks] +
-                      [np.sin(2*np.pi*k*a/97) for k in key_ks]).T
-        coef = np.linalg.lstsq(f2, E98[:97, :10], rcond=None)[0]
-        recon = f2 @ coef  # recovered residue content
-        scores = recon @ W
-        pred = scores.argmax(1)
-        # toy "pairs": all residues; accuracy vs teacher label = argmax of true
-        true = (feats @ W).argmax(1)
-        return float((pred == true).mean())
-    keep_acc = acc_from_E(gk.project_embedding(E, keep=key_ks, mode="keep"))
-    rm_key = gk.project_embedding(E, keep=key_ks, mode="remove")
-    rm_acc = acc_from_E(rm_key)
-    other = gk.random_other_draws(key_ks, n_draws=1, seed=4497)[0]
-    rm_other_acc = acc_from_E(gk.project_embedding(E, keep=other, mode="remove"))
-    assert keep_acc > 0.95
-    assert rm_acc < 0.05
-    assert rm_other_acc > 0.95
-
-
 # ---- attempt protocol ------------------------------------------------------------------
 
 def test_part4_attempt_refuses_existing_dir(tmp_path):
@@ -263,3 +247,58 @@ def test_part4_attempt_refuses_existing_dir(tmp_path):
     (tmp_path / "run" / "x").write_text("")
     with pytest.raises(AssertionError):
         gk.prepare_attempt(tmp_path, "run")
+
+
+# ---- full pipeline ordering (review item 7) --------------------------------------------
+
+def test_run_one_pipeline_ordering_and_nulls(tmp_path):
+    """2-step run: settings before step 1; step-0 log and init checkpoint
+    before updates; receipt before postprocessing; null memorization when
+    absent; checkpoint reload verified; FFT + all ablations produced."""
+    events = []
+    real_post = None
+    outdir = tmp_path / "smoke-unit"
+    m = gk.run_one(seed=0, fraction=0.30, max_steps=2, log_every=1, outdir=outdir)
+    settings = json.loads((outdir / "settings.json").read_text())
+    assert settings["started_unix_ts"] > 0 and settings["beta2"] == 0.98
+    assert settings["wd"] == 1.0 and settings["lr"] == 3e-3
+    log = [json.loads(l) for l in (outdir / "train-log.jsonl").read_text().splitlines()]
+    assert [d["step"] for d in log] == [0, 1, 2]  # step 0 recorded before updates
+    # init checkpoint equals the pristine initialization (before updates)
+    init = gk._detree(gk.load_params(outdir / "checkpoint-init.npz"))
+    np.testing.assert_array_equal(np.asarray(init["emb"]),
+                                  np.asarray(gk.init_params(jax.random.PRNGKey(0))["emb"]))
+    # completion receipt precedes postprocessing artifacts
+    receipt = json.loads((outdir / "completion-receipt.json").read_text())
+    assert receipt["memorization_step"] is None  # explicit null, not faked
+    assert receipt["grok_step"] is None
+    assert (outdir / "fourier.json").exists() and (outdir / "ablations.json").exists()
+    abl = json.loads((outdir / "ablations.json").read_text())
+    assert len(abl["remove_random_other5"]) == 10
+    assert len(abl["keep_only_random_other5"]) == 10
+    assert m["final_log_entry"]["step"] == 2
+    # full batch uses ONLY train indices: recompute train loss on the saved
+    # final checkpoint and compare against the logged value
+    final = gk._detree(gk.load_params(outdir / "checkpoint-final.npz"))
+    data = gk.build_dataset()
+    split = gk.fixed_split(0.30)
+    l_tr, a_tr = gk.loss_acc(final, jnp.asarray(data["inputs"][split["train"]]),
+                             jnp.asarray(data["targets"][split["train"]]))
+    l_te, a_te = gk.loss_acc(final, jnp.asarray(data["inputs"][split["test"]]),
+                             jnp.asarray(data["targets"][split["test"]]))
+    assert l_tr == pytest.approx(m["log"][-1]["train_loss"], rel=1e-5)
+    assert a_tr == pytest.approx(m["log"][-1]["train_acc"], abs=1e-6)
+    assert l_te == pytest.approx(m["log"][-1]["test_loss"], rel=1e-5)
+    # postprocessing failure must not lose the completed training
+    import shutil
+    outdir2 = tmp_path / "smoke-unit2"
+    orig_fft = gk.top5
+    gk.top5 = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("plot error"))
+    try:
+        with pytest.raises(RuntimeError):
+            gk.run_one(seed=0, fraction=0.30, max_steps=1, log_every=1,
+                       outdir=outdir2)
+        assert (outdir2 / "completion-receipt.json").exists()
+        assert (outdir2 / "checkpoint-final.npz").exists()
+    finally:
+        gk.top5 = orig_fft

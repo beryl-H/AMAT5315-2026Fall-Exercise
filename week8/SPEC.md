@@ -147,10 +147,14 @@ Choices not fixed by the sheet, frozen here before implementation:
   answer never appears as input). Answer read from logits at position 2,
   softmax over 98 tokens, cross-entropy on the true residue c.
 - One layer, no LayerNorm, width 64, 4 heads (head width 16, qkv + out
-  projections with biases), MLP 64→256→64 with biases, untied head 64→98.
+  projections with biases), MLP 64→256→64 with biases, untied head 64→97
+  over the 97 RESIDUE classes (chance 1/97, uniform loss ln 97; pre-
+  implementation review correction, frozen before any formal run).
   Total parameters = 98·64 + (3·(64·64+64) + 64·64+64) + (64·256+256 +
-  256·64+64) + (64·98+98) = 62,370. All weights init N(0, sqrt(2/(64+97))),
-  biases zero (gives initial parameter norm ≈ 28, the reference value).
+  256·64+64) + (64·97+97) = 62,305. All weights init N(0, sqrt(2/(64+97))),
+  biases zero; the resulting initial parameter norm ≈ 28 is a REPORTED
+  observation (reference agreement), not an acceptance target and not
+  tuned. GELU nonlinearity; no LayerNorm/positional embeddings/causal mask.
 - AdamW lr 3e-3, betas (0.9, 0.98), weight decay 1, FULL batch (all training
   pairs each step), no gradient clipping, float32.
 - Logging grid: every 100 steps AND step 0 (initialization: loss, accuracy,
