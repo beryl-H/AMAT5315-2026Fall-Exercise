@@ -39,6 +39,17 @@ Part 1 measured results (`evidence/part1-results.json`, seed protocol in
 `SPEC.md`): table mean LOO cosines 0.466 / 0.549 / 0.433 (gate ≥ 0.3); control
 seed-1730 means +0.030 / −0.015 / +0.009 (gate |·| ≤ 0.15); 20-shuffle means in
 [−0.089, +0.085] (descriptive). Figure: `evidence/part1-relations.png`.
+**Visual correction:** the first figure used unequal x/y scaling, so drawn
+angles were not arccos(cosine). Re-rendered from the same saved numbers with
+`set_aspect("equal")` into `evidence/part1-relations-equal-aspect.png`
+(producing command: `uv run python src/render_part1_figure.py`); data and
+gates unchanged. Pair numbering key —
+country_capital: 1 iran→tehran, 2 turkey→ankara, 3 russia→moscow, 4 china→beijing,
+5 france→paris, 6 sweden→stockholm, 7 japan→tokyo, 8 peru→lima, 9 kenya→nairobi;
+male_female: 1 king→queen, 2 man→woman, 3 he→she, 4 brother→sister, 5 father→mother,
+6 son→daughter, 7 uncle→aunt, 8 boy→girl, 9 husband→wife;
+adj_comparative: 1 big→bigger, 2 small→smaller, 3 fast→faster, 4 dark→darker,
+5 cold→colder, 6 old→older, 7 strong→stronger, 8 long→longer, 9 tall→taller.
 
 Corpus input preparation verified: 24,867 train / 2,763 validation stories,
 ~2.05 characters per token, exactly 3 validation roundtrip exceptions.

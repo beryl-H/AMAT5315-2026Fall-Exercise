@@ -68,6 +68,7 @@ def main():
         cos_t = relation_pair_cosines(U, ids, pairs)
         cos_c = relation_pair_cosines(Uc, ids, pairs)
         mean_t, mean_c = relation_mean(cos_t), relation_mean(cos_c)
+        ctl_pair = {f"{a}->{b}": float(c) for (a, b), c in zip(pairs, cos_c)}
         shuf_means = []
         for seed in range(1731, 1751):
             Us = unit_rows(shuffle_rows(E, seed))
@@ -77,6 +78,7 @@ def main():
         results["relations"][name] = {
             "table_mean_cosine": mean_t,
             "control_seed1730_mean_cosine": mean_c,
+            "control_pair_cosines": ctl_pair,
             "twenty_shuffle_means": shuf_means,
             "twenty_shuffle_mean_min": float(min(shuf_means)),
             "twenty_shuffle_mean_max": float(max(shuf_means)),

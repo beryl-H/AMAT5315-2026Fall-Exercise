@@ -65,7 +65,18 @@
         "peru->lima": 0.3042505039278956,
         "kenya->nairobi": 0.6261486895864301
       },
-      "weakest_pair": "peru\u2192lima"
+      "weakest_pair": "peru\u2192lima",
+      "control_pair_cosines": {
+        "iran->tehran": 0.09147895755403547,
+        "turkey->ankara": 0.07755715435299385,
+        "russia->moscow": 0.06424735871839408,
+        "china->beijing": 0.04749629843416036,
+        "france->paris": -0.019396177202438098,
+        "sweden->stockholm": -0.02535365818407656,
+        "japan->tokyo": 0.14157683301514748,
+        "peru->lima": -0.029760442999952362,
+        "kenya->nairobi": -0.08264826451090983
+      }
     },
     "male_female": {
       "table_mean_cosine": 0.5485180657376586,
@@ -105,7 +116,18 @@
         "boy->girl": 0.7467650734681195,
         "husband->wife": 0.06620957614124619
       },
-      "weakest_pair": "husband\u2192wife"
+      "weakest_pair": "husband\u2192wife",
+      "control_pair_cosines": {
+        "king->queen": 0.012315390313893929,
+        "man->woman": 0.014070343630797623,
+        "he->she": -0.016702104046939576,
+        "brother->sister": -0.04115011896527782,
+        "father->mother": -0.028521889288638778,
+        "son->daughter": -0.12989060889592657,
+        "uncle->aunt": -0.01935773141079589,
+        "boy->girl": 0.09530797415153305,
+        "husband->wife": -0.01930997675787327
+      }
     },
     "adj_comparative": {
       "table_mean_cosine": 0.43300393216145866,
@@ -145,7 +167,18 @@
         "long->longer": 0.4366998996650113,
         "tall->taller": 0.5273880885139364
       },
-      "weakest_pair": "old\u2192older"
+      "weakest_pair": "old\u2192older",
+      "control_pair_cosines": {
+        "big->bigger": -0.1011195025797533,
+        "small->smaller": -0.025200122526916252,
+        "fast->faster": 0.052138665844104294,
+        "dark->darker": 0.11987561614719061,
+        "cold->colder": 0.03470152399952683,
+        "old->older": -0.0721395625327028,
+        "strong->stronger": 0.026332937889252134,
+        "long->longer": 0.04675460885354002,
+        "tall->taller": -0.0024364162164297533
+      }
     }
   },
   "gates": {
