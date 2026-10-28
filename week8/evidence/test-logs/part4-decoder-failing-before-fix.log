@@ -1,0 +1,4 @@
+FAILED tests/test_part4_decoder.py::test_swap_ab_not_structurally_invariant
+FAILED tests/test_part4_decoder.py::test_symmetric_variant_is_invariant_control
+FAILED tests/test_part4_decoder.py::test_random_label_conflicts_count_and_are_expressible
+5 failed, 2 passed in 6.17s
