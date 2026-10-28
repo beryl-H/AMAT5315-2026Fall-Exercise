@@ -84,7 +84,7 @@ def chi2_pooled(target_dist, draws, emin=5.0, return_meta=True):
     meta = {"minimum_expected": None, "bins": 0, "df": 0, "n_draws": int(len(draws))}
     if (counts[expected == 0] > 0).any():
         meta["support_violation"] = True
-        return float("inf"), 0, float("nan"), meta
+        return float("inf"), 0, 0.0, meta  # EXPLICIT rejection (p=0), never nan
     meta["support_violation"] = False
     keep = expected >= emin
     groups = [(float(o), float(e)) for o, e in zip(counts[keep], expected[keep])]
@@ -100,7 +100,7 @@ def chi2_pooled(target_dist, draws, emin=5.0, return_meta=True):
             groups.append((rare_o, rare_e))
     if len(groups) <= 1:
         meta["df"] = 0
-        return 0.0, 0, float("nan"), meta
+        return 0.0, 0, 0.0, meta  # uninformative context: explicit non-pass, not nan
     stat = sum((o - e) ** 2 / e for o, e in groups)
     df = len(groups) - 1
     meta["bins"] = len(groups)
