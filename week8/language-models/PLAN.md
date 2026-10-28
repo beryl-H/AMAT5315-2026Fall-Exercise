@@ -15,11 +15,17 @@ results), preserving meaningful history.
 
 ## Phase 1 — Pinned inputs + provenance
 
-- [ ] Download the four pinned inputs (see SPEC table) via primary public URLs.
-- [ ] Record in `data/MANIFEST.md`: resolved commit, URL, SHA256, bytes, schema
-      (safetensors dtypes/shape; tokenizer.json type; SPM model; CSV columns).
-- [ ] Data files stay in git-ignored `data/`; the manifest is committed.
-- Verify: `uv run python src/check_inputs.py` prints the manifest table and
+- [x] Download the four pinned inputs (see SPEC table) via primary public URLs.
+      Chinchilla CSV: WSL curl exit 55 (preserved); retrieved by the root
+      coordinator via Windows Python urllib (receipt:
+      support/chinchilla-download-receipt.json) and copied byte-exact into
+      `data/`.
+- [x] Provenance published as `INPUTS.md` + `evidence/input-manifest.json`
+      (outside git-ignored `data/`): URL, SHA256, bytes, schema; resolved full
+      commit SHAs where the bounded 30 s public-API lookup succeeded
+      (TinyStories, analyzing-chinchilla), pinned short revisions otherwise.
+- [x] Data files stay in git-ignored `data/`.
+- [ ] Verify: `uv run python src/check_inputs.py` prints the manifest table and
   exits nonzero on any hash/schema mismatch.
 
 ## Phase 2 — Failing tests first (input preparation + Part 1)
@@ -34,6 +40,11 @@ Tests derived from SPEC (not from implementation):
 - `tests/test_part1.py` — unit tests with a tiny synthetic table (4×3):
   unit-row scaling, offset/LOO-cosine math on a hand-computable case, control
   shuffle changes assignment but not the vector multiset, mean-of-9 aggregation.
+- `tests/test_memory_stores.py` — the mandatory least-squares regression case
+  (d=1, M=2, keys [[1],[1]], values [[1],[1]] → R = 1, naive metric 0);
+  M ≤ d ⇒ R = 0; H-diagonal path for M > d matches the explicit H; Part 4
+  picture-denominator fixture (1024-pixel ±1 picture, norm 32) catching any
+  factor-32 scalar-denominator error.
 - Data-bound checks (`tests/test_data_checks.py`, run only when `data/` is
   present): shapes/keys of the embedding table (29528 × 256), corpus split
   counts 24867/2763, ≈ 2.05 chars/token, exactly-3 roundtrip exceptions, all 54

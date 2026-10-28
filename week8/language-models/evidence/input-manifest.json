@@ -1,0 +1,50 @@
+{
+  "generated_utc": "2026-10-28T12:30:00Z",
+  "data_dir": "data (git-ignored)",
+  "files": [
+    {
+      "file": "model.safetensors",
+      "url": "https://huggingface.co/minishlab/potion-base-8M/resolve/bf8b056/model.safetensors",
+      "bytes": 30236760,
+      "sha256": "f65d0f325faadc1e121c319e2faa41170d3fa07d8c89abd48ca5358d9a223de2",
+      "resolved_commit": null,
+      "note": "pinned short revision; bounded 30s HF API lookup timed out"
+    },
+    {
+      "file": "tokenizer.json",
+      "url": "https://huggingface.co/minishlab/potion-base-8M/resolve/bf8b056/tokenizer.json",
+      "bytes": 683666,
+      "sha256": "e67e803f624fb4d67dea1c730d06e1067e1b14d830e2c2202569e3ef0f70bb50",
+      "resolved_commit": null,
+      "note": "pinned short revision; bounded 30s HF API lookup timed out"
+    },
+    {
+      "file": "TinyStoriesV2-GPT4-valid.txt",
+      "url": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/TinyStoriesV2-GPT4-valid.txt",
+      "bytes": 22502601,
+      "sha256": "6874bae9a4c1a4e7edcf0e53b86c17817e9cf881fc75ff2368da457b80c0585d",
+      "resolved_commit": "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64",
+      "note": null
+    },
+    {
+      "file": "tok512.model",
+      "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da/stories260K/tok512.model",
+      "bytes": 7645,
+      "sha256": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5",
+      "resolved_commit": null,
+      "note": "pinned short revision; bounded 30s HF API lookup timed out"
+    },
+    {
+      "file": "chinchilla-runs.csv",
+      "url": "https://raw.githubusercontent.com/epoch-research/analyzing-chinchilla/92258837425e1b5f2851d624287f0120583a3d0e/data/svg_extracted_data.csv",
+      "bytes": 23224,
+      "sha256": "193478df4e90f040016431996c45682659306840ecdadf83cfb9cd5ca0aa1b30",
+      "resolved_commit": "92258837425e1b5f2851d624287f0120583a3d0e",
+      "note": null
+    }
+  ],
+  "retrieval": {
+    "files_1_4": "WSL curl -L by native pi agent (volcengine-plan/glm-5-3-flash), 2026-10-28",
+    "chinchilla": "first WSL curl attempt failed exit 55 (preserved); retrieved by root coordinator via Windows Python urllib (support/chinchilla-download-receipt.json); copied byte-identical"
+  }
+}
