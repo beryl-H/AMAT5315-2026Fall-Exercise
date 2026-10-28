@@ -28,12 +28,17 @@ result JSON are committed under `evidence/`.
 
 | Part | topic | status |
 |---|---|---|
-| 1 | embeddings: relations as directions | input prep + module in progress |
-| 2 | count models (Markov chains, n-grams) | input prep in progress |
+| 1 | embeddings: relations as directions | inference DONE, all mandatory gates PASS |
+| 2 | count models (Markov chains, n-grams) | input prep done + verified; formal runs pending |
 | 3 | MLP as key–value memory | pending |
 | 4 | attention: softmax store recalls 算 | pending |
 | 5 | transformer: training and sampling | pending |
 | 6 | Chinchilla scaling law refit | pending |
 
-Statuses are updated as formal runs complete; every reported gate value is a
-measured number.
+Part 1 measured results (`evidence/part1-results.json`, seed protocol in
+`SPEC.md`): table mean LOO cosines 0.466 / 0.549 / 0.433 (gate ≥ 0.3); control
+seed-1730 means +0.030 / −0.015 / +0.009 (gate |·| ≤ 0.15); 20-shuffle means in
+[−0.089, +0.085] (descriptive). Figure: `evidence/part1-relations.png`.
+
+Corpus input preparation verified: 24,867 train / 2,763 validation stories,
+~2.05 characters per token, exactly 3 validation roundtrip exceptions.

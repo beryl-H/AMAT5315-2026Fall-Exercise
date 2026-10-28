@@ -1,0 +1,58 @@
+{
+  "phase": "preflight (bounded first phase of revised 24-page Week 8 sheet)",
+  "generated_utc": "2026-10-28T12:35:00Z",
+  "agent": {"tool": "native WSL pi", "provider": "volcengine-plan", "model": "glm-5-3-flash"},
+  "source": {
+    "worksheet_snapshot": "/mnt/d/Keria/Course/AMAT5315/week8-support/revised-4e33bea92945/learning-sheet.pdf",
+    "worksheet_sha256": "4e33bea929459c01511efc0298308a93d08d99ee7df38372bbf52e89be69cc35",
+    "part4_glyph": "算 (user-selected, user-choices.json)",
+    "repo_base_commit": "24a860b (old week8 work untouched; verified by git diff)"
+  },
+  "inputs": {
+    "manifest": "evidence/input-manifest.json",
+    "provenance_doc": "INPUTS.md",
+    "verification_command": "uv run python src/check_inputs.py",
+    "verification_result": "exit 0, all 5 files OK (hashes, bytes, schemas)",
+    "files": {
+      "model.safetensors": "f65d0f325faadc1e121c319e2faa41170d3fa07d8c89abd48ca5358d9a223de2",
+      "tokenizer.json": "e67e803f624fb4d67dea1c730d06e1067e1b14d830e2c2202569e3ef0f70bb50",
+      "TinyStoriesV2-GPT4-valid.txt": "6874bae9a4c1a4e7edcf0e53b86c17817e9cf881fc75ff2368da457b80c0585d",
+      "tok512.model": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5",
+      "chinchilla-runs.csv": "193478df4e90f040016431996c45682659306840ecdadf83cfb9cd5ca0aa1b30"
+    },
+    "retrieval_notes": "WSL curl exit 55 on first Chinchilla attempt (preserved in artifacts/download-failures/README and INPUTS.md); Chinchilla CSV retrieved by root coordinator via Windows Python urllib, copied byte-identical. Commit-resolution: TinyStories + analyzing-chinchilla full SHAs API-confirmed; two HF model-repo APIs timed out within bounded 30 s and remain pinned short revisions."
+  },
+  "tests": {
+    "command": "uv run pytest tests/ -q",
+    "red_log": "evidence/test-logs/red-phase2.log (5 collection errors: src modules absent — committed before implementation, 4bd3a8c)",
+    "green_log": "evidence/test-logs/green-phase3.log",
+    "result": "27 passed, 0 skipped (data-bound checks ran against real pinned data)",
+    "negative_control": "sabotage: corrupted embedding row 3943 ('cat') in a scratch copy; cat-kitten cosine changed 0.6855 -> 0.6681 and was detected by numerical probe; corrupted copy preserved at artifacts/sabotage-model-corrupt.safetensors; committed data re-verified intact afterwards"
+  },
+  "part1_inference": {
+    "command": "uv run python src/run_part1.py",
+    "results": "evidence/part1-results.json",
+    "figure": "evidence/part1-relations.png",
+    "table_means": {"country_capital": 0.4659, "male_female": 0.5485, "adj_comparative": 0.4330},
+    "control_seed1730_means": {"country_capital": 0.0295, "male_female": -0.0148, "adj_comparative": 0.0088},
+    "twenty_shuffle_means_range": {"country_capital": [-0.089, 0.064], "male_female": [-0.056, 0.062], "adj_comparative": [-0.068, 0.085]},
+    "gates_mandatory": {"table_means_ge_0.3": "PASS (all three)", "control_abs_le_0.15": "PASS (all three)"},
+    "gates_all_pass": true,
+    "weakest_pairs": {"country_capital": "peru->lima", "male_female": "husband->wife", "adj_comparative": "old->older"}
+  },
+  "data_bound_gates_confirmed": {
+    "corpus_split": "24867 train / 2763 validation stories",
+    "chars_per_token": "in (2.0, 2.1) on training stories (sheet reference ~2.05)",
+    "roundtrip_exceptions": "exactly 3 validation stories (sheet reference 3)",
+    "embedding_table": "shape (29528, 256) float32; all 54 Part-1 words single vocab rows (no OOV)"
+  },
+  "explicitly_not_yet_run": [
+    "Part 2 formal: add-k selection, n-gram ladder n=1..6, explicit 512/512^2/512^3 normalization enumeration, 250k-token bigram sampler + pooled chi^2 + bad-lag negative control, curse-of-dimensionality figure",
+    "Part 3 formal: chunked-BLAS memory sweep (d 16/32/64, M 8..65536, stores outer/LS/ReLU^1,2,3, all stored keys queried) and the 16384-batch MLP LM",
+    "Part 4 formal: 算 bitmap rendering + 20-draw store validation",
+    "Part 5 formal: transformer training, held-out bpc, sampler chi^2 suite, entropy z-scores",
+    "Part 6 formal: Huber/L-BFGS multistart fit, 400 bootstrap refits, compute-optimal curves"
+  ],
+  "conventions_frozen": "SPEC.md (RNG seed table, scoring windows, ISR definitions, literal Part 6 fit spec)",
+  "claims_policy": "Every reported value above is measured; no fake passes; failures would be reported as actual values."
+}
