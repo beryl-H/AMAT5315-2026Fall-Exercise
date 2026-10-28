@@ -31,10 +31,10 @@ uv 0.13.0 (`evidence/environment.json`). No GPU/cloud was used anywhere.
 - **Pi (native WSL, provider `volcengine-plan`, model `glm-5-3-flash`)**
   authored the models, workers and fit code (`baselines.py`,
   `transformer.py`, `grok.py`, `scaling.py`, `run_part1.py`, `run_part2.py`,
-  `run_part3` fit/sweep code, `run_part4.py`, `make_part3_evidence.py`,
+  `sweep.py` and scaling fit code, `run_part4.py`, `make_part3_evidence.py`,
   `make_part4_evidence.py`) and the original main evidence scripts, plus
   this file's subject matter. One earlier Pi turn (turn 08) ended with
-  `429AccountQuotaExceeded` despite a live process — recorded as a failure,
+  `429AccountQuotaExceeded` with model stopReason=error although the wrapper returned exit 0 — recorded as a failure,
   not a success; service reset 13:07:34 followed by a bounded no-tools
   connection test with `stopReason=stop`.
 - **Codex** coordinated all formal workers (dispatch/manager scripts), wrote
@@ -51,13 +51,16 @@ uv 0.13.0 (`evidence/environment.json`). No GPU/cloud was used anywhere.
    acceptance checks PASS (`evidence/part1-summary.json`).
 2. **Part 2** — smoke, then formal `attempt formal-01`
    (`JAX_PLATFORMS=cpu taskset -c 0-3 uv run python run_part2.py --attempt
-   formal-01`); 116,673 parameters; held-out loss 1.699743, PPL 5.47255;
+   formal-01`); 116,673 parameters; held-out loss 1.699744, PPL 5.47255;
    causality probe exactly 0; unmasked negative control detects leakage
    (2.996). Independently re-verified
    (`evidence/independent/independent-part2-audit.json`).
 3. **Part 3** — smoke runs, then 18 fit runs (widths 8–128 × seeds 1,2,
-   1500 steps) plus 2 holdout-192 runs dispatched via the reviewed
-   `runner_part3.sh` / `coordinate_part3.py` (per-worker command pattern:
+   1500 steps) plus 2 holdout-192 runs dispatched via the Codex coordination
+   layer at `week8-support/coordinate_part3.py` (exact executed source kept
+   as `coordinator-source.py` in each attempt). The portable repository copy
+   and safe `runner_part3.sh` wrapper were added after these runs; the old
+   unsafe wrapper was never executed. Per-worker command pattern:
    `env JAX_PLATFORMS=cpu taskset -c <core> .venv/bin/python sweep.py
    --width W --seed S --steps 1500 --out <attempt>/wWWW-sS`). Sealed blind
    prediction written 2026-10-28T04:20:00Z, BEFORE any width-192 step
@@ -73,7 +76,9 @@ uv 0.13.0 (`evidence/environment.json`). No GPU/cloud was used anywhere.
    `evidence/independent/part4-symmetry-defect.json` and
    `artifacts/part4/formal-01/INVALIDATED-PROTOCOL.json`. Its two completed
    main runs are NEVER mixed into decoder results. `grok_symmetric_variant.py`
-   preserved verbatim (original also under `week8-support/audit/`).
+   preserves the model implementation with a provenance comment; the byte-exact
+   original is recoverable from commit `7b9719b` and is also saved under
+   `week8-support/audit/grok-symmetric-variant-exact-7b9719b.py`.
 5. **Part 4 corrected decoder** — protocol `PART4_DECODER_PROTOCOL.md`
    frozen BEFORE training (commit `473efb3`: learned 3×64 positions + causal
    mask, only LayerNorm removed; 62,497 parameters; decoder capacity for the
@@ -84,8 +89,8 @@ uv 0.13.0 (`evidence/environment.json`). No GPU/cloud was used anywhere.
    run_one(outdir=..., seed=..., fraction=..., wd=..., max_steps=...,
    log_every=100)"`; per-run exact commands in
    `evidence/part4-summary.json`). Manager completed with status COMPLETE;
-   peak combined worker RSS recorded in the audit (max single worker
-   1432.8 MB).
+   peak combined RSS of the active workers was 1432.8 MB (not a single-worker
+   measurement), as recorded by the manager and independent audit.
 6. **Part 4 postprocessing** — `uv run python make_part4_evidence.py`
    (strict-gated on manager COMPLETE + 12 hash-matched metrics). First
    execution exited 1: the legitimate no-grok seed 0 has `delay_ratio null`,
