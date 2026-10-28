@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "command": "PYTHONPATH=/mnt/d/Keria/Course/AMAT5315/week8-support/part2-audit-source JAX_PLATFORMS=cpu taskset -c 4-5 .venv/bin/python /mnt/d/Keria/Course/AMAT5315/week8-support/independent_part2_audit.py",
+  "formal_steps": 3000,
+  "checkpoint_sha256": "dd799880644620238df2270ff16cee4bd6d33a01cd1e204252a99cb1b7da4290",
+  "parameter_count": 116673,
+  "independent_full_validation": {
+    "loss": 1.6997439401836916,
+    "ppl": 5.472545913202416,
+    "count": 111539
+  },
+  "reported_loss_difference": 7.326322037926047E-08,
+  "synthetic_prefix_probe_max": 0.0,
+  "attention_upper_max": 0.0,
+  "samples": {
+    "sample-temp0.5.txt": {
+      "characters": 507,
+      "sha256": "0edc48c6de1f780cbaa62f84fad950d3ce5ae440fcbe115c1c49f0f4ed436fbb"
+    },
+    "sample-temp1.0.txt": {
+      "characters": 507,
+      "sha256": "8cfcef69f8758db1f6348b36686646491714d2a8c2bd39690c695f04aca83fa5"
+    }
+  },
+  "numerical_loss_gate": true,
+  "source_commit": "63c43cab60cad23048a43f36ad54ff8eb752fdef"
+}

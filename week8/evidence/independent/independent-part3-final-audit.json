@@ -1,0 +1,40 @@
+{
+  "engineering_audit": "PASS",
+  "blind_prediction_gate": "FAIL",
+  "prediction_utc": "2026-10-28T04:20:00Z",
+  "predicted_loss": 1.6395429349551007,
+  "interval": [
+    1.6119085393335262,
+    1.6675368797482817
+  ],
+  "trained_mean_loss": 1.7221993294315259,
+  "independent_alpha": 0.06482319299110738,
+  "reported_alpha": 0.06482319250802698,
+  "alpha_interval": [
+    0.058859551670285795,
+    0.07079794402166548
+  ],
+  "birge": 1.8534811948355656,
+  "interval_width": 0.055628340414755506,
+  "target_N": 890112,
+  "results": [
+    {
+      "seed": 1,
+      "reported_loss": 1.7143664360046387,
+      "independent_loss": 1.7143664046676472,
+      "start_unix": 1793161215.5965827,
+      "finish_unix": 1793161741.6641774,
+      "checkpoint_sha256": "7e405fa2b72c1962f11c617f40f582ee6cd05f36e6a7f2f2579344fd4b214804"
+    },
+    {
+      "seed": 2,
+      "reported_loss": 1.7300323247909546,
+      "independent_loss": 1.7300322541954047,
+      "start_unix": 1793161215.6039317,
+      "finish_unix": 1793161741.750343,
+      "checkpoint_sha256": "13e73c7018bfabc3ccbc2101f75dc42f4a715a76d047f34e4dd861e73584985b"
+    }
+  ],
+  "immutable_prediction_file_sha256": "8c39f12d4314179fce66354f4291dc4a464a44a6592c846e937112e8fcfd1661",
+  "note": "No refit, interval change, seed search or retraining after holdout."
+}

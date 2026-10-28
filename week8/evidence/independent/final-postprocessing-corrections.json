@@ -1,0 +1,19 @@
+{
+  "postprocessing_failure": {
+    "command": "uv run python make_part4_evidence.py",
+    "original_exit_code": 1,
+    "reason": "None delay ratio for legitimate no-grok seed0 was formatted with .2f",
+    "correction": "render null explicitly; regenerate from saved artifacts only"
+  },
+  "independent_audit_precision_failure": {
+    "run": "wd0-s0",
+    "reported_float32_mean_loss": 235.52699279785156,
+    "independent_float64_mean_of_float32_token_losses": 235.52700227253416,
+    "absolute_difference": 9.474682599375228e-06,
+    "relative_difference": 4.022753140790454e-08,
+    "cause": "uniform absolute2e-6 audit threshold too strict for float32 mean near235; independent score agrees within one float32 ULP",
+    "correction": "compare loss within four float32 ULPs, retain exact accuracy and all scientific thresholds"
+  },
+  "training_repeated": false,
+  "scientific_gates_modified": false
+}

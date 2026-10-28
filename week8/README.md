@@ -112,8 +112,9 @@ fixed 1500-step budget; width 8 excluded (bigram plateau); loss-space WLS fit
 of `L = a·N^(−α)` with per-width σ = |L₁−L₂|/2 (floor 1e-3), Birge factor
 max(1, √(χ²/6)); deterministic 10,000-draw bootstrap (seed 20260). The blind
 prediction for width 192 (890,112 non-embedding parameters) was sealed to
-`artifacts/part3/formal-fit-01/prediction/prediction192.json` (SHA256
-`74f6c3da…92bc5b`, timestamp **2026-10-28T04:20:00Z**) BEFORE the width-192
+`artifacts/part3/formal-fit-01/prediction/prediction192.json` (immutable;
+sealed payload hash `74f6c3da…92bc5b` recorded inside the receipt, file
+SHA256 `8c39f12d…fd1661`, timestamp **2026-10-28T04:20:00Z**) BEFORE the width-192
 runs started (first worker start **04:20:15.6Z**, dispatch 04:20:13.1Z); the
 prediction is older than every training step (anti-leakage guard PASS).
 
@@ -150,14 +151,16 @@ additional experiments (e.g. longer budgets) to distinguish mechanisms. The
 sheet's earlier floor-term (Protocol A) blind failures are COURSE REFERENCE
 HISTORY, not experiments performed here.
 
-## Part 4 — Grokking (formal-decoder-02): TRAINING STILL RUNNING
+## Part 4 — Grokking (formal-decoder-02): COMPLETE, all-gates FALSE (legitimate)
 
-Status: **Part 4 is running until its final summary is available.** The 12
-fixed jobs (main seeds 0–4 at 30%/wd 1; wd-0 seeds 0–2; 50%-fraction seeds
-0–2; one random-label run, seed 0, 3000 steps) are coordinated by Codex under
-`artifacts/part4/formal-decoder-02/manager-status.json`. Interim numbers MUST
-NOT be read as conclusions; this section will be completed with the measured
-evidence only after all runs finish.
+All 12 fixed jobs finished (main seeds 0–4 at 30%/wd 1; wd-0 seeds 0–2;
+50%-fraction seeds 0–2; random-label seed 0, 3000 steps). The independent
+audit (`evidence/independent/independent-part4-final-audit.json`, method:
+independent data/splits and saved-weight scoring, NumPy rfft/irfft ablations,
+no training replay) PASSED on every artifact, score, FFT and ablation check;
+`all_main_scientific_gates_pass` is **FALSE** because **seed 0 did not grok
+within 10000 steps** — 4/5 seeds passed every gate. No cherry-picking, no
+retraining, no threshold changes.
 
 Protocol: `PART4_DECODER_PROTOCOL.md` (frozen before any decoder run, at
 commit 473efb3; `grok.py` SHA256 `d0501c3b…1d447`). One-layer decoder, NO
@@ -167,6 +170,71 @@ full-batch AdamW lr 3e-3, betas (0.9, 0.98), wd 1 (0 for the wd0 controls);
 log every 100 steps plus step 0; stop at first logged test acc ≥ 0.99 plus
 1000 steps, cap 10000.
 
+Results (final, from the frozen protocol; failed gates stay failed):
+
+- **Memorization before generalization:** every main seed memorizes at step
+  200; grok steps 5000/5500/4500/6700 for seeds 1/2/3/4 (delays 25.0/27.5/
+  22.5/33.5). **Seed 0: memorization 200, grok step null (no grok), final
+  test accuracy 0.0954, top-5 share 0.3964** — all its failing gates are
+  reported, never hidden.
+- **Parameter norm:** rises from ≈27.6 at initialization to ≈48–52 during
+  memorization, falls after grokking (seed-dependent; for the no-grok seed 0
+  it does not fall — see `part4-grok-curves.png`). Norm changes suggest a
+  change in learned representation; the supported mechanism comes from the
+  frequency ablations below, not from the curves alone.
+- **Fourier concentration:** final top-5 shares 0.9295/0.8798/0.9283/0.9443
+  for the four grokked seeds (>0.8 gate); seed 0's FINAL (no grok) share is
+  0.3964. Key sets are seed-dependent (e.g. seed 1: 40,24,21,48,42).
+- **Ablations (per seed, from the final model):**
+
+| seed | keep key5 | remove key5 | remove other5 (10 draws) | keep other5 (10 draws) | all gates |
+|---|---|---|---|---|---|
+| 0 | 0.1456 (FAIL < 0.95) | 0.0112 (PASS) | min 0.0844 / max 0.0935 (FAIL) | max 0.0137 (PASS) | FAIL |
+| 1 | 0.9997 | 0.0103 | all 1.0000 | max 0.0103 | PASS |
+| 2 | 0.9998 | 0.0138 | all 1.0000 | max 0.0138 | PASS |
+| 3 | 1.0000 | 0.0108 | all 1.0000 | max 0.0125 | PASS |
+| 4 | 0.9991 | 0.0112 | all 1.0000 | max 0.0112 | PASS |
+
+  For every seed that passes the grok gates, keeping only the five key
+  frequencies preserves accuracy (≥ 0.999) and removing them drops test
+  accuracy to chance (≈ 1/97 ≈ 0.010), while the 10 random-other draws do
+  neither — the computed-with mechanism claim applies only to these seeds.
+  Seed 0's ablations are consistent with no generalizing rule yet.
+- **Controls (observed results, not guaranteed successes):** without weight
+  decay no seed generalizes by 10000 steps (final test accuracy 0.0167/
+  0.0093/0.0375; norms ≈ 72–74 still growing). With 50% training data the
+  delay almost disappears (grok steps 500/600/1000, delays 2.5/3.0/5.0).
+  Random labels are memorized at step 200 exactly like true labels, and
+  their test accuracy is 0.0091 at the end of the OBSERVED 3000-step window
+  (chance ≈ 0.010). This is an observation over a finite window, not a proof
+  about all future training.
+
+Producing command (strict-gated; refuses unless the manager is COMPLETE and
+all 12 metrics hash-match):
+
+```bash
+uv run python make_part4_evidence.py
+```
+
+- `part4-grok-curves.png` — accuracy/loss/parameter norm vs step (log-x),
+  step-0 initialization annotated, all 5 seeds visible including no-grok
+  seed 0.
+- `part4-controls.png` — test accuracy vs step for main, wd0, 50% and
+  random-label controls with the chance 1/97 line.
+- `part4-fourier.png` — Fourier power k=1..48 at initialization,
+  memorization and final per seed, final key frequencies marked, own-snapshot
+  top-5 shares; seed 0 labelled FINAL (no grok).
+- `part4-ablations.png` — trained / keep key5 / remove key5 / 10 random-other
+  draws each, with the 0.95/0.05 gates.
+- `part4-summary.json`, `part4-summary.md` — per-seed numbers, exact gate
+  booleans, hashes, actual commands, environment, predecessor exclusion.
+
+Independent audit: `evidence/independent/independent-part4-final-audit.json`
+(engineering PASS on all 12 runs; `all_main_scientific_gates_pass: false`);
+postprocessing corrections and the float32 loss-precision clarification are
+recorded in `evidence/independent/final-postprocessing-corrections.json`.
+Full audit trail: `EVIDENCE_AUDIT.md`.
+
 Invalidated predecessor (preserved, excluded): `artifacts/part4/formal-01`
 used a symmetric variant (no positional embeddings, no causal mask). It
 cannot represent the random-label control: 393 conflicting unordered training
@@ -174,31 +242,3 @@ pairs imply a maximum reachable training accuracy of 0.860786 < 0.99. It was
 stopped with all files preserved and is NOT mixed into any decoder result.
 The correction (learned positions + causal mask, only LayerNorm removed) is a
 verified capacity fix documented in the protocol, not metric tuning.
-
-Postprocessing plan (implemented now, executed only after completion):
-
-```bash
-# only when manager-status.json reports COMPLETE and all 12 metrics exist;
-# otherwise the script exits nonzero WITHOUT writing final evidence:
-uv run python make_part4_evidence.py
-```
-
-will produce `part4-grok-curves.png` (accuracy/loss/parameter norm vs step,
-log-x, step-0 initialization annotated, all 5 main seeds visible including
-the no-grok seed), `part4-controls.png` (test accuracy vs step for main, wd0,
-50% and random-label controls with the chance 1/97 line),
-`part4-fourier.png` (Fourier power
-k=1..48 at initialization/memorization/final per seed, final key frequencies
-marked, own-snapshot top-5 shares printed; snapshots are labelled FINAL when
-no grok occurred and show an explicit "unavailable" when a memorization
-checkpoint is absent) and `part4-ablations.png` (trained / keep key5 / remove
-key5 / 10 random-other draws each, with the 0.95/0.05 gates), plus
-`part4-summary.json` and `part4-summary.md` (per-seed memorization step,
-grok step, delay ratio, final accuracies, top-5 share, all ablations and the
-exact gate booleans: grok within 10000, delay > 10, share > 0.8, keep key
-> 0.95, remove key < 0.05, remove other > 0.95 in all 10 draws, keep other
-< 0.05 in all 10 draws — failed gates stay failed). Source/protocol/metrics
-hashes, the actual worker commands, the CPU-only environment, the invalidated
-predecessor exclusion and artifact paths are recorded in the summary. A
-`--preview` flag exists for nonformal rendering checks into
-`evidence-preview/` only.

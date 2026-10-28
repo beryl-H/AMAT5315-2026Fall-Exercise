@@ -1,0 +1,11 @@
+{
+  "source_sha256": "1a1d57fbb7b6ab8b253c150dd6fbaddebf37338fa01343bcaeff340d8a463bef",
+  "swapped_pair_logits_max_abs": 1.043081283569336e-07,
+  "architecture": "no positional embedding and no causal mask, permutation equivariant; answer at fixed = token is invariant under swapping a,b",
+  "train_count": 2823,
+  "conflicting_unordered_pairs": 393,
+  "random_label_training_accuracy_upper_bound": 0.8607863974495218,
+  "required_memorization_threshold": 0.99,
+  "status": "VERIFIED_ARCHITECTURAL_DEFECT_FOR_RANDOM_LABEL_CONTROL",
+  "correction": "retain positional embeddings and causal decoder mask from Part2, omit LayerNorm as requested; new distinct protocol/run namespace, keep all old artifacts"
+}
