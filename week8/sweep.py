@@ -69,12 +69,13 @@ def train_one(width: int, seed: int, steps: int, train_ids: np.ndarray,
     outdir.mkdir(parents=True)
 
     started_unix_ts = time.time()  # true process timestamp, not a guess
+    is_smoke = any("smoke" in p for p in outdir.parts)
     settings = {"width": width, "seed": seed, "steps": steps, "heads": heads,
                 "batch": BATCH, "score_batch": SCORE_BATCH,
                 "started_unix_ts": started_unix_ts,
                 "utc_started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "source_hashes": source_hashes(),
-                "formal": not outdir.name.startswith("smoke")}
+                "formal": not is_smoke}
     (outdir / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
 
     master = jax.random.PRNGKey(seed)
