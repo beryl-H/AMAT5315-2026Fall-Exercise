@@ -136,6 +136,60 @@
       ],
       "model_turn_success": false,
       "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-resume-smoke-09.jsonl",
+      "source_log_sha256": "9de0ba46699ae90ccd3dda378ac5383a423df732e52f3fdc9d735a1d5f080ce6",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 1,
+      "tool_calls": 0,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-09.jsonl",
+      "source_log_sha256": "ff4d5c5a741d7224707ed3092934384db659e050bfa5744f6b3ef5a4f47c8dd2",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 30,
+      "tool_calls": 40,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-10.jsonl",
+      "source_log_sha256": "b051527726a71451be279b6fab23b8244b1c0141add02cf3d30689a1f0b94ba0",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 16,
+      "tool_calls": 18,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
     }
   ],
   "local_configuration_boundary": "Standard existing WSL Pi authentication; no credentials copied, printed, or committed.",
