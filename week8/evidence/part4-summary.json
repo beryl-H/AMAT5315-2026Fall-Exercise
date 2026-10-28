@@ -1,0 +1,1151 @@
+{
+  "read_only": true,
+  "namespace": "artifacts/part4/formal-decoder-02",
+  "protocol": "PART4_DECODER_PROTOCOL.md (frozen; commit 473efb3 line)",
+  "source_hashes_recomputed": {
+    "grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "SPEC.md": "3af0d721e80e2d5070223a4e1ebc5e5bac17f6c6b01edc8b34c1fbd110b3bee1",
+    "run_part4.py": "f2ba51117119d285df63b6a69dcbf9a5710c4fff23ee956882a33b6c5ff19693",
+    "PART4_DECODER_PROTOCOL.md": "dc30615431deb72d12d810d7a1b72bf487297b37419924b1093623d9b07a9076"
+  },
+  "source_hashes_match_manager_receipt": true,
+  "manager": {
+    "status": "COMPLETE",
+    "started_utc": "2026-10-28T04:47:22.362229+00:00",
+    "finished_utc": "2026-10-28T05:24:35.525278+00:00",
+    "actor": "Codex dispatch; grokking worker and model authored via native WSL Pi plus explicitly recorded Codex wd threading repair"
+  },
+  "environment": {
+    "jax_platform": "cpu (JAX_PLATFORMS=cpu, taskset pinned cores; no GPU/cloud)",
+    "jax": "0.6.2",
+    "numpy": "2.2.6",
+    "python": "3.11",
+    "record": "evidence/environment.json"
+  },
+  "invalidated_predecessor": {
+    "excluded": "artifacts/part4/formal-01 (symmetric noPos/noMask variant) is INVALIDATED for the worksheet controls (393 conflicting unordered pairs -> max train acc 0.860786 < 0.99) and is NOT read by this script nor mixed into these results",
+    "record": "artifacts/part4/formal-01/INVALIDATED-PROTOCOL.json"
+  },
+  "per_run": {
+    "main-s0": {
+      "seed": 0,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 10000,
+      "memorization_step": 200,
+      "grok_step": null,
+      "delay_ratio": null,
+      "final_train_acc": 1.0,
+      "final_test_acc": 0.09535378217697144,
+      "final_param_norm": 46.23193359375,
+      "fourier": {
+        "init": {
+          "top5": [
+            9,
+            24,
+            38,
+            29,
+            18
+          ],
+          "share": 0.12657354772090912
+        },
+        "final": {
+          "top5": [
+            35,
+            31,
+            43,
+            22,
+            24
+          ],
+          "share": 0.39643508195877075
+        },
+        "memorization": {
+          "top5": [
+            35,
+            43,
+            31,
+            22,
+            46
+          ],
+          "share": 0.1601274460554123
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.14561189711093903,
+        "remove_key5": 0.01123595517128706,
+        "remove_random_other5": [
+          0.08836926519870758,
+          0.09353173524141312,
+          0.09110233932733536,
+          0.08609171211719513,
+          0.08442150056362152,
+          0.0856361985206604,
+          0.08928029239177704,
+          0.09003947675228119,
+          0.08593986928462982,
+          0.09034315496683121
+        ],
+        "keep_only_random_other5": [
+          0.01138779241591692,
+          0.008199210278689861,
+          0.00911023374646902,
+          0.012602490372955799,
+          0.013665351085364819,
+          0.012602490372955799,
+          0.013058002106845379,
+          0.00971758272498846,
+          0.0095657454803586,
+          0.01062860619276762
+        ]
+      },
+      "metrics_sha256": "0460ddeea1bf023a1ed275c6f63f09f193e9316c8b20fdf4ac236e99ccad3063",
+      "settings_sha256": "4c3e859e41d13b0da9a85750135b78c1202b0d32e8b26264a7334cf6208f4532",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 4 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s0'), **{'seed': 0, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:05:46Z"
+    },
+    "main-s1": {
+      "seed": 1,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 6000,
+      "memorization_step": 200,
+      "grok_step": 5000,
+      "delay_ratio": 25.0,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 30.31645393371582,
+      "fourier": {
+        "init": {
+          "top5": [
+            29,
+            31,
+            23,
+            33,
+            39
+          ],
+          "share": 0.1218920350074768
+        },
+        "final": {
+          "top5": [
+            40,
+            24,
+            21,
+            48,
+            42
+          ],
+          "share": 0.9295316934585571
+        },
+        "memorization": {
+          "top5": [
+            40,
+            24,
+            13,
+            22,
+            21
+          ],
+          "share": 0.16830602288246155
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.9996963143348694,
+        "remove_key5": 0.0103249317035079,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079
+        ]
+      },
+      "metrics_sha256": "106699607f8ae8a5c841f546d04b811c6197a7ef3252ba8f62f8acfe676eb15f",
+      "settings_sha256": "0fee8d5155a62925ad9bd943c1ff06a58faab45b782eb3bc85b1b141df9413e9",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 5 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s1'), **{'seed': 1, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T04:58:22Z"
+    },
+    "main-s2": {
+      "seed": 2,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 6500,
+      "memorization_step": 200,
+      "grok_step": 5500,
+      "delay_ratio": 27.5,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 32.93070602416992,
+      "fourier": {
+        "init": {
+          "top5": [
+            6,
+            28,
+            19,
+            45,
+            23
+          ],
+          "share": 0.1276259869337082
+        },
+        "final": {
+          "top5": [
+            6,
+            7,
+            28,
+            30,
+            20
+          ],
+          "share": 0.8798294067382812
+        },
+        "memorization": {
+          "top5": [
+            6,
+            7,
+            20,
+            27,
+            28
+          ],
+          "share": 0.16272331774234772
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.9998481869697571,
+        "remove_key5": 0.013817188329994678,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.01002125721424818,
+          0.01138779241591692,
+          0.01062860619276762,
+          0.012906164862215519,
+          0.01093228068202734,
+          0.013817188329994678,
+          0.01123595517128706,
+          0.01199514139443636,
+          0.01093228068202734,
+          0.01123595517128706
+        ]
+      },
+      "metrics_sha256": "d26bc99af3369ea13bd01a0a06c3c3c2bd6472e6657d717132e5a2f25531d875",
+      "settings_sha256": "5a3b82ec3606c15bda2cc833f20fea8f38e13beff8bceb8fe7c2c93f310bbebc",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 6 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s2'), **{'seed': 2, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T04:59:17Z"
+    },
+    "main-s3": {
+      "seed": 3,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 5500,
+      "memorization_step": 200,
+      "grok_step": 4500,
+      "delay_ratio": 22.5,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 31.231552124023438,
+      "fourier": {
+        "init": {
+          "top5": [
+            6,
+            36,
+            13,
+            19,
+            14
+          ],
+          "share": 0.1295335590839386
+        },
+        "final": {
+          "top5": [
+            7,
+            40,
+            1,
+            2,
+            14
+          ],
+          "share": 0.9283397793769836
+        },
+        "memorization": {
+          "top5": [
+            7,
+            1,
+            40,
+            2,
+            48
+          ],
+          "share": 0.1782107651233673
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 1.0,
+        "remove_key5": 0.01078044343739748,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.01138779241591692,
+          0.01062860619276762,
+          0.01245065312832594,
+          0.0103249317035079,
+          0.0110841179266572,
+          0.01047676894813776,
+          0.0103249317035079,
+          0.01123595517128706,
+          0.01093228068202734,
+          0.01002125721424818
+        ]
+      },
+      "metrics_sha256": "a5c9eb74abf274ee568a8acf62873deac515c0d23dde9d47fbd33c8c75e14c70",
+      "settings_sha256": "38867896046460ba22fc4a1e5b73647171f82ecdfdbf65236c5fa3d5e33e3b85",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 7 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s3'), **{'seed': 3, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T04:57:29Z"
+    },
+    "main-s4": {
+      "seed": 4,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 7700,
+      "memorization_step": 200,
+      "grok_step": 6700,
+      "delay_ratio": 33.5,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 29.712541580200195,
+      "fourier": {
+        "init": {
+          "top5": [
+            42,
+            19,
+            6,
+            36,
+            38
+          ],
+          "share": 0.1279463768005371
+        },
+        "final": {
+          "top5": [
+            40,
+            13,
+            28,
+            17,
+            23
+          ],
+          "share": 0.9442955851554871
+        },
+        "memorization": {
+          "top5": [
+            40,
+            28,
+            45,
+            13,
+            42
+          ],
+          "share": 0.18478497862815857
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.9990890026092529,
+        "remove_key5": 0.01123595517128706,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.0103249317035079,
+          0.01123595517128706,
+          0.0103249317035079,
+          0.01062860619276762,
+          0.0103249317035079
+        ]
+      },
+      "metrics_sha256": "1bb9749f7c59a1aa5d5dec411b3ce7a72087130bd749f459fa94f14bd3c538de",
+      "settings_sha256": "cff2e47fc087a32aa3801ba9daebe10611b99ab11e37709ff6f46a75bcf8666b",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 7 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s4'), **{'seed': 4, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:11:48Z"
+    },
+    "wd0-s0": {
+      "seed": 0,
+      "fraction": 0.3,
+      "wd": 0.0,
+      "steps_run": 10000,
+      "memorization_step": 200,
+      "grok_step": null,
+      "delay_ratio": null,
+      "final_train_acc": 1.0,
+      "final_test_acc": 0.016702095046639442,
+      "final_param_norm": 72.89573669433594,
+      "fourier": {
+        "init": {
+          "top5": [
+            9,
+            24,
+            38,
+            29,
+            18
+          ],
+          "share": 0.12657354772090912
+        },
+        "final": {
+          "top5": [
+            35,
+            31,
+            38,
+            43,
+            24
+          ],
+          "share": 0.16053925454616547
+        },
+        "memorization": {
+          "top5": [
+            35,
+            31,
+            43,
+            38,
+            24
+          ],
+          "share": 0.15166603028774261
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.02125721238553524,
+        "remove_key5": 0.01214697863906622,
+        "remove_random_other5": [
+          0.014424537308514118,
+          0.013969025574624538,
+          0.014272700063884258,
+          0.014424537308514118,
+          0.013513513840734959,
+          0.012906164862215519,
+          0.01245065312832594,
+          0.017461281269788742,
+          0.015183722600340843,
+          0.015335559844970703
+        ],
+        "keep_only_random_other5": [
+          0.013361676596105099,
+          0.013361676596105099,
+          0.013209839351475239,
+          0.013209839351475239,
+          0.01245065312832594,
+          0.01017309445887804,
+          0.013513513840734959,
+          0.012754327617585659,
+          0.015487397089600563,
+          0.01153962966054678
+        ]
+      },
+      "metrics_sha256": "71b18db078671f610696fe1adce2709f13bfa273097dadb22e9b7f8345eadbd8",
+      "settings_sha256": "2931d21fb6326d1b4851f1221a35b3508872bf83dc4a6431f784b310965ac631",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 5 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s0'), **{'seed': 0, 'fraction': 0.3, 'wd': 0.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:17:05Z"
+    },
+    "wd0-s1": {
+      "seed": 1,
+      "fraction": 0.3,
+      "wd": 0.0,
+      "steps_run": 10000,
+      "memorization_step": 100,
+      "grok_step": null,
+      "delay_ratio": null,
+      "final_train_acc": 0.9656393527984619,
+      "final_test_acc": 0.00926207099109888,
+      "final_param_norm": 73.42152404785156,
+      "fourier": {
+        "init": {
+          "top5": [
+            29,
+            31,
+            23,
+            33,
+            39
+          ],
+          "share": 0.1218920350074768
+        },
+        "final": {
+          "top5": [
+            40,
+            24,
+            21,
+            22,
+            2
+          ],
+          "share": 0.16550977528095245
+        },
+        "memorization": {
+          "top5": [
+            40,
+            24,
+            21,
+            13,
+            2
+          ],
+          "share": 0.14883746206760406
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.02307925932109356,
+        "remove_key5": 0.006832675542682409,
+        "remove_random_other5": [
+          0.007440024055540562,
+          0.007440024055540562,
+          0.008047373034060001,
+          0.01017309445887804,
+          0.01017309445887804,
+          0.008502884767949581,
+          0.0095657454803586,
+          0.007288186810910702,
+          0.01153962966054678,
+          0.00592165207490325
+        ],
+        "keep_only_random_other5": [
+          0.012602490372955799,
+          0.012906164862215519,
+          0.0110841179266572,
+          0.012602490372955799,
+          0.01245065312832594,
+          0.01153962966054678,
+          0.013058002106845379,
+          0.013058002106845379,
+          0.0118433041498065,
+          0.01822046749293804
+        ]
+      },
+      "metrics_sha256": "f96eda50b4d12067ca5f1f56aa28d5fbe8dcd461cc745bca0b38795a504c5e00",
+      "settings_sha256": "78eda4a05bdb33dd381aa36d916fb66338457f8a62641f9ce25acb016bf14a85",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 6 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s1'), **{'seed': 1, 'fraction': 0.3, 'wd': 0.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:18:01Z"
+    },
+    "wd0-s2": {
+      "seed": 2,
+      "fraction": 0.3,
+      "wd": 0.0,
+      "steps_run": 10000,
+      "memorization_step": 200,
+      "grok_step": null,
+      "delay_ratio": null,
+      "final_train_acc": 1.0,
+      "final_test_acc": 0.03750379756093025,
+      "final_param_norm": 72.44715881347656,
+      "fourier": {
+        "init": {
+          "top5": [
+            6,
+            28,
+            19,
+            45,
+            23
+          ],
+          "share": 0.1276259869337082
+        },
+        "final": {
+          "top5": [
+            6,
+            7,
+            27,
+            28,
+            36
+          ],
+          "share": 0.15916915237903595
+        },
+        "memorization": {
+          "top5": [
+            6,
+            7,
+            27,
+            30,
+            36
+          ],
+          "share": 0.14937886595726013
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.0229274220764637,
+        "remove_key5": 0.02232007309794426,
+        "remove_random_other5": [
+          0.028089888393878937,
+          0.02353477105498314,
+          0.027482539415359497,
+          0.027938051149249077,
+          0.029911933466792107,
+          0.025812329724431038,
+          0.031278468668460846,
+          0.026116004213690758,
+          0.025508655235171318,
+          0.026723353192210197
+        ],
+        "keep_only_random_other5": [
+          0.014424537308514118,
+          0.013513513840734959,
+          0.017157606780529022,
+          0.01169146690517664,
+          0.013665351085364819,
+          0.015791071578860283,
+          0.01153962966054678,
+          0.016853932291269302,
+          0.014728210866451263,
+          0.016853932291269302
+        ]
+      },
+      "metrics_sha256": "66327fca14e31d0d34b4bec0ddcba431c451c7c2290ec4c975cadb5e4f7f040a",
+      "settings_sha256": "0cff6a205a7267e75fa6483610bd66ea6c5027a130e040be0570e3e7dbfdca67",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 4 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s2'), **{'seed': 2, 'fraction': 0.3, 'wd': 0.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:24:32Z"
+    },
+    "frac50-s0": {
+      "seed": 0,
+      "fraction": 0.5,
+      "wd": 1.0,
+      "steps_run": 1500,
+      "memorization_step": 200,
+      "grok_step": 500,
+      "delay_ratio": 2.5,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 25.531627655029297,
+      "fourier": {
+        "init": {
+          "top5": [
+            9,
+            24,
+            38,
+            29,
+            18
+          ],
+          "share": 0.12657354772090912
+        },
+        "final": {
+          "top5": [
+            24,
+            46,
+            48,
+            27,
+            22
+          ],
+          "share": 0.9686110615730286
+        },
+        "memorization": {
+          "top5": [
+            24,
+            46,
+            38,
+            31,
+            15
+          ],
+          "share": 0.3232927620410919
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 1.0,
+        "remove_key5": 0.0095642926171422,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422,
+          0.0095642926171422
+        ]
+      },
+      "metrics_sha256": "b39e6c14c823e01868696aa74f62af2cacd54c3d7e6dbc9f5c7246552600093d",
+      "settings_sha256": "adabd5ef346e5f4afaae12f6de14255a919f01eef13b8d93948eff2dd116b2bb",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 7 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s0'), **{'seed': 0, 'fraction': 0.5, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:16:49Z"
+    },
+    "frac50-s1": {
+      "seed": 1,
+      "fraction": 0.5,
+      "wd": 1.0,
+      "steps_run": 1600,
+      "memorization_step": 200,
+      "grok_step": 600,
+      "delay_ratio": 3.0,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 31.927791595458984,
+      "fourier": {
+        "init": {
+          "top5": [
+            29,
+            31,
+            23,
+            33,
+            39
+          ],
+          "share": 0.1218920350074768
+        },
+        "final": {
+          "top5": [
+            13,
+            3,
+            41,
+            15,
+            26
+          ],
+          "share": 0.9575409293174744
+        },
+        "memorization": {
+          "top5": [
+            13,
+            41,
+            24,
+            3,
+            23
+          ],
+          "share": 0.5239107012748718
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 1.0,
+        "remove_key5": 0.01041445229202509,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367,
+          0.010201912373304367
+        ]
+      },
+      "metrics_sha256": "e24f866f7f1139897b7b62ef617c7a50092809f99323aef6dfeb2bd276eb0ea7",
+      "settings_sha256": "68abdd44d48eb20ef490a4621ac4a1e3c0dff8f0bf66236bc17c170d77dc6a53",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 7 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s1'), **{'seed': 1, 'fraction': 0.5, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:22:08Z"
+    },
+    "frac50-s2": {
+      "seed": 2,
+      "fraction": 0.5,
+      "wd": 1.0,
+      "steps_run": 2000,
+      "memorization_step": 200,
+      "grok_step": 1000,
+      "delay_ratio": 5.0,
+      "final_train_acc": 1.0,
+      "final_test_acc": 1.0,
+      "final_param_norm": 32.29649353027344,
+      "fourier": {
+        "init": {
+          "top5": [
+            6,
+            28,
+            19,
+            45,
+            23
+          ],
+          "share": 0.1276259869337082
+        },
+        "final": {
+          "top5": [
+            25,
+            31,
+            36,
+            22,
+            19
+          ],
+          "share": 0.9154521822929382
+        },
+        "memorization": {
+          "top5": [
+            25,
+            31,
+            5,
+            17,
+            47
+          ],
+          "share": 0.33003297448158264
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 1.0,
+        "remove_key5": 0.01041445229202509,
+        "remove_random_other5": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "keep_only_random_other5": [
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509,
+          0.01041445229202509
+        ]
+      },
+      "metrics_sha256": "f0342517304200e1281f571a1761686d779156c806bbc459366b2ca24c3080c2",
+      "settings_sha256": "29a0dcd28a530bf3d58728153ac69c15a5ba3e98a7aceaaabdf04baa5153e989",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 5 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s2'), **{'seed': 2, 'fraction': 0.5, 'wd': 1.0, 'max_steps': 10000, 'permuted_labels': False, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:23:38Z"
+    },
+    "random-labels-s0": {
+      "seed": 0,
+      "fraction": 0.3,
+      "wd": 1.0,
+      "steps_run": 3000,
+      "memorization_step": 200,
+      "grok_step": null,
+      "delay_ratio": null,
+      "final_train_acc": 1.0,
+      "final_test_acc": 0.00911023374646902,
+      "final_param_norm": 47.634666442871094,
+      "fourier": {
+        "init": {
+          "top5": [
+            9,
+            24,
+            38,
+            29,
+            18
+          ],
+          "share": 0.12657354772090912
+        },
+        "final": {
+          "top5": [
+            47,
+            27,
+            20,
+            3,
+            18
+          ],
+          "share": 0.13608717918395996
+        },
+        "memorization": {
+          "top5": [
+            47,
+            3,
+            4,
+            20,
+            27
+          ],
+          "share": 0.1333141028881073
+        }
+      },
+      "ablations": {
+        "keep_only_key5": 0.0095657454803586,
+        "remove_key5": 0.01093228068202734,
+        "remove_random_other5": [
+          0.01017309445887804,
+          0.00971758272498846,
+          0.007288186810910702,
+          0.00941390823572874,
+          0.008351047523319721,
+          0.008806559257209301,
+          0.00926207099109888,
+          0.01002125721424818,
+          0.0095657454803586,
+          0.008654722012579441
+        ],
+        "keep_only_random_other5": [
+          0.00986941996961832,
+          0.0110841179266572,
+          0.01002125721424818,
+          0.01002125721424818,
+          0.008502884767949581,
+          0.01078044343739748,
+          0.008958396501839161,
+          0.008806559257209301,
+          0.00926207099109888,
+          0.01047676894813776
+        ]
+      },
+      "metrics_sha256": "bb81396d90518d60243ca3f3729fd4d9c7348ca46410286e1a97b2d4dce1bf1d",
+      "settings_sha256": "0831046dbe3b4d615ab7a9444a91b3ebd6fe6d77e1d764f0b39e18b3ea0cedf8",
+      "actual_command": "env JAX_PLATFORMS=cpu taskset -c 6 .venv/bin/python -c from pathlib import Path; import grok,json; m=grok.run_one(outdir=Path('/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/random-labels-s0'), **{'seed': 0, 'fraction': 0.3, 'wd': 1.0, 'max_steps': 3000, 'permuted_labels': True, 'log_every': 100}); print(json.dumps({k:m[k] for k in [\"seed\",\"steps_run\",\"grok_step\",\"memorization_step\"]}))",
+      "finished_utc": "2026-10-28T05:23:43Z"
+    }
+  },
+  "fourier_own_snapshot_shares": {
+    "0": {
+      "init_top5": [
+        9,
+        24,
+        38,
+        29,
+        18
+      ],
+      "init_share": 0.12657354772090912,
+      "memorization_top5": [
+        35,
+        43,
+        31,
+        22,
+        46
+      ],
+      "memorization_share": 0.1601274460554123,
+      "final_top5": [
+        35,
+        31,
+        43,
+        22,
+        24
+      ],
+      "final_share": 0.39643508195877075,
+      "memorization_checkpoint": true
+    },
+    "1": {
+      "init_top5": [
+        29,
+        31,
+        23,
+        33,
+        39
+      ],
+      "init_share": 0.1218920350074768,
+      "memorization_top5": [
+        40,
+        24,
+        13,
+        22,
+        21
+      ],
+      "memorization_share": 0.16830602288246155,
+      "final_top5": [
+        40,
+        24,
+        21,
+        48,
+        42
+      ],
+      "final_share": 0.9295316934585571,
+      "memorization_checkpoint": true
+    },
+    "2": {
+      "init_top5": [
+        6,
+        28,
+        19,
+        45,
+        23
+      ],
+      "init_share": 0.1276259869337082,
+      "memorization_top5": [
+        6,
+        7,
+        20,
+        27,
+        28
+      ],
+      "memorization_share": 0.16272331774234772,
+      "final_top5": [
+        6,
+        7,
+        28,
+        30,
+        20
+      ],
+      "final_share": 0.8798294067382812,
+      "memorization_checkpoint": true
+    },
+    "3": {
+      "init_top5": [
+        6,
+        36,
+        13,
+        19,
+        14
+      ],
+      "init_share": 0.1295335590839386,
+      "memorization_top5": [
+        7,
+        1,
+        40,
+        2,
+        48
+      ],
+      "memorization_share": 0.1782107651233673,
+      "final_top5": [
+        7,
+        40,
+        1,
+        2,
+        14
+      ],
+      "final_share": 0.9283397793769836,
+      "memorization_checkpoint": true
+    },
+    "4": {
+      "init_top5": [
+        42,
+        19,
+        6,
+        36,
+        38
+      ],
+      "init_share": 0.1279463768005371,
+      "memorization_top5": [
+        40,
+        28,
+        45,
+        13,
+        42
+      ],
+      "memorization_share": 0.18478497862815857,
+      "final_top5": [
+        40,
+        13,
+        28,
+        17,
+        23
+      ],
+      "final_share": 0.9442955851554871,
+      "memorization_checkpoint": true
+    }
+  },
+  "main_gates": {
+    "0": {
+      "grok_within_10000": false,
+      "delay_gt_10": false,
+      "final_top5_share_gt_0.8": false,
+      "keep_only_key5_gt_0.95": false,
+      "remove_key5_lt_0.05": true,
+      "remove_random_other5_gt_0.95_all10": false,
+      "keep_only_random_other5_lt_0.05_all10": true
+    },
+    "1": {
+      "grok_within_10000": true,
+      "delay_gt_10": true,
+      "final_top5_share_gt_0.8": true,
+      "keep_only_key5_gt_0.95": true,
+      "remove_key5_lt_0.05": true,
+      "remove_random_other5_gt_0.95_all10": true,
+      "keep_only_random_other5_lt_0.05_all10": true
+    },
+    "2": {
+      "grok_within_10000": true,
+      "delay_gt_10": true,
+      "final_top5_share_gt_0.8": true,
+      "keep_only_key5_gt_0.95": true,
+      "remove_key5_lt_0.05": true,
+      "remove_random_other5_gt_0.95_all10": true,
+      "keep_only_random_other5_lt_0.05_all10": true
+    },
+    "3": {
+      "grok_within_10000": true,
+      "delay_gt_10": true,
+      "final_top5_share_gt_0.8": true,
+      "keep_only_key5_gt_0.95": true,
+      "remove_key5_lt_0.05": true,
+      "remove_random_other5_gt_0.95_all10": true,
+      "keep_only_random_other5_lt_0.05_all10": true
+    },
+    "4": {
+      "grok_within_10000": true,
+      "delay_gt_10": true,
+      "final_top5_share_gt_0.8": true,
+      "keep_only_key5_gt_0.95": true,
+      "remove_key5_lt_0.05": true,
+      "remove_random_other5_gt_0.95_all10": true,
+      "keep_only_random_other5_lt_0.05_all10": true
+    }
+  },
+  "all_main_gates_pass": false,
+  "controls_note": "wd0, 50%-fraction and random-label controls are observed results of the frozen protocol, not guaranteed successes; no gate is applied to them.",
+  "artifact_paths": {
+    "main-s0": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s0/metrics.json",
+    "main-s1": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s1/metrics.json",
+    "main-s2": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s2/metrics.json",
+    "main-s3": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s3/metrics.json",
+    "main-s4": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/main-s4/metrics.json",
+    "wd0-s0": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s0/metrics.json",
+    "wd0-s1": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s1/metrics.json",
+    "wd0-s2": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/wd0-s2/metrics.json",
+    "frac50-s0": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s0/metrics.json",
+    "frac50-s1": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s1/metrics.json",
+    "frac50-s2": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/frac50-s2/metrics.json",
+    "random-labels-s0": "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/artifacts/part4/formal-decoder-02/random-labels-s0/metrics.json"
+  },
+  "figures": [
+    "evidence/part4-grok-curves.png",
+    "evidence/part4-controls.png",
+    "evidence/part4-fourier.png",
+    "evidence/part4-ablations.png"
+  ],
+  "protocol_hash": "dc30615431deb72d12d810d7a1b72bf487297b37419924b1093623d9b07a9076",
+  "grok_py_hash": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447"
+}

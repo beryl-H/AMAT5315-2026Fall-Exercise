@@ -127,19 +127,16 @@ def fig_grok_curves(runs: dict, outdir: Path) -> None:
         axes[2].plot(s_pos, [e["param_norm"] for e in log[1:]], ls="-",
                      color=c, alpha=0.9, lw=1.4)
         e0 = log[0]
-        init_notes.append(f"seed {seed}: acc {e0['test_acc']:.3f}, "
-                          f"‖θ‖ {e0['param_norm']:.1f}")
+        init_notes.append(f"{seed}:{e0['param_norm']:.1f}")
     axes[0].axhline(CHANCE, color="gray", ls=":", lw=1)
     axes[0].axhline(0.99, color="crimson", ls=":", lw=1)
     axes[0].text(6000, 0.06, "chance 1/97", color="gray", fontsize=8)
     axes[0].text(200, 1.005, "0.99", color="crimson", fontsize=8)
     axes[0].set_ylabel("accuracy")
-    axes[0].set_title("Part 4 main runs (30% split, wd 1): memorization long "
-                      "before generalization\n"
-                      "solid = test, dashed = train; ★ = grokking step; "
-                      "step 0 (initialization, before any update) kept in raw "
-                      "data but off the log axis\n"
-                      "init: " + "; ".join(init_notes), fontsize=9)
+    axes[0].set_title("Main runs (30% split, weight decay 1)\n"
+                      "Solid: test; dashed: train; star: first test accuracy >= 0.99\n"
+                      "Step 0 omitted on log x-axis; initial norms (seed:norm): "
+                      + ", ".join(init_notes), fontsize=9)
     axes[1].axhline(LN97, color="gray", ls=":", lw=1)
     axes[1].text(6000, LN97 * 1.15, "uniform ln 97 = 4.57", color="gray",
                  fontsize=8)
@@ -149,7 +146,7 @@ def fig_grok_curves(runs: dict, outdir: Path) -> None:
     axes[2].set_xlabel("step (log scale; step 0 excluded, see annotation)")
     for ax in axes:
         ax.set_xscale("log")
-    axes[0].legend(fontsize=8, loc="center right")
+    axes[0].legend(fontsize=8, loc="lower left", bbox_to_anchor=(0.02, 0.25))
     fig.suptitle("Grokking of (a+b) mod 97 — seeds 0..4, one-layer decoder, "
                  "no LayerNorm", y=0.995, fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
@@ -179,8 +176,7 @@ def fig_controls(runs: dict, outdir: Path) -> None:
                     label=lbl)
             fin = log[-1]["test_acc"]
             ax.scatter([log[-1]["step"]], [fin], color=c, s=18, zorder=5)
-            ax.text(log[-1]["step"], fin, f" {fin:.3f}", fontsize=7,
-                    color=c, va="center")
+            # Exact final values are in the summary table; omit overlapping endpoint labels.
         ax.axhline(CHANCE, color="gray", ls=":", lw=1)
         ax.set_xscale("log")
         ax.set_title(title, fontsize=9)
@@ -244,7 +240,11 @@ def fig_fourier(runs: dict, outdir: Path) -> dict:
         ax.set_xlabel("frequency k")
         if i % 3 == 0:
             ax.set_ylabel("power (sum |X_k|² over dims)")
-        ax.legend(fontsize=7)
+        mem_share = (m["fourier"]["memorization"] or {}).get("share")
+        mem_text = "n/a" if mem_share is None else f"{mem_share:.3f}"
+        ax.set_title(ax.get_title() + "\nTop-5 share: init "
+                     f"{m['fourier']['init']['share']:.3f}; mem {mem_text}; "
+                     f"final {m['fourier']['final']['share']:.3f}", fontsize=8)
         shares[seed] = {
             "init_top5": m["fourier"]["init"]["top5"],
             "init_share": m["fourier"]["init"]["share"],
@@ -263,16 +263,17 @@ def fig_fourier(runs: dict, outdir: Path) -> dict:
                  if have_mem else "memorization UNAVAILABLE, ")
               + f"{final_lbl} {shares[seed]['final_share']:.4f} {key5}")
     axes[5].axis("off")
-    axes[5].text(0.0, 0.9,
-                 "Fourier power of the residue embedding\n"
-                 "(rfft over residue index a=0..96, k=1..48,\n"
-                 "DC excluded; power summed over the 64 dims).\n\n"
-                 "Memorizing tables spread power;\n"
-                 "the generalizing rule concentrates it\n"
-                 "on a few key frequencies (★, final\n"
-                 "snapshot's own top-5).\n\n"
-                 "Own-snapshot top-5 shares are printed\n"
-                 "in the console and in part4-summary.",
+    handles, labels = axes[0].get_legend_handles_labels()
+    labels = ["final checkpoint" if x in ("FINAL (no grok)", "final (grokked)") else x for x in labels]
+    axes[5].legend(handles, labels, loc="upper left", frameon=False, fontsize=9)
+    axes[5].text(0.0, 0.52,
+                 "Residue embedding: rfft over a=0..96.\n"
+                 "Frequencies k=1..48; DC excluded.\n"
+                 "Power is summed over 64 dimensions.\n\n"
+                 "Power is diffuse at memorization.\n"
+                 "For grokked seeds 1-4, final power\n"
+                 "concentrates at a few frequencies.\n"
+                 "Seed 0 did not grok within budget.",
                  fontsize=9, va="top")
     fig.suptitle("Part 4: Fourier power of the residue embedding — "
                  "initialization, memorization, final per main seed",
@@ -284,8 +285,8 @@ def fig_fourier(runs: dict, outdir: Path) -> dict:
 
 
 def fig_ablations(runs: dict, outdir: Path) -> None:
-    cats = ["trained\n(final)", "keep only\nkey5", "remove\nkey5",
-            "remove 5\nrandom other", "keep only 5\nrandom other"]
+    cats = ["Trained", "Keep\nkey 5", "Remove\nkey 5",
+            "Remove\nother 5", "Keep\nother 5"]
     fig, axes = plt.subplots(1, 5, figsize=(15, 3.8), sharey=True)
     for i, name in enumerate(MAIN):
         m = runs[name]
@@ -298,11 +299,11 @@ def fig_ablations(runs: dict, outdir: Path) -> None:
         ax.scatter([1], [ab["keep_only_key5"]], color="#1a3f66", s=40,
                    zorder=5)
         ax.scatter([2], [ab["remove_key5"]], color="#1a3f66", s=40, zorder=5)
-        ax.scatter([3] * len(ro), ro, color="#3a6ea5", s=22, alpha=0.85,
+        ax.scatter(3 + np.linspace(-0.12, 0.12, len(ro)), ro, color="#3a6ea5", s=22, alpha=0.85,
                    zorder=5, label="10 draws")
         ax.scatter([3], [float(np.mean(ro))], marker="_", s=260,
                    color="crimson", zorder=6, label="mean")
-        ax.scatter([4] * len(ko), ko, color="#3a6ea5", s=22, alpha=0.85,
+        ax.scatter(4 + np.linspace(-0.12, 0.12, len(ko)), ko, color="#3a6ea5", s=22, alpha=0.85,
                    zorder=5)
         ax.scatter([4], [float(np.mean(ko))], marker="_", s=260,
                    color="crimson", zorder=6)
@@ -321,11 +322,11 @@ def fig_ablations(runs: dict, outdir: Path) -> None:
             ax.text(-0.35, CHANCE + 0.012, "chance 1/97", color="gray",
                     fontsize=6.5)
         if i == 4:
-            ax.legend(fontsize=7, loc="upper right")
-    fig.suptitle("Part 4 ablations on the final model: only the key "
-                 "frequencies carry the computation (all 10 random draws "
-                 "shown)", fontsize=11)
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
+            handles, labels = ax.get_legend_handles_labels()
+            fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False, fontsize=8)
+    fig.suptitle("Part 4: frequency ablations on final checkpoints\n"
+                 "All seeds shown; seed 0 did not grok; other-5 controls use 10 draws (x-jittered)", fontsize=10)
+    fig.tight_layout(rect=(0, 0.07, 1, 0.90))
     fig.savefig(outdir / "part4-ablations.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
@@ -362,10 +363,11 @@ def md_table(runs: dict, gates: dict) -> str:
         ro, ko = ab["remove_random_other5"], ab["keep_only_random_other5"]
         ok = all(gates[m["seed"]].values())
         key5 = ",".join(str(k) for k in m["fourier"]["final"]["top5"])
+        delay_text = "null" if m["delay_ratio"] is None else f"{m['delay_ratio']:.2f}"
         lines.append(
             f"| {m['seed']} | {m['memorization_step']} | "
             f"{m['grok_step'] if m['grok_step'] is not None else 'null'} | "
-            f"{m['delay_ratio']:.2f} | {m['final_log_entry']['train_acc']:.4f} | "
+            f"{delay_text} | {m['final_log_entry']['train_acc']:.4f} | "
             f"{m['final_log_entry']['test_acc']:.4f} | "
             f"{m['fourier']['final']['share']:.4f} | {key5} | "
             f"{ab['keep_only_key5']:.4f} | {ab['remove_key5']:.4f} | "

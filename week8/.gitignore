@@ -8,3 +8,6 @@ __pycache__/
 *.npz
 *.msgpack
 *.flax
+
+# Nonformal rendering drafts (preserved locally)
+/evidence-preview/
