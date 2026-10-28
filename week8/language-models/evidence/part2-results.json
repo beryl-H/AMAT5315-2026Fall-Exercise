@@ -1,6 +1,7 @@
 {
+  "attempt": "formal-02",
   "settings": {
-    "attempt": "formal-01",
+    "attempt": "formal-02",
     "protocol": {
       "sentinel": "single EOS before first story, context only, never a target",
       "targets": "stream[1:] = actual corpus tokens (inter-story EOS included)",
@@ -14,22 +15,44 @@
       "k_selection": "fit counts on inner 90% of train actual tokens, score last 10%; per-n best k; then refit full train",
       "history_padding": "n-1 EOS left-padded",
       "bpc_denominator": "Unicode chars of original story texts",
-      "normalization_check": "explicit chunked enumeration of all V^L sequences, L=1..3, gate 1e-12",
-      "sampler": "bigram ancestral 250000 tokens seed 531501; pooled chi2 over 20 most frequent training contexts, expected >= 5.0, df=sum(bins-1); two-lag negative control same seed"
+      "normalization_check": "explicit chunked enumeration of all V^3 bigram sequences, gate 1e-12",
+      "sampler": "bigram ancestral 250000 tokens seed 531501; pooled chi2 over 20 most frequent training contexts, rare bins pooled and merged until all expected >= 5.0, df=sum(bins-1); two-lag negative control same seed"
     },
     "seeds": {
       "sampler": 531501
     },
     "source_hashes": {
       "corpus.py": "b89cbe38471e14ab3eb1412476ff99f83d35d5a8c213c38b83a7fa6f868cb493",
-      "ngrams.py": "273547b0551f92eecc628d9bd15d8822e31c574c814839b64d10a71d0730543c",
-      "run_part2.py": "9864984e4dd92cb5ad504d65020bcfd5e54ed65d956b3c0506f857cb83d936c2"
+      "ngrams.py": "491ec82a3016b6f5aa11ff71ba40055b2b81c37a555d21703eb9e9b1099f7ea4",
+      "run_part2.py": "a8210516710432e48fd60960f34845eb4f064d791ef63b65b67b4bde922fc719"
     },
     "data_hashes": {
       "TinyStoriesV2-GPT4-valid.txt": "6874bae9a4c1a4e7edcf0e53b86c17817e9cf881fc75ff2368da457b80c0585d",
       "tok512.model": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5"
     },
-    "started_utc": "2026-10-28T12:45:30Z"
+    "started_utc": "2026-10-28T13:00:52Z"
+  },
+  "accounting": {
+    "train_actual": 9667034,
+    "val_actual": 1078995,
+    "val_chars": 2213915,
+    "cache_used": [
+      false,
+      false
+    ],
+    "oracle_crosscheck": "pending: support/oracle-data not yet published"
+  },
+  "k_selection": {
+    "6": {
+      "chosen": "0.001",
+      "calibration": {
+        "0.0001": 2.797392127057939,
+        "0.001": 2.581784087126179,
+        "0.01": 2.5882647177607585,
+        "0.1": 3.0880168822066563,
+        "1.0": 4.094525212507385
+      }
+    }
   },
   "models": {
     "1": {
@@ -81,20 +104,10 @@
     }
   },
   "normalization": {
-    "1": {
-      "1": 1.0,
-      "2": 0.9999999999999999,
-      "3": 1.0000000000000004
-    },
     "2": {
       "1": 1.0,
       "2": 1.0000000000000009,
       "3": 1.0000000000000004
-    },
-    "3": {
-      "1": 1.0,
-      "2": 1.0000000000000004,
-      "3": 0.9999999999999973
     }
   },
   "sampler": {
@@ -123,33 +136,88 @@
       276
     ],
     "pooled_chi2": {
-      "stat": 1257.8526637701332,
-      "df": 1208,
-      "p_value": 0.15526033654861654
+      "stat": 1257.762118760062,
+      "df": 1207,
+      "p_value": 0.1509067499432535,
+      "meta": {
+        "minimum_expected": 5.012400533537626,
+        "bins": 1227,
+        "df": 1207,
+        "context_counts": {
+          "426": 10417,
+          "411": 6995,
+          "261": 6539,
+          "432": 5677,
+          "265": 5603,
+          "412": 5359,
+          "419": 5139,
+          "267": 4875,
+          "414": 4663,
+          "269": 4591,
+          "421": 4231,
+          "410": 4310,
+          "413": 4112,
+          "266": 3999,
+          "422": 3946,
+          "262": 3602,
+          "425": 3394,
+          "416": 2951,
+          "280": 2965,
+          "276": 3028
+        },
+        "contexts_used": 20
+      }
     },
     "two_lag_control": {
-      "stat": 25049731.156580362,
-      "df": 1212,
-      "p_value": 0.0
+      "stat": 12896225.776273416,
+      "df": 1211,
+      "p_value": 0.0,
+      "meta": {
+        "minimum_expected": 5.01016974932676,
+        "bins": 1231,
+        "df": 1211,
+        "context_counts": {
+          "426": 10310,
+          "411": 7074,
+          "261": 6642,
+          "432": 5556,
+          "265": 5656,
+          "412": 5227,
+          "419": 5300,
+          "267": 4941,
+          "414": 4588,
+          "269": 4664,
+          "421": 4355,
+          "410": 4334,
+          "413": 4131,
+          "266": 4104,
+          "422": 3897,
+          "262": 3586,
+          "425": 3292,
+          "416": 3104,
+          "280": 3037,
+          "276": 3015
+        },
+        "contexts_used": 20
+      }
     }
-  },
-  "k_selection": {
-    "1": 0.0001,
-    "2": 0.01,
-    "3": 0.01,
-    "4": 0.01,
-    "5": 0.01,
-    "6": 0.001
   },
   "gates": {
     "loss_uniform_within_0.03": true,
+    "ppl_uniform_within_3pct": true,
     "loss_1_within_0.03": true,
+    "ppl_1_within_3pct": true,
     "loss_2_within_0.03": true,
+    "ppl_2_within_3pct": true,
     "loss_3_within_0.03": true,
+    "ppl_3_within_3pct": true,
+    "ladder_monotonic_to_n4": true,
+    "ladder_rises_after_n4": true,
     "best_at_n4": true,
     "n4_1.310_within_0.03": true,
     "n5_1.46_within_0.03": true,
     "n6_1.79_within_0.03": true,
+    "ppl_n6_within_3pct_of_12.8": true,
     "unseen_n3_within_2pts": true,
     "unseen_n4_within_2pts": true,
     "unseen_n5_within_2pts": true,
@@ -158,5 +226,6 @@
     "sampler_p_gt_0.001": true,
     "two_lag_control_rejected": true
   },
-  "gates_all_pass": true
+  "gates_all_pass": true,
+  "finished_utc": "2026-10-28T13:03:48Z"
 }

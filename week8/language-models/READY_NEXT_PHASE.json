@@ -1,0 +1,47 @@
+{
+  "control": "READY_NEXT_PHASE",
+  "utc": "2026-10-28T13:35:00Z",
+  "agent": "native WSL pi (volcengine-plan/glm-5-3-flash)",
+  "scope_of_this_phase": "P2 chi2 fix + exclusive driver (no own formal run), P3 sweep driver + smoke, P4 glyph + formal 20-draw validation (cheap, done), P6 fitter + smoke. No MLP/transformer training, no full memory sweep, no 243-start fit, no bootstrap - all reserved for root dispatch.",
+  "part2": {
+    "chi2_fix": "rare pool merged with smallest adequate bin until all expected >= 5; single-group contexts contribute 0/0; metadata recorded",
+    "driver": "atomic exclusive attempts, hashed verified caches, incremental results.json, saved sample/P arrays for audit",
+    "invalidated": "artifacts/part2/formal-01 marked INVALIDATED_MULTIPLE_WRITERS.json with frozen used-source snapshot",
+    "hashes": {
+      "src/corpus.py": "b89cbe38471e14ab3eb1412476ff99f83d35d5a8c213c38b83a7fa6f868cb493",
+      "src/ngrams.py": "491ec82a3016b6f5aa11ff71ba40055b2b81c37a555d21703eb9e9b1099f7ea4",
+      "src/run_part2.py": "a8210516710432e48fd60960f34845eb4f064d791ef63b65b67b4bde922fc719"
+    },
+    "results": "formal numeric results PENDING root dispatch of formal-02 (CONTROL_PART2_READY.json)"
+  },
+  "part3_memory": {
+    "code": "src/memory_sweep.py",
+    "smoke": "d=16, M in {8,32,128}, declared seed 101 only; chunked-vs-dense and orthonormal zero-interference unit tests green; JSONL progress per case; full sweep NOT run"
+  },
+  "part4": {
+    "code": [
+      "src/part4_glyph.py",
+      "src/run_part4.py"
+    ],
+    "results": "evidence/part4-results.json + evidence/part4-recall.png + evidence/glyph.json + glyph-preview.png; attempt artifacts/part4/formal-01 (exclusive)",
+    "gates": "ALL PASS: outer R(1024)=3.89 (15% of 4), relu R(1024)=2.82 (15% of 2.83), relu2 R(4096)=1.189>1, softmax median+showcase < 0.056 at all M",
+    "glyph_provenance": "SimHei (/mnt/c/Windows/Fonts/simhei.ttf, sha256 recorded in evidence/glyph.json); derived 32x32 bitmap only, font file not committed; tofu checks passed (ink fraction, quadrant and center coverage)"
+  },
+  "part6": {
+    "code": "src/scaling.py",
+    "smoke": "artifacts/part6/smoke-01/smoke.json - 3 of 243 grid starts on the real 240 filtered runs: convergence status 0, own mean log residual -0.000656, printed params +0.016742, derive check D*/N* ~ 17.9 at 5.76e23. SMOKE ONLY - not the formal fit; full 243-start + 400 bootstrap reserved for root dispatch"
+  },
+  "tests": "uv run pytest tests/ -q: 57 passed, 0 skipped (red-first commits preserved per task: test_pooled_chi2, test_part2_driver, test_memory_sweep, test_part4, test_scaling)",
+  "notes": [
+    "worker stop receipt: support/part2-worker-stop-receipt.json (no live workers found; progress quiet verified)",
+    "INPUTS.md updated with root-resolved full HF commits (credit: root Windows API)",
+    "visual-qa pending items (Part 1 title overlap/xlabel clipping, glyph preview title tofu) recorded; cosmetic polish deferred per instruction",
+    "no MLP/transformer training yet (Part 3 MLP + Part 5 next phase, per coordinator-notes compression idea to be equivalence-tested before use)"
+  ],
+  "src_hashes": {
+    "src/memory_sweep.py": "36cae12eead451db938469f31aa62752aef9d6c0d354bb71e318b66cff04362f",
+    "src/part4_glyph.py": "b3cab73739b6fcda116b9d8a315a10a7acf87c39d32c4fe74b621f72d2b9950f",
+    "src/run_part4.py": "584942832ee3a7f29a58b2883dbb0813efdc505641e1e593486adfff1fcaa94b",
+    "src/scaling.py": "1a33e2c1e3a13805654e0d54d152b082560726bd1ffdaf3bbbd2475dd948df3f"
+  }
+}

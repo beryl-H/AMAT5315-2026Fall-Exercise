@@ -29,11 +29,11 @@ result JSON are committed under `evidence/`.
 | Part | topic | status |
 |---|---|---|
 | 1 | embeddings: relations as directions | inference DONE, all mandatory gates PASS |
-| 2 | count models (Markov chains, n-grams) | input prep done + verified; formal runs pending |
-| 3 | MLP as key–value memory | pending |
-| 4 | attention: softmax store recalls 算 | pending |
+| 2 | count models (Markov chains, n-grams) | code+driver ready (CONTROL_PART2_READY); formal-01 invalidated (multi-writer custody); formal run dispatched by root |
+| 3 | MLP as key–value memory | sweep driver + smoke done (d16); full sweep reserved for root dispatch |
+| 4 | attention: softmax store recalls 算 | formal 20-draw validation DONE, all mandatory gates PASS |
 | 5 | transformer: training and sampling | pending |
-| 6 | Chinchilla scaling law refit | pending |
+| 6 | Chinchilla scaling law refit | fitter + smoke done (3/243 starts); full fit + bootstrap reserved for root dispatch |
 
 Part 1 measured results (`evidence/part1-results.json`, seed protocol in
 `SPEC.md`): table mean LOO cosines 0.466 / 0.549 / 0.433 (gate ≥ 0.3); control
@@ -53,3 +53,17 @@ adj_comparative: 1 big→bigger, 2 small→smaller, 3 fast→faster, 4 dark→da
 
 Corpus input preparation verified: 24,867 train / 2,763 validation stories,
 ~2.05 characters per token, exactly 3 validation roundtrip exceptions.
+
+Part 4 (`evidence/part4-results.json`, `evidence/part4-recall.png`, showcase
+seed 531504 predeclared, 20-draw medians): outer R(1024) 3.89 (gate: within
+15 % of 4); ReLU R(1024) 2.82 (gate: within 15 % of 2.83); ReLU² R(1024) 0.614
+and R(4096) 1.189 (gate > 1; sheet references 0.60/1.2); softmax R < 0.056 at
+every M (gate < 0.1, sheet reference 0.057 at 4096). Producing command:
+`uv run python src/run_part4.py --attempt formal-01`.
+
+Part 2/3/6 code is ready under exclusive-attempt drivers; formal Part 2 is
+dispatched by the root (CONTROL_PART2_READY.json); the full memory sweep and
+the 243-start fit + 400 bootstrap refits are likewise reserved for root
+dispatch. Part 6 smoke (3 grid starts, real 240 runs): own mean log residual
+−0.00066, printed parameters +0.0167, D*/N* at 5.76e23 ≈ 17.9 — smoke only,
+not cited as the formal fit.
