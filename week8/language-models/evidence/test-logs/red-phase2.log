@@ -1,0 +1,59 @@
+
+==================================== ERRORS ====================================
+____________________ ERROR collecting tests/test_corpus.py _____________________
+ImportError while importing test module '/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/tests/test_corpus.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_corpus.py:9: in <module>
+    from src.corpus import encode_stories, split_stories, train_val_split
+E   ModuleNotFoundError: No module named 'src.corpus'
+__________________ ERROR collecting tests/test_data_checks.py __________________
+ImportError while importing test module '/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/tests/test_data_checks.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_data_checks.py:17: in <module>
+    from src.corpus import (  # noqa: E402
+E   ModuleNotFoundError: No module named 'src.corpus'
+_________________ ERROR collecting tests/test_memory_stores.py _________________
+ImportError while importing test module '/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/tests/test_memory_stores.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_memory_stores.py:11: in <module>
+    from src.memory import (
+E   ModuleNotFoundError: No module named 'src.memory'
+_____________________ ERROR collecting tests/test_part1.py _____________________
+ImportError while importing test module '/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/tests/test_part1.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_part1.py:5: in <module>
+    from src.part1_embeddings import (
+E   ModuleNotFoundError: No module named 'src.part1_embeddings'
+___________________ ERROR collecting tests/test_tokenizer.py ___________________
+ImportError while importing test module '/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/tests/test_tokenizer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_tokenizer.py:7: in <module>
+    from src.corpus import load_spm
+E   ModuleNotFoundError: No module named 'src.corpus'
+=========================== short test summary info ============================
+ERROR tests/test_corpus.py
+ERROR tests/test_data_checks.py
+ERROR tests/test_memory_stores.py
+ERROR tests/test_part1.py
+ERROR tests/test_tokenizer.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
