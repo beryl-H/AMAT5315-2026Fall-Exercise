@@ -9,9 +9,11 @@
 import json
 import os
 
+import jax
 import numpy as np
 import pytest
 
+from src.transformer_model import forward
 from src.train_driver import (
     flatten_params,
     load_checkpoint,
@@ -56,7 +58,8 @@ def test_roundtrip_bitwise_both_models_all_state():
         assert set(tree) == {"params", "m", "v"}
         assert tree_equal_bitwise(
             {"params": params, "m": state["m"], "v": state["v"]}, tree), name
-        assert "blocks" in tree["params"] and isinstance(tree["params"]["blocks"], list)
+        if name == "transformer":
+            assert "blocks" in tree["params"] and isinstance(tree["params"]["blocks"], list)
 
 
 def test_pure_jax_norm_and_clip_jittable():

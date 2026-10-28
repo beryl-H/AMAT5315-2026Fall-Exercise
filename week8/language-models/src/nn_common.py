@@ -81,3 +81,19 @@ def clip_grads(grads, max_norm=1.0):
         return grads, gnorm
     scale = max_norm / gnorm
     return jax.tree_util.tree_map(lambda g: g * scale, grads), gnorm
+
+
+def global_norm_jax(grads):
+    """Pure-JAX global L2 norm over all leaves (jit-compatible; no host float)."""
+    leaves = jax.tree_util.tree_leaves(grads)
+    total = jnp.zeros((), dtype=jnp.float32)
+    for g in leaves:
+        total = total + jnp.sum(g * g)
+    return jnp.sqrt(total)
+
+
+def clip_grads_jax(grads, max_norm):
+    """Pure-JAX global-norm clipping (jit-compatible). Returns scaled grads."""
+    gnorm = global_norm_jax(grads)
+    scale = jnp.minimum(1.0, max_norm / jnp.maximum(gnorm, 1e-12))
+    return jax.tree_util.tree_map(lambda g: g * scale, grads)

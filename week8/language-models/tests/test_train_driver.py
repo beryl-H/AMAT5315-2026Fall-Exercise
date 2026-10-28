@@ -71,8 +71,8 @@ def test_smoke_run_end_to_end(tmp_path):
 
     from src.train_driver import run_training
 
-    stream = [2] + list(np.random.default_rng(0).integers(0, 512, size=4000))
-    val = [2] + list(np.random.default_rng(1).integers(0, 512, size=300))
+    stream = np.array([2] + list(np.random.default_rng(0).integers(0, 512, size=4000)), dtype=np.int32)
+    val = np.array([2] + list(np.random.default_rng(1).integers(0, 512, size=300)), dtype=np.int32)
     for model, n_upd in [("mlp", 5), ("transformer", 10)]:
         d = run_training(model, "smoke-test", stream, val, str(tmp_path),
                          smoke_updates=n_upd, full_score=False)
@@ -88,6 +88,6 @@ def test_smoke_run_end_to_end(tmp_path):
         assert len(jsonl) == n_upd
         for line in jsonl:
             rec = json.loads(line)
-            assert np.isfinite(rec["loss"]) and "step" in rec and "lr" in rec
+            assert np.isfinite(rec["loss_preupdate"]) and "step" in rec and "lr" in rec
         for ck in ["checkpoint-initial.npz", "checkpoint-final.npz"]:
             assert os.path.exists(os.path.join(d, ck)), ck
