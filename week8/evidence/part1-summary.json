@@ -1,0 +1,33 @@
+{
+  "corpus_sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+  "counts": {
+    "train": 1003854,
+    "validation": 111540,
+    "scored": 111539
+  },
+  "vocab_size": 65,
+  "two_target": {
+    "loss": 1.0397207708399179,
+    "ppl": 2.82842712474619
+  },
+  "uniform": {
+    "loss": 4.174387269895637,
+    "ppl": 64.99999999999999
+  },
+  "unigram": {
+    "loss": 3.347305335368931,
+    "ppl": 28.426031724915003
+  },
+  "bigram": {
+    "loss": 2.4818894321158234,
+    "ppl": 11.963847954655076
+  },
+  "acceptance_checks": {
+    "counts": true,
+    "uniform_ln65": true,
+    "two_target": true,
+    "unigram_1e-5": true,
+    "bigram_1e-5": true,
+    "monotone": true
+  }
+}
