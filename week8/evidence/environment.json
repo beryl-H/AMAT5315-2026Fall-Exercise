@@ -1,0 +1,16 @@
+{
+  "python": "3.11.17",
+  "system": "Linux",
+  "machine": "x86_64",
+  "jax": "0.6.2",
+  "jaxlib": "0.6.2",
+  "numpy": "2.2.6",
+  "scipy": "1.17.1",
+  "matplotlib": "3.10.3",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "uv": "uv 0.13.0 (x86_64-unknown-linux-gnu)",
+  "uv_lock_sha256": "c510bfd3e9605f29d67ae8847f46a46c3a9219272bc2bc0dcb93fbef3a0114a1",
+  "input_pdf_sha256": "4a9f5d0cc5223ed6c1863410cc1f4e03b890dba21649265ca8a91eacd0b95101"
+}

@@ -1,0 +1,144 @@
+{
+  "format": "sanitized-agent-receipts-v1",
+  "runtime": "native WSL Ubuntu-24.04 Pi 0.87.1",
+  "provider": "volcengine-plan",
+  "model": "glm-5-3-flash",
+  "records": [
+    {
+      "source_log_basename": "pi-smoke-03.jsonl",
+      "source_log_sha256": "248cf3a4df70485347275a2a0fed74db3573a182f7a54331126ba991d2fb8285",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 1,
+      "tool_calls": 0,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-03.jsonl",
+      "source_log_sha256": "ab8861f88450211cf6054612d0042c0da4e20e9f677ab5ca5ab69858636be61a",
+      "coordinator_observed_process_exit_code": 1,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 49,
+      "tool_calls": 54,
+      "last_model_stop_reason": "toolUse",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": false,
+      "raw_reasoning_included": false,
+      "interruption_reason": "Coordinator stopped before implementation/execution to deliver independent review; session resumed without deleting artifacts."
+    },
+    {
+      "source_log_basename": "pi-run-04.jsonl",
+      "source_log_sha256": "e2cee440d084f3559f60464653c623df880fcd403b13d32085a55a5cf0620540",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 26,
+      "tool_calls": 27,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-05.jsonl",
+      "source_log_sha256": "589f2f59a2206a92d567b22e1f3bf40130ccbc0c231d93cf63673009670ceddf",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 30,
+      "tool_calls": 30,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-06.jsonl",
+      "source_log_sha256": "a0a8f032fc791c08b9063ffe1811fa5aa9f9615027cb537e09cfab39371da315",
+      "coordinator_observed_process_exit_code": 1,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 56,
+      "tool_calls": 59,
+      "last_model_stop_reason": "toolUse",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": false,
+      "raw_reasoning_included": false,
+      "interruption_reason": "Coordinator stopped before implementation/execution to deliver independent review; session resumed without deleting artifacts."
+    },
+    {
+      "source_log_basename": "pi-run-07.jsonl",
+      "source_log_sha256": "499317fee5b6aa0f6d81894f09f906dc3536c26ebd2a8fd2c5c94b930700ce2c",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 34,
+      "tool_calls": 34,
+      "last_model_stop_reason": "stop",
+      "has_nonempty_text": true,
+      "provider_errors": [],
+      "model_turn_success": true,
+      "raw_reasoning_included": false
+    },
+    {
+      "source_log_basename": "pi-run-08.jsonl",
+      "source_log_sha256": "368518c4d53793ce4aee99faf65d151950e3393bb2b6e411ba22f5e7ffd14cb7",
+      "coordinator_observed_process_exit_code": 0,
+      "providers": [
+        "volcengine-plan"
+      ],
+      "models": [
+        "glm-5-3-flash"
+      ],
+      "assistant_messages": 40,
+      "tool_calls": 36,
+      "last_model_stop_reason": "error",
+      "has_nonempty_text": true,
+      "provider_errors": [
+        "AccountQuotaExceeded (5h window); reset advertised at 2026-10-28 13:07:34 Asia/Shanghai",
+        "AccountQuotaExceeded (5h window); reset advertised at 2026-10-28 13:07:34 Asia/Shanghai",
+        "AccountQuotaExceeded (5h window); reset advertised at 2026-10-28 13:07:34 Asia/Shanghai",
+        "AccountQuotaExceeded (5h window); reset advertised at 2026-10-28 13:07:34 Asia/Shanghai"
+      ],
+      "model_turn_success": false,
+      "raw_reasoning_included": false
+    }
+  ],
+  "local_configuration_boundary": "Standard existing WSL Pi authentication; no credentials copied, printed, or committed.",
+  "attribution": "Pi authored model/training/fit/main evidence code; Codex coordinated, audited, authored dispatch layers and independent tests, repaired wd argument threading and mechanical output issues.",
+  "interpretation": "A process exit0 does not establish provider success or scientific validity; run08 exhausted quota after code/figures had been saved."
+}
