@@ -195,15 +195,20 @@ Protocol and predeclared conventions (fixed before any Part-4 run):
 - [x] T4 Part-2 tests written first; failing log preserved; commit (ece62db)
 - [x] T5 Part-2 implementation + unit negative control; 18/18 tests PASS
       (commit 0a624de)
-- [ ] T6 Part-2 formal run: 3000-step training, checkpoint + logs, causality
-      probe, attention audit + figure, loss curves, full-validation score,
-      generation at 0.5/1.0; README; commit — BLOCKED pending review of the
-      corrected driver (part2-review-01); formal training not yet launched
-- [ ] T7 Chinese learning-and-demonstration guide in
-      `/mnt/d/Keria/Course/AMAT5315/week8-support/` with concise final
-      results
-- [ ] T8 (after independent audit) Part-3 predeclared-fit file, sweep, blind
-      prediction, width-192 runs
+- [x] T6 Part-2 formal run (attempt `formal-01`, exit 0): full validation
+      loss 1.699743 < 1.85 gate, probe exactly 0.0, attention audit clean,
+      negative control detects leakage, samples + figures + README
+      (commit 91f87b8)
+- [x] T7 Chinese learning-and-demonstration guide written to
+      `/mnt/d/Keria/Course/AMAT5315/week8-support/week8-学习指南.md` with
+      concise final results of Parts 1-2
+- [x] T8a Part-3 code prepared and tested per corrected SPEC (scaling.py,
+      sweep.py, generic-width transformer; 49/49 tests; smoke-01 with 2
+      steps marked nonformal; width-192 shape smoke without optimizer)
+      (commit 2974088) — formal sweep NOT launched; prediction receipt not
+      yet written
+- [ ] T8b (after independent audit) Part-3 sweep of widths 8..128 × seeds
+      1,2, immutable prediction192 receipt, then width-192 × seeds 1,2
 - [ ] T9 (after independent audit) Part-4 runs, Fourier analysis, ablations
 
 Pre-run corrections applied from spec-review-01.md (commit history
