@@ -1,0 +1,54 @@
+{
+  "ready": "minimal-diagnostics-03",
+  "status": "READY_FOR_REVIEW",
+  "date": "2026-10-28",
+  "author": "pi (native WSL, volcengine-plan/glm-5-3-flash)",
+  "note": "Pre-registration frozen before execution. No diagnostic script has run; no training. Root executes checks next; on authorization each script runs once.",
+  "plan_files": {
+    "PLAN.md": "106ce484ca6d84788fb56222a7b05990427678b1f12d08040763f7744018714a",
+    "PLAN.json": "0ae5d43f96b571b86831badc58025cbca5d1b40b604ffbe911891a55406501ea",
+    "PLAN-v1.md": "6bcdbdbe41905b096811192bcbccfbc1db0571be56512dfa1b1cd432f8067344",
+    "PLAN-v1.json": "4c7c08dd5faa7ccf6482e2ea6532662802898be25f3eca88aa9e8577f72d4505",
+    "diag09_precision_gradients-v1-draft-superseded.py": "ff6d601752efd0fdfbaeb4f6e792700652e044566da60de94aa18c6b55706695"
+  },
+  "scripts": {
+    "diag09_precision_gradients.py": "b57c0eb09029e6afb0ae96bc2d873d97bc9cd798c11f33483653a95505d4bd73",
+    "diag10_attention_structure.py": "5a8c3a02bb9061a23381b11855422d693d8b9ebea5758d627ade9d0599d8d26a"
+  },
+  "frozen_source": {
+    "week8/grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "expected_grok_py_sha": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447"
+  },
+  "inputs_root": "week8/artifacts/part4/formal-decoder-02",
+  "input_checkpoint_sha256": {
+    "main-s0/checkpoint-init.npz": "c618d453ce1e6c14b72356f482f2be985a7a09248bd53df5e0d1a110543cddbb",
+    "main-s0/checkpoint-memorization.npz": "3c6472e1410f4c3db9ff41181f09c08ee3e8dc50ad5d7ce91aad7bfba10f58b8",
+    "main-s0/checkpoint-final.npz": "2978381f409bd1a695b19a61f844890c972ed2ca2177bd9b8202bd50f6543465",
+    "main-s1/checkpoint-init.npz": "c5698c5b094d6085b3754260f5965640ec90703bdc0fb48428b3554f7ee0def2",
+    "main-s1/checkpoint-memorization.npz": "bfc4ffb0d82bd4ff64534ae4f040e27d1a97d8381ee59b34c43fe1961320b720",
+    "main-s1/checkpoint-final.npz": "f3a67da5601d8de71ff9196ac947425958d760cda276362a4bf8ef7287d2d685",
+    "main-s2/checkpoint-init.npz": "756b055dbb115bb9a1e2de20cf578f471999a455ba92b9e9b906cfb5cd628e6e",
+    "main-s2/checkpoint-memorization.npz": "e2bbdede32ca8d2574c099b79ccfc8c6721fe07b61841005a4fc37fa56c2aab6",
+    "main-s2/checkpoint-final.npz": "4102e38263ebf55ab4e34641bfe2889017505cb5baf92b2a4c8047a2a3a923a1",
+    "main-s3/checkpoint-init.npz": "768aacf19a4ee6ea5c14d40d8224cbd55248d856d21d9ed85bf6f843cebb6511",
+    "main-s3/checkpoint-memorization.npz": "573c419284842a955b0f0edc6f88b46af3248982045e82fca1e90b0399fdb99a",
+    "main-s3/checkpoint-final.npz": "af70b2e242c4693645bbc67bafddb1cd423a7ae634eb39863b87113aa3b6eb6d",
+    "main-s4/checkpoint-init.npz": "c9d0913b42dcbc16b6d2a024a785cda49784a0cd902f146f597f1bc3ec9565ca",
+    "main-s4/checkpoint-memorization.npz": "5856c32250d240dc6a96a2686614b768c499216ee067a309a14fcf35f3e3f85e",
+    "main-s4/checkpoint-final.npz": "b180bcce12db387e2afb14e4717adbaca321538d2dcf9ca8538e59122d0cc4c3",
+    "wd0-s0/checkpoint-final.npz": "7873cab166b01daa9d09c7fa2672b35f3e980f5a28818050ec25b689492ca371"
+  },
+  "constraints_confirmed": {
+    "no_training_no_replay": true,
+    "no_script_executed": true,
+    "no_seed_split_init_hyperparameter_gate_changes": true,
+    "course_gates_unchanged": true,
+    "exclusive_result_namespaces": [
+      "results/diag09/",
+      "results/diag10/"
+    ],
+    "harness_failures_retained": true,
+    "no_commits_no_remote_actions": true
+  },
+  "review_reference": "week8-support/part4-seed0-investigation/minimal-diagnostics-03/review-before-execution.md (Codex, all 8 points addressed in PLAN v2)"
+}

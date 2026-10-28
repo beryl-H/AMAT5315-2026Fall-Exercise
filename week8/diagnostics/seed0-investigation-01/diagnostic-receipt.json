@@ -1,0 +1,141 @@
+{
+  "investigation_id": "part4-seed0-investigation-01",
+  "revision": 2,
+  "date_utc": "2026-10-28",
+  "agent": "pi (native WSL) volcengine-plan/glm-5-3-flash",
+  "phase": "bounded diagnostic only; Pi launched no training",
+  "revision_note": "rev 2 incorporates Codex independent-review corrections: observational (non-causal) wording, preserved initial-check history, robust negative control diag08, grok.py docstring erratum, validation aligned to the predeclared exact replay (30000-step suggestion withdrawn)",
+  "subject": {
+    "namespace": "formal-decoder-02",
+    "run": "main-s0",
+    "observed": {
+      "memorization_step": 200,
+      "grok_step": null,
+      "steps_run": 10000,
+      "final_test_acc": 0.09535378217697144,
+      "final_param_norm": 46.23
+    },
+    "sibling_grok_steps": {
+      "s1": 5000,
+      "s2": 5500,
+      "s3": 4500,
+      "s4": 6700
+    },
+    "scientific_gates_status": "seed 0 gates REMAIN UNMET and unchanged (grok_within_10000, delay>10, top5_share>0.8=0.3964, keep_only_key5>0.95=0.1456, remove_random_other5>0.95 min 0.0844); diagnostic checks are distinct from these gates"
+  },
+  "conservative_conclusion": {
+    "confirmed_implementation_defect": false,
+    "root_cause": "UNRESOLVED",
+    "hypothesis_plausible_unproven": "init-dependent optimization delay (unlucky draw from an implementation-defined init RNG stream that the sheet does not specify)",
+    "unknown": "whether seed 0 groks beyond step 10000; float32 training-dynamics effects over 10000 steps (all float64 checks validate scoring/gradients/optimizer only at tested points)",
+    "overstatements_removed": "lag alignment, rising accuracy and Fourier concentration are descriptive observations; they do not prove eventual grokking, censoring mid-transition, or a single remaining cause; no extended training proves neither 'never' nor 'hard failure forever'"
+  },
+  "frozen_source_sha256": {
+    "grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "run_part4.py": "f2ba51117119d285df63b6a69dcbf9a5710c4fff23ee956882a33b6c5ff19693",
+    "grok_symmetric_variant.py": "948d36f2e2ea6a0a910b5a81bc57846ebdb0ba2b5cd7a0050847d76f0c144e6d",
+    "SPEC.md": "3af0d721e80e2d5070223a4e1ebc5e5bac17f6c6b01edc8b34c1fbd110b3bee1"
+  },
+  "diagnostics": [
+    {
+      "id": "diag01_adamw_crosscheck",
+      "result": "results/diag01_adamw_crosscheck.json",
+      "pass": true,
+      "summary": "frozen AdamW matches independent canonical float64 reference; worst scale-relative diff 5.39e-6 (absolute 4.41e-6); original v1 absolute criterion FAILED (see initial-check-history)",
+      "limitation": "compares parameters only; state (m, v) comparison closed by Codex independent test"
+    },
+    {
+      "id": "codex_independent_optimizer_state_test",
+      "source": "week8-support/part4-seed0-investigation/independent-optimizer.json",
+      "pass": true,
+      "summary": "Codex float64 NumPy-vs-JAX test of params, m, v at every step, 200 steps, wd 0/1, tolerance 1e-12: PASS, worst 2.45e-15"
+    },
+    {
+      "id": "diag02_grad_finite_diff",
+      "result": "results/diag02_grad_finite_diff.json",
+      "pass": true,
+      "summary": "value_and_grad vs float64 central FD, 128 coordinates, worst abs err 1.15e-10; original purely relative criterion FAILED near tiny gradients (history preserved)",
+      "limitation": "tested points only; does not eliminate float32 training-dynamics effects"
+    },
+    {
+      "id": "diag03_split_determinism",
+      "result": "results/diag03_split_determinism.json",
+      "pass": true,
+      "summary": "split 2823/6586 disjoint, 50% nested, independent of ambient RNG and run seed; 12 runs share one source-hash set and protocol settings"
+    },
+    {
+      "id": "diag04_init_streams",
+      "result": "results/diag04_init_streams.json",
+      "pass": true,
+      "summary": "all five checkpoint-init.npz bitwise-equal to init_params(PRNGKey(seed)); inits pairwise distinct; init norms 27.64-27.87, top-5 shares 0.122-0.130"
+    },
+    {
+      "id": "diag05_seed0_trajectory",
+      "result": "results/diag05_seed0_trajectory.json",
+      "pass": true,
+      "summary": "DESCRIPTIVE ONLY: test acc monotone rising 0.017->0.095 over the window; same acc reached by seeds 1/2/3/4 at steps 3800/4500/3000/1700; wd-driven cycles period ~1450; doubling ~3665 steps (no prediction made); wd0-s0 flat, random-labels chance; final top-5 share 0.396 between memorization 0.160 and grokked 0.880-0.944 (snapshot descriptor)",
+      "limitation": "observations do not prove eventual grokking, censoring, or cause"
+    },
+    {
+      "id": "diag06_checkpoint_rescore",
+      "result": "results/diag06_checkpoint_rescore.json",
+      "pass": true,
+      "summary": "independent rescoring of all five final checkpoints reproduces logged accuracies exactly; validates scoring pipeline, not training dynamics"
+    },
+    {
+      "id": "diag07_negative_controls",
+      "result": "results/diag07_negative_controls.json",
+      "all_detected": true,
+      "versioned_copy": [
+        "diag07_negative_controls_v1-x64.py",
+        "results/diag07_negative_controls_v1-x64.json"
+      ],
+      "summary": "v1-x64 values: NC1 wrong beta2 rel diff 4.913e-3, NC2 coupled wd 3.727e-1, NC3 sign-flipped grad disagreement 1.697e-2; earlier float32 NC3 attempt (fd=0.0 vs analytic 8.864e-3) was defective and is preserved in initial-check-history and the raw session log"
+    },
+    {
+      "id": "diag08_robust_negative_control",
+      "result": "results/diag08_robust_negative_control.json",
+      "pass": true,
+      "summary": "float64 FD sign-flip control, analytic grad 4.286e-2 (>1e-3), h in {1e-3,1e-4,1e-5}: FD matches unmodified gradient and rejects sign-flipped gradient at every h, all FD nonzero"
+    }
+  ],
+  "initial_check_history": "initial-check-history.json (exact failed/revised diagnostic-criterion values, string-verified in retained raw session log pi-investigate-02.jsonl; distinct from unchanged scientific gates)",
+  "errata": {
+    "grok_py_docstring": "ERRATA-grok-docstring.md: module docstring still describes the invalidated symmetric variant (no positional embeddings, no causal mask, 62,305 params); actual frozen code/protocol have positional embeddings (192), causal mask, 62,497 params; frozen file NOT modified"
+  },
+  "validation": {
+    "exact_replay_predeclared": {
+      "predeclaration": "week8-support/part4-seed0-investigation/replay-predeclaration.json",
+      "output": "artifacts/part4/seed0-replay-investigation-01/main-s0",
+      "settings": "frozen grok.py hash d0501c3b..., seed 0, split 897, fraction 0.30, wd 1, lr 3e-3, betas (0.9,0.98), cap 10000, pinned to CPU core 4",
+      "purpose": "single exact reproducibility diagnostic, not a successful replacement attempt",
+      "acceptance": "compare all logged numeric columns and raw checkpoint arrays with original, timestamps excluded; unchanged gates; report mismatch, no retries",
+      "actor": "Codex; Pi performs no outcome claims here"
+    },
+    "withdrawn": "rev-1 suggestion of a 30000-step extension run"
+  },
+  "commands": {
+    "suite": "cd week8 && bash diagnostics/seed0-investigation-01/run_all.sh (diag01-07); diag08 run individually",
+    "environment": "JAX_PLATFORMS=cpu, week8/.venv Python 3.11.17"
+  },
+  "constraints_respected": {
+    "no_training_launched_by_pi": true,
+    "no_frozen_source_modification": true,
+    "no_seed_or_split_changes": true,
+    "no_threshold_relaxation": true,
+    "no_step_cap_change_or_extension": true,
+    "no_initialization_tuning": true,
+    "no_outcome_driven_retries": true,
+    "existing_failures_and_artifacts_preserved": true,
+    "no_commit_before_codex_final_review": true,
+    "no_secrets_or_raw_reasoning_in_reports": true,
+    "no_deletes": true
+  },
+  "artifacts": {
+    "report": "week8/diagnostics/seed0-investigation-01/root-cause-report.md",
+    "results_dir": "week8/diagnostics/seed0-investigation-01/results/",
+    "console_log": "week8-support/part4-seed0-investigation/diag-suite-console.log",
+    "support_copies": "week8-support/part4-seed0-investigation/ (report, receipt, initial-check-history, diag08 result, errata)"
+  },
+  "diagnostic_history_note": "Some initial diagnostic results were overwritten during Pi's diagnostic revisions; exact initial values and failures were reconstructed from retained raw tool logs in initial-check-history.json. Original formal experiment artifacts were never overwritten."
+}

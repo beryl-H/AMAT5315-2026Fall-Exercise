@@ -1,0 +1,26 @@
+{
+  "diagnostic": "diag03_split_determinism",
+  "checks": {
+    "n_train_30": 2823,
+    "n_test_30": 6586,
+    "n_train_50": 4704,
+    "n_test_50": 4705,
+    "expected": {
+      "n_train_30": 2823,
+      "n_test_30": 6586,
+      "n_train_50": 4704,
+      "n_test_50": 4705
+    },
+    "train_test_disjoint": true,
+    "frac50_superset_frac30": true,
+    "split_seed_independent": true
+  },
+  "n_runs": 12,
+  "settings_match_protocol": true,
+  "n_distinct_source_hash_sets": 1,
+  "source_hashes_grok": {
+    "grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "SPEC.md": "3af0d721e80e2d5070223a4e1ebc5e5bac17f6c6b01edc8b34c1fbd110b3bee1"
+  },
+  "pass": true
+}

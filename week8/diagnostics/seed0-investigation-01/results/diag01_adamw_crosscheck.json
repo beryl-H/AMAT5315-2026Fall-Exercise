@@ -1,0 +1,107 @@
+{
+  "diagnostic": "diag01_adamw_crosscheck",
+  "reference": "canonical decoupled AdamW (float64 NumPy), PyTorch/AdamW-paper semantics",
+  "tested_against": "grok.grok_adamw_step (frozen, read-only)",
+  "cases": [
+    {
+      "lr": 0.003,
+      "wd": 0.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 3.1457774105625447e-06,
+      "max_scale_relative_diff": 9.005272456735454e-07
+    },
+    {
+      "lr": 0.003,
+      "wd": 0.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 4.318537337510975e-06,
+      "max_scale_relative_diff": 9.619731723116494e-07
+    },
+    {
+      "lr": 0.003,
+      "wd": 1.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 2.90793309964954e-06,
+      "max_scale_relative_diff": 1.2161231599603591e-06
+    },
+    {
+      "lr": 0.003,
+      "wd": 1.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 3.1559765782951388e-06,
+      "max_scale_relative_diff": 1.2241019014936568e-06
+    },
+    {
+      "lr": 0.003,
+      "wd": 50.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 4.200707948154303e-07,
+      "max_scale_relative_diff": 8.607002560259345e-07
+    },
+    {
+      "lr": 0.003,
+      "wd": 50.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 3.8694505821723624e-07,
+      "max_scale_relative_diff": 4.4555133491053065e-06
+    },
+    {
+      "lr": 0.01,
+      "wd": 0.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 3.6966700465157487e-06,
+      "max_scale_relative_diff": 8.837823940132646e-07
+    },
+    {
+      "lr": 0.01,
+      "wd": 0.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 4.405370918725282e-06,
+      "max_scale_relative_diff": 8.227027963744132e-07
+    },
+    {
+      "lr": 0.01,
+      "wd": 1.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 2.2344562449205796e-06,
+      "max_scale_relative_diff": 1.0146049674858135e-06
+    },
+    {
+      "lr": 0.01,
+      "wd": 1.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 2.3074407979883915e-06,
+      "max_scale_relative_diff": 1.4480146287581702e-06
+    },
+    {
+      "lr": 0.01,
+      "wd": 50.0,
+      "structured": false,
+      "steps": 200,
+      "max_abs_diff": 5.649631518167553e-08,
+      "max_scale_relative_diff": 8.061105218121964e-07
+    },
+    {
+      "lr": 0.01,
+      "wd": 50.0,
+      "structured": true,
+      "steps": 200,
+      "max_abs_diff": 5.16563989361174e-08,
+      "max_scale_relative_diff": 5.385181412126752e-06
+    }
+  ],
+  "worst_max_abs_diff": 4.405370918725282e-06,
+  "worst_scale_relative_diff": 5.385181412126752e-06,
+  "note": "large-wd cases decay parameters to tiny scale, so the pass criterion is the scale-relative diff (1e-5)",
+  "pass": true
+}

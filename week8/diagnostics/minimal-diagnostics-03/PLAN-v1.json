@@ -1,0 +1,122 @@
+{
+  "plan": "minimal-diagnostics-03",
+  "phase": "PRE_REGISTRATION",
+  "status": "DESIGNED_NOT_EXECUTED",
+  "date": "2026-10-29",
+  "author": "pi (native WSL, volcengine-plan/glm-5-3-flash)",
+  "review_gate": "Codex must approve this plan before any diagnostic script executes",
+  "constraints": {
+    "no_training": true,
+    "no_replay": true,
+    "inference_and_gradient_measurement_on_saved_weights_only": true,
+    "frozen_grok_py_sha256": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "no_seed_split_init_hyperparameter_gate_changes": true,
+    "no_deletes_commits_remote_actions": true,
+    "no_cross_seed_tensor_transplant": true,
+    "interventions_transient_copies_only": true,
+    "no_new_seeds": true,
+    "fixed_comparison_set": "main-s0..s4, frozen split RNG 897, fraction 0.30",
+    "negative_mechanism_control": "wd0-s0 final (descriptor only)",
+    "exclusive_result_namespace": "week8/diagnostics/minimal-diagnostics-03/results/",
+    "no_post_hoc_threshold_changes": true,
+    "no_causal_claims_from_static_associations": true,
+    "no_eventual_grok_or_init_cause_claims": true
+  },
+  "snapshots": {
+    "root": "week8/artifacts/part4/formal-decoder-02",
+    "files": {
+      "main-s0/checkpoint-init.npz": "c618d453ce1e6c14b72356f482f2be985a7a09248bd53df5e0d1a110543cddbb",
+      "main-s0/checkpoint-memorization.npz": "3c6472e1410f4c3db9ff41181f09c08ee3e8dc50ad5d7ce91aad7bfba10f58b8",
+      "main-s0/checkpoint-final.npz": "2978381f409bd1a695b19a61f844890c972ed2ca2177bd9b8202bd50f6543465",
+      "main-s1/checkpoint-init.npz": "c5698c5b094d6085b3754260f5965640ec90703bdc0fb48428b3554f7ee0def2",
+      "main-s1/checkpoint-memorization.npz": "bfc4ffb0d82bd4ff64534ae4f040e27d1a97d8381ee59b34c43fe1961320b720",
+      "main-s1/checkpoint-final.npz": "f3a67da5601d8de71ff9196ac947425958d760cda276362a4bf8ef7287d2d685",
+      "main-s2/checkpoint-init.npz": "756b055dbb115bb9a1e2de20cf578f471999a455ba92b9e9b906cfb5cd628e6e",
+      "main-s2/checkpoint-memorization.npz": "e2bbdede32ca8d2574c099b79ccfc8c6721fe07b61841005a4fc37fa56c2aab6",
+      "main-s2/checkpoint-final.npz": "4102e38263ebf55ab4e34641bfe2889017505cb5baf92b2a4c8047a2a3a923a1",
+      "main-s3/checkpoint-init.npz": "768aacf19a4ee6ea5c14d40d8224cbd55248d856d21d9ed85bf6f843cebb6511",
+      "main-s3/checkpoint-memorization.npz": "573c419284842a955b0f0edc6f88b46af3248982045e82fca1e90b0399fdb99a",
+      "main-s3/checkpoint-final.npz": "af70b2e242c4693645bbc67bafddb1cd423a7ae634eb39863b87113aa3b6eb6d",
+      "main-s4/checkpoint-init.npz": "c9d0913b42dcbc16b6d2a024a785cda49784a0cd902f146f597f1bc3ec9565ca",
+      "main-s4/checkpoint-memorization.npz": "5856c32250d240dc6a96a2686614b768c499216ee067a309a14fcf35f3e3f85e",
+      "main-s4/checkpoint-final.npz": "b180bcce12db387e2afb14e4717adbaca321538d2dcf9ca8538e59122d0cc4c3",
+      "wd0-s0/checkpoint-final.npz": "7873cab166b01daa9d09c7fa2672b35f3e980f5a28818050ec25b689492ca371"
+    },
+    "data": "grok.build_dataset(); grok.fixed_split(0.30); full enumeration, no subsets"
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "float32 forward/backward loses small task gradients after memorization on saved values, seed-0-discriminatingly",
+      "script": "diag09_precision_gradients.py",
+      "result_file": "results/diag09_precision_gradients.json",
+      "observable_prediction": "At seed0 memorization and/or final snapshots, float32 autodiff of the full-batch train loss differs materially from float64 autodiff on the identical loaded parameter values and identical batch (whole or block relL2 > 1e-3, or cosine < 0.999, or float32-zeroed coordinates), while seed0 init and every snapshot of seeds 1-4 stay below those thresholds.",
+      "falsifying_observation": "No material defect at seed0 memorization/final, or defects of equal magnitude present in seeds 1-4 (non-discriminating).",
+      "metric_definitions": {
+        "floor": 1e-30,
+        "relL2": "||g32-g64||_2 / max(||g64||_2, floor); g64_degenerate flagged when ||g64||_2 < floor",
+        "cosine": "<g32,g64> / (||g32||_2 * max(||g64||_2, floor)); null when either norm < floor; never coerced",
+        "abs_diff": "||g32-g64||_2",
+        "zero_loss_count": "#{i: g32[i]==0 and |g64[i]|>0}",
+        "spurious_count": "#{i: |g32[i]|>0 and g64[i]==0}",
+        "nonfinite32_64": "counts of NaN/Inf in each pass",
+        "loss_rel": "|L32-L64| / max(|L64|, floor)",
+        "granularity": "per leaf tensor, per block (embedding={emb,pos}, attention={wq,bq,wk,bk,wv,bv,wo,bo}, mlp={mlp1,mlp2}, head={head}), whole flattened gradient",
+        "dtype_and_flag_logging": "x64 flag and array dtypes recorded for both passes"
+      },
+      "decision_rule_engineering_not_course_gate": {
+        "material_defect": "whole relL2 > 1e-3 OR any block relL2 > 1e-3 OR cosine < 0.999 (when defined) OR zero_loss_count > 0 with ||g64||_2 >= floor",
+        "h1_supported_engineering_level": "material defect at seed0 mem and/or final AND none at seed0 init AND none at any seeds 1-4 snapshot",
+        "h1_rejected": "no material defect at seed0 mem/final OR defects equal across seeds (reported as non-discriminating)",
+        "threshold_justification": "float32 unit roundoff 1.19e-7; benign accumulation over 62.5k coords expected relL2 <= 1e-5; threshold is 100x above",
+        "invalidation": "positive control failure invalidates the diagnostic; all values retained; no in-session threshold retuning"
+      },
+      "baseline_tie_in": "float32 recomputed train loss at each snapshot matches the run's logged train_loss (last log row) to relative 1e-5 (diag06 precedent: exact reproduction); mismatch aborts as harness defect",
+      "negative_anchor": "init snapshots (large gradients) must show negligible relL2",
+      "positive_control": "bfloat16 quantization of a transient copy of one grokked seed's final params must be flagged (relL2 > 0.01 vs float64 on identical values); official model untouched",
+      "precision_context": "x64 disabled at import; float32 pass first; then jax.config.update('jax_enable_x64', True) verified by dtype assertions; weights only loaded and explicitly cast, init_params never called; if runtime toggle fails the script aborts with a failure record (no silent fallback)",
+      "budget": {"cpu_minutes_max": 5, "ram_gb_max": 1, "processes": 1, "platform": "JAX_PLATFORMS=cpu"},
+      "allowed_conclusion": "whether float32 autodiff materially distorts loss/gradient on the saved weights and whether it is seed-0-specific",
+      "not_supported_conclusion": "that float32 precision caused seed0's non-grokking within 10000 steps; anything about steps > 10000; any model change"
+    },
+    {
+      "id": "H2",
+      "name": "attention saturates or uses a positional/order-dependent shortcut restricting modular structure learning",
+      "script": "diag10_attention_structure.py",
+      "result_file": "results/diag10_attention_structure.json",
+      "observable_prediction": "Seed0's answer-row (position 2) attention at final (and directionally at memorization) shows either (H2a) markedly lower mean entropy than every grokked seed with sat_frac > 0.5 while every grokked seed < 0.1, or (H2b) near-zero input dependence (input_dep_std < 1e-4 vs grokked > 1e-4), or large one-variable intervention effects (I1 pos->0 |dAcc| > 0.5 vs grokked < 0.1; I2 swap a,b acc drop > 0.5 vs grokked < 0.1).",
+      "falsifying_observation": "Seed0's attention metrics and intervention deltas all lie within the [min, max] span of seeds 1-4 at the same checkpoints.",
+      "metric_definitions": {
+        "scope": "per snapshot, per head (4), frozen grok.attention_weights, all 9409 pairs",
+        "entropy": "H = -sum_j w_j ln w_j over the 3 causal positions of answer row; mean and p10/p50/p90",
+        "sat_frac": "fraction of pairs with max_j w_j > 0.99",
+        "maxw_mean": "mean over pairs of max_j w_j",
+        "score_min_max_range": "pre-softmax masked scores, finite entries only",
+        "input_dep_std": "max over j of std over the 9409 pairs of w_j",
+        "interventions_one_variable_at_a_time": "I1 pos->0 (transient copy); I2 inputs (b,a,'=') (acc_swap); I3 first operand -> 0 (descriptor); each reported beside matched baseline",
+        "delta_acc": "acc_intervened - acc_baseline (test split, frozen)"
+      },
+      "decision_rule_engineering_not_course_gate": {
+        "h2a_saturation": "seed0 entropy_mean at final below every grokked seed AND sat_frac > 0.5 while every grokked seed sat_frac < 0.1",
+        "h2b_positional": "seed0 input_dep_std < 1e-4 at final while every grokked seed > 1e-4; OR I1 |dAcc| > 0.5 for seed0 while every grokked seed < 0.1; OR I2 acc_swap < acc_base - 0.5 for seed0 while every grokked seed drops < 0.1",
+        "h2_supported_engineering_level": "H2a or H2b at final, directionally present at memorization",
+        "h2_falsified": "all seed0 metrics within seeds-1-4 span",
+        "no_post_hoc_thresholds": "all thresholds fixed in this plan before execution",
+        "control_role": "wd0-s0 final is a descriptor only, not in pass/fail logic"
+      },
+      "baseline_tie_in": "before trusting any intervention, frozen grok.loss_acc must reproduce each snapshot's logged test accuracy to relative 1e-6 (diag06 precedent)",
+      "harness_liveness_control": "I1 must change logits on at least one pair for every snapshot; bitwise identity aborts as harness defect",
+      "causality_caveat": "entropy/saturation and intervention sensitivity are static-snapshot conditional associations; they cannot establish a necessary cause of past learning failure without dynamics; entropy alone never proves cause",
+      "budget": {"cpu_minutes_max": 5, "ram_gb_max": 1, "processes": 1, "platform": "JAX_PLATFORMS=cpu"},
+      "allowed_conclusion": "whether seed0's saved attention differs mechanistically (saturation/positional dependence/order sensitivity) from all grokked seeds at the same stages",
+      "not_supported_conclusion": "causal claim that the pattern prevented grokking; claims about steps > 10000; eventual-grok or init-cause claims"
+    }
+  ],
+  "execution_protocol": {
+    "order": ["Codex review of plan", "run diag09 once", "run diag10 once", "findings note as new file"],
+    "single_shot": "scripts assert exclusive results namespace and refuse to overwrite anything including their own outputs",
+    "stdout": "one concise PASS/FAIL line per script; full values in JSON",
+    "trial_failures_retained": true,
+    "plan_immutable_after_execution": true
+  }
+}

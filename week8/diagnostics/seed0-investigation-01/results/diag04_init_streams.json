@@ -1,0 +1,79 @@
+{
+  "diagnostic": "diag04_init_streams",
+  "per_seed": {
+    "0": {
+      "bitwise_equal_to_recomputed_init": true,
+      "param_norm": 27.642131805419922,
+      "init_top5": [
+        9,
+        24,
+        38,
+        29,
+        18
+      ],
+      "init_top5_share": 0.12657354772090912
+    },
+    "1": {
+      "bitwise_equal_to_recomputed_init": true,
+      "param_norm": 27.848257064819336,
+      "init_top5": [
+        29,
+        31,
+        23,
+        33,
+        39
+      ],
+      "init_top5_share": 0.1218920350074768
+    },
+    "2": {
+      "bitwise_equal_to_recomputed_init": true,
+      "param_norm": 27.65865707397461,
+      "init_top5": [
+        6,
+        28,
+        19,
+        45,
+        23
+      ],
+      "init_top5_share": 0.1276259869337082
+    },
+    "3": {
+      "bitwise_equal_to_recomputed_init": true,
+      "param_norm": 27.865036010742188,
+      "init_top5": [
+        6,
+        36,
+        13,
+        19,
+        14
+      ],
+      "init_top5_share": 0.1295335590839386
+    },
+    "4": {
+      "bitwise_equal_to_recomputed_init": true,
+      "param_norm": 27.781436920166016,
+      "init_top5": [
+        42,
+        19,
+        6,
+        36,
+        38
+      ],
+      "init_top5_share": 0.1279463768005371
+    }
+  },
+  "pairwise_distinct_inits": true,
+  "init_norm_range": [
+    27.642131805419922,
+    27.865036010742188
+  ],
+  "init_share_range": [
+    0.1218920350074768,
+    0.1295335590839386
+  ],
+  "sheet_reference": {
+    "init_norm": "~28",
+    "init_share": "~0.13"
+  },
+  "pass": true
+}

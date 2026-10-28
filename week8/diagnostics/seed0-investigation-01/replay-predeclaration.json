@@ -1,0 +1,21 @@
+{
+  "utc_declared": "2026-10-28T06:26:50.804472+00:00",
+  "purpose": "single exact seed0 reproducibility diagnostic; not a successful replacement attempt",
+  "attempt_limit": 1,
+  "source_grok_sha256": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+  "seed": 0,
+  "split_seed": 897,
+  "fraction": 0.3,
+  "wd": 1.0,
+  "lr": 0.003,
+  "betas": [
+    0.9,
+    0.98
+  ],
+  "max_steps": 10000,
+  "log_every": 100,
+  "core": 4,
+  "output": "artifacts/part4/seed0-replay-investigation-01/main-s0",
+  "acceptance": "compare all logged numeric columns and raw checkpoint arrays with original, timestamps excluded; unchanged scientific gates; report any mismatch, do not retry",
+  "actor": "Codex exact-replay dispatch of original Pi model following Pi diagnostics"
+}

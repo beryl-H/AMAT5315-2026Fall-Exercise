@@ -1,0 +1,96 @@
+{
+  "document": "initial-check-history.json",
+  "purpose": "Preserve the failed/revised initial diagnostic-check history of investigation seed0-investigation-01. All values below are exact outputs from this session's Pi tool calls, verifiable in the retained raw session log week8-support/part4-seed0-investigation/pi-investigate-02.jsonl (each value string-matched in that file on 2026-10-28). These are diagnostic-engineering checks; they are explicitly DISTINCT from the unchanged scientific gates of the formal runs (test acc >= 0.99, delay > 10, top-5 share > 0.8, ablation gates), which remain unmet for seed 0.",
+  "entries": [
+    {
+      "id": "diag01-v1-adamw-crosscheck",
+      "initial_criterion": "max absolute parameter diff <= 1e-6 over 200 steps",
+      "initial_result": "FAIL",
+      "exact_initial_value": {
+        "worst_max_abs_diff": 4.405370918725282e-06,
+        "criterion_was": "<= 1e-6 absolute"
+      },
+      "revision": {
+        "what": "criterion changed to scale-relative: max abs diff / max(max|ref param|, 1e-3) <= 1e-5",
+        "justification": "This is a revised diagnostic metric for a float32-versus-float64 multi-step comparison, not proof that the original tolerance was wrong or that the optimizer is correct. The first failure is retained; the independent matched-float64 comparison of parameters and both moments supplies the stronger formula check. The scientific gates were not changed.",
+        "revised_result": "PASS, worst scale-relative diff 5.385181412126752e-06, worst absolute 4.405370918725282e-06 (unchanged measurement, changed tolerance metric)",
+        "residual_interpretation": "remaining diff is consistent with float32 JAX accumulation over 200 steps vs float64 reference; NOT evidence of a formula error"
+      },
+      "stated_limitation": "the original diag01 implementation compared only final parameters; it did NOT compare the m and v optimizer states. This limitation is acknowledged; Codex independently closed it."
+    },
+    {
+      "id": "codex-independent-optimizer-state-test",
+      "source": "week8-support/part4-seed0-investigation/independent-optimizer.json (Codex, not Pi)",
+      "result": "PASS",
+      "exact_values": {
+        "dtype": "float64 both implementations",
+        "tolerance": 1e-12,
+        "compared": "parameters and both moment states (m, v) at every step",
+        "wd0_200_steps_max_abs_err": {
+          "params": 4.440892098500626e-16,
+          "m": 6.661338147750939e-16,
+          "v": 2.4424906541753444e-15
+        },
+        "wd1_200_steps_max_abs_err": {
+          "params": 1.1102230246251565e-15,
+          "m": 4.440892098500626e-16,
+          "v": 2.4424906541753444e-15
+        },
+        "reported_worst": 2.45e-15
+      },
+      "note": "closes the diag01 state-comparison gap at tolerance 1e-12 in float64"
+    },
+    {
+      "id": "diag02-v1-gradient-check",
+      "initial_criterion": "purely relative: |fd - ad| / max(1e-8, |fd|, |ad|) <= 2e-5",
+      "initial_result": "FAIL",
+      "exact_initial_value": {
+        "worst_rel_err": 0.0004661051091662878,
+        "n_probed": 128
+      },
+      "revision": {
+        "what": "criterion changed to standard mixed form |fd - ad| <= 1e-6 + 1e-3*|ad|, and offenders stored",
+        "justification": "the purely relative metric is inflated near tiny gradients (denominator ~1e-8); the mixed absolute+relative form is the standard finite-difference check",
+        "revised_result": "PASS, 128/128 probed, worst absolute disagreement 1.1448008741064136e-10"
+      },
+      "stated_limitation": "this checks autodiff gradients at the 128 tested points only; it does NOT test or eliminate float32 training-dynamics effects over 10000 steps"
+    },
+    {
+      "id": "diag07-v0-NC3-float32",
+      "initial_criterion": "sign-flipped gradient rejected by finite differences",
+      "initial_result": "DEFECTIVE CONTROL",
+      "exact_initial_values_from_tool_log": {
+        "fd": 0.0,
+        "defective_grad": 0.008863518014550209,
+        "abs_disagreement": 0.008863518014550209
+      },
+      "diagnosis": "the finite difference returned exactly 0.0 while the analytic gradient was ~8.9e-3: float32 loss quantization (loss ~4.6, float32 resolution ~4e-7) made the expected loss change (~1.8e-7) unresolvable, so the control passed for a spurious reason and was rejected as uninformative",
+      "revision": "control redone with jax_enable_x64 (v1-x64, preserved as diag07_negative_controls_v1-x64.py / results/diag07_negative_controls_v1-x64.json), then made robust as diag08"
+    },
+    {
+      "id": "diag07-v1-x64",
+      "versioned_artifacts": [
+        "diagnostics/seed0-investigation-01/diag07_negative_controls_v1-x64.py",
+        "diagnostics/seed0-investigation-01/results/diag07_negative_controls_v1-x64.json"
+      ],
+      "result": "all_detected true",
+      "exact_values_from_current_file": {
+        "NC1_wrong_beta2_max_scale_relative_diff": 0.004913182183110064,
+        "NC2_coupled_weight_decay_max_scale_relative_diff": 0.37270715017301903,
+        "NC3_sign_flipped_gradient_abs_disagreement": 0.016974896089379736
+      },
+      "residual_limitation": "NC3 still used a single h and a moderate gradient; superseded by diag08"
+    },
+    {
+      "id": "diag05-v1-criterion-bug",
+      "initial_result": "composite pass criterion FAILED",
+      "cause": "criterion bug in the diagnostic itself (required every cross-seed same-acc step > 2000; seed 4 reached seed 0's final accuracy at step 1700, which is valid lag evidence, not a failure)",
+      "revision": "criterion corrected to 'all same-acc steps defined and < 10000'; the underlying measurements were unchanged; recorded for transparency"
+    }
+  ],
+  "raw_evidence": {
+    "session_log": "week8-support/part4-seed0-investigation/pi-investigate-02.jsonl",
+    "verification": "each exact value above was string-matched in the retained session log on 2026-10-28; no value reconstructed from memory",
+    "note": "prior result files were overwritten during the session before versioning was required; the raw tool log is the authoritative record of the v1/v0 outputs. From this point on, negative-control outputs are versioned and never overwritten."
+  }
+}

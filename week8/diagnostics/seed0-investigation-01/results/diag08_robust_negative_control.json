@@ -1,0 +1,46 @@
+{
+  "diagnostic": "diag08_robust_negative_control",
+  "probed": {
+    "leaf": 4,
+    "index": 6215,
+    "analytic_grad": 0.042857858567789696,
+    "grad_magnitude": 0.042857858567789696,
+    "grad_min_required": 0.001
+  },
+  "h_grid": [
+    0.001,
+    0.0001,
+    1e-05
+  ],
+  "per_h": [
+    {
+      "h": 0.001,
+      "fd_unflipped": 0.04285785902169437,
+      "analytic_grad": 0.042857858567789696,
+      "sign_flipped_grad": -0.042857858567789696,
+      "matches_unmodified_gradient": true,
+      "rejects_sign_flipped_gradient": true,
+      "fd_nonzero": true
+    },
+    {
+      "h": 0.0001,
+      "fd_unflipped": 0.04285785856872337,
+      "analytic_grad": 0.042857858567789696,
+      "sign_flipped_grad": -0.042857858567789696,
+      "matches_unmodified_gradient": true,
+      "rejects_sign_flipped_gradient": true,
+      "fd_nonzero": true
+    },
+    {
+      "h": 1e-05,
+      "fd_unflipped": 0.04285785859536872,
+      "analytic_grad": 0.042857858567789696,
+      "sign_flipped_grad": -0.042857858567789696,
+      "matches_unmodified_gradient": true,
+      "rejects_sign_flipped_gradient": true,
+      "fd_nonzero": true
+    }
+  ],
+  "dtype": "float64 (jax_enable_x64)",
+  "pass": true
+}

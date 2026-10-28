@@ -1,0 +1,22 @@
+{
+  "diagnostic": "diag07_negative_controls",
+  "controls": {
+    "NC1_wrong_beta2": {
+      "max_scale_relative_diff": 0.004913182183110064,
+      "expected": "FAIL (diff >> 1e-5)"
+    },
+    "NC2_coupled_weight_decay": {
+      "max_scale_relative_diff": 0.37270715017301903,
+      "expected": "FAIL (diff >> 1e-5)"
+    },
+    "NC3_sign_flipped_gradient": {
+      "probed_leaf": 15,
+      "probed_index": 3672,
+      "fd": 0.00848744803327861,
+      "defective_grad": -0.008487448056101127,
+      "abs_disagreement": 0.016974896089379736,
+      "expected": "FAIL (|fd-ag| >> atol)"
+    }
+  },
+  "all_detected": true
+}

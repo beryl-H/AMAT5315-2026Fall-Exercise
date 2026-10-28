@@ -1,0 +1,37 @@
+{
+  "runs": [
+    {
+      "log_filename": "pi-design.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "tool_call_count": 21,
+      "final_stop_reason": "toolUse",
+      "interrupted_for_pre_execution_review": true
+    },
+    {
+      "log_filename": "pi-design-review-02.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "tool_call_count": 14,
+      "final_stop_reason": "stop",
+      "interrupted_for_pre_execution_review": false
+    },
+    {
+      "log_filename": "pi-findings-03.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "tool_call_count": 27,
+      "final_stop_reason": "stop",
+      "interrupted_for_pre_execution_review": false
+    },
+    {
+      "log_filename": "pi-final-findings-04.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "tool_call_count": 7,
+      "final_stop_reason": "stop",
+      "interrupted_for_pre_execution_review": false
+    }
+  ],
+  "raw_reasoning_and_credentials_excluded": true
+}

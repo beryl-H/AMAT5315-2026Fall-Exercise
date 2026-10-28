@@ -1,0 +1,16 @@
+{
+  "status": "RELEASED_FOR_SINGLE_EQUIVALENT_LOSS_PROBE",
+  "utc": "2026-10-28T08:39:53.260095+00:00",
+  "actor": "Pi authored hypothesis/script; Codex preflight",
+  "no_result_exists": true,
+  "followup_plan_sha256": "81c99e0449dde8b390785757431eb74d806c06c2c650dace9267c80940bd616f",
+  "script_sha256": "280fbe3e42c0e813070e9f114699974cfad3a1af42169ae8460d0c5cfc45478c",
+  "fixes_before_execution": [
+    "select '=' position logits Bx97 in every loss evaluation",
+    "gate per-example float64 losses, not only batch mean, as predeclared",
+    "include accuracy and immutability checks in validity"
+  ],
+  "scientific_gates_changed": false,
+  "training": false,
+  "historical_cause_status": "UNRESOLVED"
+}

@@ -1,0 +1,47 @@
+{
+  "final_interpretation": "minimal-diagnostics-03",
+  "date": "2026-10-28",
+  "attribution": {
+    "hypothesis_and_scripts": "pi (native WSL, volcengine-plan/glm-5-3-flash)",
+    "preflight_fixes_and_execution": "Codex (RELEASE.json, RELEASE_FOLLOWUP.json; fixes applied before any checkpoint outcome)",
+    "independent_analytic_audit": "Codex, independent-cancellation-audit.json",
+    "new_training_runs": 0,
+    "optimizer_updates": 0
+  },
+  "chain_of_evidence": [
+    {"step": "diag09 H1", "verdict": "defect_present_not_seed0_specific", "key": "s0 final whole relL2 0.109105728, cosine 0.9940303022; distortion tracks memorization depth (association, not causation)"},
+    {"step": "diag10 H2", "verdict": "inconclusive_outside_envelope", "key": "final signature extreme but memorization temporal condition failed (s0 not more extreme than all grokked seeds)"},
+    {"step": "followup CE cancellation", "verdict": "cancellation_supported_locally", "key": "stable form (masked logsumexp + softplus, never forms p_true-1) reduces f32 gradient error ~8793x at s0 final"},
+    {"step": "independent audit", "verdict": "PASS", "key": "stable AD vs analytic target-complement relL2 8.97e-7; independent stable f32-vs-f64 1.240794e-5"}
+  ],
+  "followup_results_all_five_fixed_finals": {
+    "main-s0": {"orig_relL2": 0.109105728, "stable_relL2": 1.240794e-5, "improvement": 8793.216, "criterion": true},
+    "main-s1": {"orig_relL2": 0.000267745, "stable_relL2": 4.52225e-6, "improvement": 59.2062, "criterion": true},
+    "main-s2": {"orig_relL2": 0.00185893, "stable_relL2": 3.00407e-6, "improvement": 618.803, "criterion": true},
+    "main-s3": {"orig_relL2": 0.00127417, "stable_relL2": 6.5205e-6, "improvement": 195.41, "criterion": true},
+    "main-s4": {"orig_relL2": 6.37731e-05, "stable_relL2": 6.38484e-06, "improvement": 9.9882059967, "criterion": false},
+    "criterion_note": "main-s4 below the predeclared 10x threshold; criterion remains FALSE, not rounded"
+  },
+  "harness": {"execution": "single, 21.19 s, exit 0", "f64_form_equivalence": "PASS (fixtures + per-example full batch)", "accuracy_unchanged": true, "arrays_immutable": true},
+  "conclusions": {
+    "identified_local_mechanism": "float32 log-softmax CE gradient cancellation (p_true - 1 at near-zero loss) locally causes the measured float32-vs-float64 gradient discrepancy at the saved final snapshots",
+    "scope_limit": "LOCAL numerical mechanism ONLY; NOT a historical cause of seed0's non-grokking; stable form is not a fix for past training",
+    "h1_status": "strict predeclared verdict unchanged: defect present but not seed-0-specific",
+    "h2_status": "INCONCLUSIVE (temporal condition failed), unchanged",
+    "historical_root_cause": "UNRESOLVED",
+    "seed0_scientific_gates": "unchanged failure; no criterion relaxed",
+    "future_actions_proposed": "none - no budget extension, no seed hunt, no further diagnostics"
+  },
+  "errata_new_records_only": [
+    {"id": "E1", "target": "FINDINGS.md H1 table", "correction": "s0/init cosine 0.9999999999999367 = 1 - 6.3e-14, not '1 - 6e-13'; summary typo only, result JSON exact"},
+    {"id": "E2", "target": "FINDINGS.md wording", "correction": "the 5-snapshot association (distortion grows with memorization depth) is a measured association, not a 'robust' causal one"}
+  ],
+  "integrity": {
+    "prior_plans_findings_results_unchanged": true,
+    "original_147_artifacts_immutable": true,
+    "no_source_edits_deletes_commits_push": true,
+    "course_and_scientific_gates_unchanged": true,
+    "result_file": "followup-ce-cancellation/results/followup_ce_cancellation.json",
+    "release_records": ["RELEASE.json", "followup-ce-cancellation/RELEASE_FOLLOWUP.json"]
+  }
+}

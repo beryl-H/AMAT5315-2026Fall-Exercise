@@ -1,0 +1,71 @@
+{
+  "diagnostic": "diag06_checkpoint_rescore",
+  "per_seed": {
+    "0": {
+      "rescored_train_acc": 1.0,
+      "log_train_acc": 1.0,
+      "rescored_test_acc": 0.09535378217697144,
+      "log_test_acc": 0.09535378217697144,
+      "acc_diff": 0.0,
+      "rescored_test_loss": 18.571989059448242,
+      "log_test_loss": 18.571989059448242,
+      "steps_run_matches_log": true,
+      "mem_step_matches": true,
+      "grok_step_matches": true
+    },
+    "1": {
+      "rescored_train_acc": 1.0,
+      "log_train_acc": 1.0,
+      "rescored_test_acc": 1.0,
+      "log_test_acc": 1.0,
+      "acc_diff": 0.0,
+      "rescored_test_loss": 0.0005160591099411249,
+      "log_test_loss": 0.000516059051733464,
+      "steps_run_matches_log": true,
+      "mem_step_matches": true,
+      "grok_step_matches": true
+    },
+    "2": {
+      "rescored_train_acc": 1.0,
+      "log_train_acc": 1.0,
+      "rescored_test_acc": 1.0,
+      "log_test_acc": 1.0,
+      "acc_diff": 0.0,
+      "rescored_test_loss": 0.0002475454530213028,
+      "log_test_loss": 0.0002475454821251333,
+      "steps_run_matches_log": true,
+      "mem_step_matches": true,
+      "grok_step_matches": true
+    },
+    "3": {
+      "rescored_train_acc": 1.0,
+      "log_train_acc": 1.0,
+      "rescored_test_acc": 1.0,
+      "log_test_acc": 1.0,
+      "acc_diff": 0.0,
+      "rescored_test_loss": 0.00015950767556205392,
+      "log_test_loss": 0.00015950767556205392,
+      "steps_run_matches_log": true,
+      "mem_step_matches": true,
+      "grok_step_matches": true
+    },
+    "4": {
+      "rescored_train_acc": 1.0,
+      "log_train_acc": 1.0,
+      "rescored_test_acc": 1.0,
+      "log_test_acc": 1.0,
+      "acc_diff": 0.0,
+      "rescored_test_loss": 0.002475079381838441,
+      "log_test_loss": 0.002475079381838441,
+      "steps_run_matches_log": true,
+      "mem_step_matches": true,
+      "grok_step_matches": true
+    }
+  },
+  "frozen_source_sha256": {
+    "grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "run_part4.py": "f2ba51117119d285df63b6a69dcbf9a5710c4fff23ee956882a33b6c5ff19693",
+    "grok_symmetric_variant.py": "948d36f2e2ea6a0a910b5a81bc57846ebdb0ba2b5cd7a0050847d76f0c144e6d"
+  },
+  "pass": true
+}

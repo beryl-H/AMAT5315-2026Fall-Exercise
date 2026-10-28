@@ -1,0 +1,18 @@
+{
+  "command": [
+    "env",
+    "JAX_PLATFORMS=cpu",
+    "taskset",
+    "-c",
+    "4",
+    "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/.venv/bin/python",
+    "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/diagnostics/minimal-diagnostics-03/diag09_precision_gradients.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 13.429280996322632,
+  "utc_finished": "2026-10-28T08:24:07.188394+00:00",
+  "training": false,
+  "optimizer_updates": 0,
+  "plan_hash": "0ae5d43f96b571b86831badc58025cbca5d1b40b604ffbe911891a55406501ea",
+  "script_sha256": "415660699750e573d39087fd14c97cc6653acbb82ae5bd750bd7e12617191ad1"
+}

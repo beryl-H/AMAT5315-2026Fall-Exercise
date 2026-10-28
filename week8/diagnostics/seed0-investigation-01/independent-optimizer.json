@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "dtype": "float64 on both implementations",
+  "tolerance": 1e-12,
+  "compared": "parameters and both moment states at every step",
+  "cases": [
+    {
+      "wd": 0.0,
+      "steps": 200,
+      "max_absolute_errors": {
+        "params": 4.440892098500626e-16,
+        "m": 6.661338147750939e-16,
+        "v": 2.4424906541753444e-15
+      }
+    },
+    {
+      "wd": 1.0,
+      "steps": 200,
+      "max_absolute_errors": {
+        "params": 1.1102230246251565e-15,
+        "m": 4.440892098500626e-16,
+        "v": 2.4424906541753444e-15
+      }
+    }
+  ]
+}

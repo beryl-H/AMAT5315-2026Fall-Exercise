@@ -1,0 +1,61 @@
+{
+  "followup": "ce-cancellation",
+  "phase": "PRE_REGISTRATION_POST_HOC",
+  "status": "DESIGNED_NOT_EXECUTED_AWAITING_CODEX_PREFLIGHT",
+  "date": "2026-10-28",
+  "declaration": {
+    "hypothesis_class": "NEW_POST_HOC proposed AFTER the diag09/diag10 outcomes",
+    "never_claimed_preregistered_with_diag09_diag10": true,
+    "motivating_outcome": "diag09 result results/diag09/diag09_precision_gradients.json (main-s0/final whole relL2 0.1091057353, cosine 0.9940303022, loss_rel 0.0184; distortion grows with memorization depth)",
+    "causality_scope": "POINTWISE numeric mechanism on saved checkpoint values ONLY; NOT historical learning causation; the stable loss cannot be described as fixing past grokking or changing any course outcome"
+  },
+  "hypothesis": {
+    "name": "float32 log-softmax cross-entropy gradient cancellation",
+    "statement": "The frozen loss computes nll = -log_softmax(logits)[target]; at nearly zero training loss p_true rounds to exactly 1.0 in float32, so the gradient term (p_true - 1) cancels to 0 and per-class gradient contributions lose the small residual signal. An algebraically equivalent form that never forms p_true - 1, s = logsumexp(logits with target masked to -inf) - target_logit; loss = softplus(s) = log(1 + sum_{j!=y} exp(z_j - z_y)), should produce a float32 gradient materially closer to the float64 reference on the same saved values.",
+    "mathematical_equivalence": "d loss/d z_y = -(1-p_y) and d loss/d z_j = p_j (j != y) for both forms; verified in float64 as the harness gate"
+  },
+  "fixed_inputs": {
+    "checkpoints": "checkpoint-final.npz of main-s0..s4 (ALL FIVE declared as one fixed set before execution; s0 is the hypothesis target, seeds 1-4 are fixed controls; no cherry-picking, no new seeds)",
+    "batch": "full frozen train batch (grok.fixed_split(0.30), 2823 pairs); no subsets",
+    "weights": "loaded float32 arrays, explicitly cast for float64 passes; init_params NEVER called; no regeneration"
+  },
+  "metrics": {
+    "relL2": "||g_a - g_ref||_2 / ||g_ref||_2 on flattened full-batch mean-loss gradients, float64 container",
+    "loss_rel": "|L_a - L_ref| / |L_ref| on mean loss",
+    "reference": "float64 ORIGINAL frozen-form gradient (ground truth on identical values)"
+  },
+  "procedure_order": "ALL float32 passes (fixtures + 5 checkpoints, original and stable forms) -> single x64 toggle with dtype assertions -> ALL float64 passes; no global dtype contamination; flags recorded",
+  "harness_gate": {
+    "rule": "reject wrapper/harness if float64 loss or gradient disagrees across the two equivalent forms beyond 1e-9 abs + 1e-7 relative (per-example/per-coordinate on analytic fixtures AND full-batch raw values)",
+    "on_failure": "diagnostic invalid; failure retained as attempt01; no threshold or form tuning"
+  },
+  "support_criterion_engineering_not_course_gate": {
+    "rule": "float32 stable-form gradient closer to the float64 reference by at least 10x (ratio of relL2, original/stable) AND stable relL2 < 1e-3",
+    "supported_means": "cancellation is a LOCAL cause of the measured float32-vs-float64 gradient discrepancy at that snapshot ONLY",
+    "not_supported_means": "declare unresolved numeric mechanism; no threshold/form tuning",
+    "verdict_granularity": "per checkpoint; overall supported iff main-s0/final meets the criterion, with all four controls reported",
+    "scope_limit": "even full support does not establish that this mechanism caused seed0's non-grokking within 10000 steps, and the stable form is NOT a fix for past training"
+  },
+  "analytic_fixtures": [
+    {"name": "equal_logits", "logits": "all zeros, 1x97, target 0", "expect": "float64 loss ln 97 for BOTH forms; nonzero uniform gradient (target -96/97, others +1/97) - no vacuous zero-gradient control"},
+    {"name": "correct_margin_1000", "logits": "target +1000 above others", "expect": "float64 forms agree; loss ~0; gradient ~0 mathematically (loss-form stability check, documented as such)"},
+    {"name": "incorrect_margin_1000", "logits": "target -1000 below others", "expect": "float64 forms agree; loss ~1000+ln96; nonzero gradient (target ~ -1)"}
+  ],
+  "final_checks": [
+    "float64 loss/gradient form equivalence within gate (fixtures + full batch)",
+    "float32 accuracy unchanged: forward unmodified, recomputed train acc equals logged final train_acc (rel 1e-6)",
+    "array immutability: loaded leaves bitwise unchanged after all computations",
+    "no init_params call; x64 flags and dtypes recorded"
+  ],
+  "budget": {"cpu_minutes_max": 1, "ram_gb_max": 1, "processes": 1, "platform": "JAX_PLATFORMS=cpu"},
+  "constraints": {
+    "no_training_no_optimizer_updates": true,
+    "no_frozen_source_or_model_edits": true,
+    "no_original_plan_script_result_changes": true,
+    "no_deletes_commits_pushes_renames_of_old_failures": true,
+    "exclusive_result_path": "followup-ce-cancellation/results/followup_ce_cancellation.json",
+    "engineering_tolerances_not_course_gates": true,
+    "all_course_and_scientific_gates_unchanged": true
+  },
+  "execution_protocol": "Codex preflight review first; root runs once on authorization; single-shot O_EXCL result; failures retained"
+}

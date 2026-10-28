@@ -1,0 +1,509 @@
+{
+ "findings": "minimal-diagnostics-03",
+ "generated": "2026-10-28",
+ "execution": {
+  "executor": "Codex (preflight metric-implementation fixes recorded in RELEASE.json before any outcome)",
+  "diag09_exit": 0,
+  "diag10_exit": 0,
+  "runtime_seconds": {
+   "diag09": 13.4,
+   "diag10": 16.4
+  },
+  "no_training_no_optimizer_updates": true,
+  "controls": {
+   "diag09_metric_detector_validation": true,
+   "diag10_harness_liveness_all_snapshots": true
+  },
+  "plan_frozen_sha256": "see RELEASE.json",
+  "grok_py_sha256": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+  "original_147_artifacts_immutable": true
+ },
+ "H1": {
+  "hypothesis": "float32 forward/backward loses small task gradients after memorization on saved values",
+  "verdict_engineering": "defect_present_not_seed0_specific",
+  "verdict_meaning": "material float32 gradient distortion exists at final snapshots but is not seed-0-specific; NOT an elimination of float32 training-dynamics effects; no causal claim",
+  "material_defect_rule": "whole or non-degenerate block relL2 > 1e-3 OR cosine < 0.999 OR meaningful_zero > 0 OR nonfinite32 (predeclared)",
+  "snapshots": {
+   "main-s0/init": {
+    "loss32": 4.595211029052734,
+    "loss64": 4.595211307670031,
+    "loss_rel": 6.063209669603739e-08,
+    "whole_relL2": 3.5097113974991403e-07,
+    "whole_cosine": 0.9999999999999367,
+    "norm64": 0.12125661273845649,
+    "block_relL2": {
+     "embedding": 5.47366625444923e-07,
+     "attention": 1.8523711747843886e-07,
+     "mlp": 1.8883275328739792e-07,
+     "head": 2.1732398367601643e-07
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s0/memorization": {
+    "loss32": 0.02945150062441826,
+    "loss64": 0.0294515264956592,
+    "loss_rel": 8.784346354690705e-07,
+    "whole_relL2": 1.889122574521477e-05,
+    "whole_cosine": 0.9999999998255685,
+    "norm64": 0.024992427365345227,
+    "block_relL2": {
+     "embedding": 2.27682186203938e-05,
+     "attention": 1.3309733087567309e-05,
+     "mlp": 2.3447700722025967e-05,
+     "head": 1.6465919617050488e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s0/final": {
+    "loss32": 8.443039405392483e-07,
+    "loss64": 8.601500190806427e-07,
+    "loss_rel": 0.018422459094206912,
+    "whole_relL2": 0.10910573526793282,
+    "whole_cosine": 0.9940303022313803,
+    "norm64": 3.0742399855937106e-06,
+    "block_relL2": {
+     "embedding": 0.06965930440913899,
+     "attention": 0.07232641906009088,
+     "mlp": 0.18212113650289127,
+     "head": 0.1444901545262059
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": true,
+    "log_tie_rel": 0.0
+   },
+   "main-s1/init": {
+    "loss32": 4.595175266265869,
+    "loss64": 4.59517494946143,
+    "loss_rel": 6.894284614949157e-08,
+    "whole_relL2": 3.360744912822653e-07,
+    "whole_cosine": 0.9999999999999425,
+    "norm64": 0.13558273259168527,
+    "block_relL2": {
+     "embedding": 5.277327094413068e-07,
+     "attention": 1.8992769971562124e-07,
+     "mlp": 1.7690749543606223e-07,
+     "head": 2.2987790500575936e-07
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s1/memorization": {
+    "loss32": 0.02529834769666195,
+    "loss64": 0.025298373725978866,
+    "loss_rel": 1.0288928924475763e-06,
+    "whole_relL2": 1.8310424633794286e-05,
+    "whole_cosine": 0.9999999998354692,
+    "norm64": 0.022047353980916975,
+    "block_relL2": {
+     "embedding": 2.3040018589590523e-05,
+     "attention": 1.2678613181173595e-05,
+     "mlp": 2.1821364270123112e-05,
+     "head": 1.5717485596411435e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s1/final": {
+    "loss32": 0.00022683205315843225,
+    "loss64": 0.00022683839130331008,
+    "loss_rel": 2.794123535005726e-05,
+    "whole_relL2": 0.0002680769050988477,
+    "whole_cosine": 0.9999999662167525,
+    "norm64": 0.000664799957315458,
+    "block_relL2": {
+     "embedding": 0.0002954270779816256,
+     "attention": 0.00021373872436169892,
+     "mlp": 0.00032221652918770793,
+     "head": 0.0002624379992393727
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s2/init": {
+    "loss32": 4.591856479644775,
+    "loss64": 4.591855652865484,
+    "loss_rel": 1.8005341494914512e-07,
+    "whole_relL2": 3.945057793522987e-07,
+    "whole_cosine": 0.9999999999999221,
+    "norm64": 0.11427842875792019,
+    "block_relL2": {
+     "embedding": 6.614389698309964e-07,
+     "attention": 2.005661838878431e-07,
+     "mlp": 2.1702977853506184e-07,
+     "head": 2.3877919091394294e-07
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s2/memorization": {
+    "loss32": 0.048658616840839386,
+    "loss64": 0.04865863060045224,
+    "loss_rel": 2.827784646235923e-07,
+    "whole_relL2": 1.3566448734946711e-05,
+    "whole_cosine": 0.9999999999092187,
+    "norm64": 0.042800240914183496,
+    "block_relL2": {
+     "embedding": 1.3360925862756445e-05,
+     "attention": 1.123311046750281e-05,
+     "mlp": 1.4676978014340022e-05,
+     "head": 1.634772487099557e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s2/final": {
+    "loss32": 4.068677662871778e-05,
+    "loss64": 4.0704686777978564e-05,
+    "loss_rel": 0.0004400021392738909,
+    "whole_relL2": 0.0018555113931268538,
+    "whole_cosine": 0.9999984488355662,
+    "norm64": 0.0001486007406815998,
+    "block_relL2": {
+     "embedding": 0.0021354255585086827,
+     "attention": 0.001636789396068847,
+     "mlp": 0.0027129609644843894,
+     "head": 0.0016406299738109867
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": true,
+    "log_tie_rel": 0.0
+   },
+   "main-s3/init": {
+    "loss32": 4.599269866943359,
+    "loss64": 4.599270352021744,
+    "loss_rel": 1.0546855206237103e-07,
+    "whole_relL2": 3.910271598568263e-07,
+    "whole_cosine": 0.9999999999999228,
+    "norm64": 0.16269708207154054,
+    "block_relL2": {
+     "embedding": 7.00357259100018e-07,
+     "attention": 1.4999110668412262e-07,
+     "mlp": 1.596454488104886e-07,
+     "head": 2.1228246940318565e-07
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s3/memorization": {
+    "loss32": 0.0279082041233778,
+    "loss64": 0.027908230272018792,
+    "loss_rel": 9.369508828471152e-07,
+    "whole_relL2": 1.6926725477552046e-05,
+    "whole_cosine": 0.9999999998622628,
+    "norm64": 0.02394590853532987,
+    "block_relL2": {
+     "embedding": 1.981920870315153e-05,
+     "attention": 1.2484387340360955e-05,
+     "mlp": 2.0683548926636972e-05,
+     "head": 1.5459588392590133e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s3/final": {
+    "loss32": 8.189368236344308e-05,
+    "loss64": 8.190686179675188e-05,
+    "loss_rel": 0.00016090756036419155,
+    "whole_relL2": 0.001274185349649205,
+    "whole_cosine": 0.9999993009916351,
+    "norm64": 0.0002655907865486321,
+    "block_relL2": {
+     "embedding": 0.0015915928729581523,
+     "attention": 0.0012367692321364062,
+     "mlp": 0.0016815392882357412,
+     "head": 0.0010448189431723814
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": true,
+    "log_tie_rel": 0.0
+   },
+   "main-s4/init": {
+    "loss32": 4.600091457366943,
+    "loss64": 4.600091904416935,
+    "loss_rel": 9.718283916517693e-08,
+    "whole_relL2": 3.5131799166205897e-07,
+    "whole_cosine": 0.9999999999999379,
+    "norm64": 0.140925144680998,
+    "block_relL2": {
+     "embedding": 6.221745112393352e-07,
+     "attention": 1.733781239945941e-07,
+     "mlp": 1.6006984406520205e-07,
+     "head": 2.090060424081734e-07
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s4/memorization": {
+    "loss32": 0.029748255386948586,
+    "loss64": 0.029748281030909273,
+    "loss_rel": 8.620316804501118e-07,
+    "whole_relL2": 1.4451262156681953e-05,
+    "whole_cosine": 0.9999999998998207,
+    "norm64": 0.03564587189519412,
+    "block_relL2": {
+     "embedding": 2.0445566640862177e-05,
+     "attention": 1.2063564203287207e-05,
+     "mlp": 1.1576175609791776e-05,
+     "head": 1.4000206022368878e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   },
+   "main-s4/final": {
+    "loss32": 0.0014743197243660688,
+    "loss64": 0.001474324800536273,
+    "loss_rel": 3.44304742237427e-06,
+    "whole_relL2": 6.423692110326091e-05,
+    "whole_cosine": 0.9999999980856755,
+    "norm64": 0.00370118242246029,
+    "block_relL2": {
+     "embedding": 6.541342595074597e-05,
+     "attention": 4.3788250416123494e-05,
+     "mlp": 5.9002100734803205e-05,
+     "head": 7.347594789804601e-05
+    },
+    "meaningful_zero_whole": 0,
+    "material_defect": false,
+    "log_tie_rel": 0.0
+   }
+  },
+  "key_observations": [
+   "main-s0/final: whole relL2 0.1091057353, cosine 0.9940303022; blocks emb 0.0697 / attn 0.0723 / mlp 0.1821 / head 0.1445; loss_rel 0.0184",
+   "other finals whole relL2: s1 2.68e-4, s2 1.86e-3, s3 1.27e-3, s4 6.42e-5; s2 and s3 also cross the 1e-3 material threshold -> strict predeclared verdict is defect_present_not_seed0_specific",
+   "gradient distortion magnitude at final tracks memorization depth (s0 has the smallest train loss 8.44e-7 and the largest relL2, ~59x the next largest)",
+   "all init/memorization snapshots: whole relL2 <= 2.3e-5 (negligible); no meaningful zeros anywhere (gauge/roundoff-safe rule)",
+   "metric-detector validation PASS; x64 flag discipline recorded (False then True)"
+  ],
+  "not_supported": [
+   "that float32 precision caused seed0's non-grokking within 10000 steps",
+   "elimination of float32 training-dynamics effects in general",
+   "any claim about steps > 10000 or model changes"
+  ]
+ },
+ "H2": {
+  "hypothesis": "attention saturation and/or order sensitivity (narrowed)",
+  "verdict_engineering": "inconclusive_outside_envelope",
+  "verdict_meaning": "seed0 is far outside the grokked-seed envelope at FINAL, but the predeclared support rule required the same metric to move in the same direction at MEMORIZATION and seed0 is not more extreme than all grokked seeds there; per the pre-registered rule this is INCONCLUSIVE; thresholds were not rewritten",
+  "snapshots": {
+   "main-s0/init": {
+    "head_mean_entropy": 1.0985113960343833,
+    "head_mean_sat_frac": 0.0,
+    "symmetry_disagreement": 0.017738359201773836,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.009717582751290617,
+    "logged_test_acc": 0.00971758272498846,
+    "acc_tie_rel": 2.7066563133653402e-09,
+    "input_dep_std_max": 0.004061029407425593
+   },
+   "main-s0/memorization": {
+    "head_mean_entropy": 0.16027518585541192,
+    "head_mean_sat_frac": 0.5722977999787437,
+    "symmetry_disagreement": 0.9011086474501109,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.014424536896447009,
+    "logged_test_acc": 0.014424537308514118,
+    "acc_tie_rel": 2.856709375056493e-08,
+    "input_dep_std_max": 0.4368429478758625
+   },
+   "main-s0/final": {
+    "head_mean_entropy": 0.18165115296823017,
+    "head_mean_sat_frac": 0.503374428738442,
+    "symmetry_disagreement": 0.7937915742793792,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.09535378074703918,
+    "logged_test_acc": 0.09535378217697144,
+    "acc_tie_rel": 1.4996072764921624e-08,
+    "input_dep_std_max": 0.43303013518001177
+   },
+   "main-s1/init": {
+    "head_mean_entropy": 1.09839690482952,
+    "head_mean_sat_frac": 0.0,
+    "symmetry_disagreement": 0.005321507760532151,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.009565745520801701,
+    "logged_test_acc": 0.0095657454803586,
+    "acc_tie_rel": 4.227908879729101e-09,
+    "input_dep_std_max": 0.003988737447871005
+   },
+   "main-s1/memorization": {
+    "head_mean_entropy": 0.146846750714732,
+    "head_mean_sat_frac": 0.5957859496227017,
+    "symmetry_disagreement": 0.9361419068736142,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.0060734892195566355,
+    "logged_test_acc": 0.00607348931953311,
+    "acc_tie_rel": 1.6461126197499564e-08,
+    "input_dep_std_max": 0.3827944856624424
+   },
+   "main-s1/final": {
+    "head_mean_entropy": 0.523649870785227,
+    "head_mean_sat_frac": 0.00034541396535232226,
+    "symmetry_disagreement": 0.0,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 1.0,
+    "logged_test_acc": 1.0,
+    "acc_tie_rel": 0.0,
+    "input_dep_std_max": 0.3107770437772168
+   },
+   "main-s2/init": {
+    "head_mean_entropy": 1.0985082067575214,
+    "head_mean_sat_frac": 0.0,
+    "symmetry_disagreement": 0.009312638580931265,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.01032493167324628,
+    "logged_test_acc": 0.0103249317035079,
+    "acc_tie_rel": 2.9309268543431376e-09,
+    "input_dep_std_max": 0.002916284687183147
+   },
+   "main-s2/memorization": {
+    "head_mean_entropy": 0.17024203616742026,
+    "head_mean_sat_frac": 0.5399085981507068,
+    "symmetry_disagreement": 0.8478935698447894,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.028089887640449437,
+    "logged_test_acc": 0.028089888393878937,
+    "acc_tie_rel": 2.6822089457256855e-08,
+    "input_dep_std_max": 0.44663278484746527
+   },
+   "main-s2/final": {
+    "head_mean_entropy": 0.49027372634742883,
+    "head_mean_sat_frac": 0.0036401317887129344,
+    "symmetry_disagreement": 0.0,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 1.0,
+    "logged_test_acc": 1.0,
+    "acc_tie_rel": 0.0,
+    "input_dep_std_max": 0.31892279506175425
+   },
+   "main-s3/init": {
+    "head_mean_entropy": 1.098285116275689,
+    "head_mean_sat_frac": 0.0,
+    "symmetry_disagreement": 0.0026607538802660754,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.01032493167324628,
+    "logged_test_acc": 0.0103249317035079,
+    "acc_tie_rel": 2.9309268543431376e-09,
+    "input_dep_std_max": 0.00554947781147766
+   },
+   "main-s3/memorization": {
+    "head_mean_entropy": 0.16435617285833798,
+    "head_mean_sat_frac": 0.5634764587097459,
+    "symmetry_disagreement": 0.9099778270509978,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.012298815669602186,
+    "logged_test_acc": 0.01229881588369608,
+    "acc_tie_rel": 1.7407683445276562e-08,
+    "input_dep_std_max": 0.436010656641757
+   },
+   "main-s3/final": {
+    "head_mean_entropy": 0.49469010952426,
+    "head_mean_sat_frac": 0.003560420873631629,
+    "symmetry_disagreement": 0.0,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 1.0,
+    "logged_test_acc": 1.0,
+    "acc_tie_rel": 0.0,
+    "input_dep_std_max": 0.3323024567895429
+   },
+   "main-s4/init": {
+    "head_mean_entropy": 1.0984903347254098,
+    "head_mean_sat_frac": 0.0,
+    "symmetry_disagreement": 0.005764966740576497,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.010021257212268448,
+    "logged_test_acc": 0.01002125721424818,
+    "acc_tie_rel": 1.9755329176283834e-10,
+    "input_dep_std_max": 0.00542142890489081
+   },
+   "main-s4/memorization": {
+    "head_mean_entropy": 0.16982565151668194,
+    "head_mean_sat_frac": 0.5414496758422787,
+    "symmetry_disagreement": 0.8075388026607538,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.047828727604008504,
+    "logged_test_acc": 0.04782872647047043,
+    "acc_tie_rel": 2.3699942682009543e-08,
+    "input_dep_std_max": 0.43521536999221544
+   },
+   "main-s4/final": {
+    "head_mean_entropy": 0.46228030382952334,
+    "head_mean_sat_frac": 0.0093261770645127,
+    "symmetry_disagreement": 0.0,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 1.0,
+    "logged_test_acc": 1.0,
+    "acc_tie_rel": 0.0,
+    "input_dep_std_max": 0.3426166116106612
+   },
+   "wd0-s0/final": {
+    "head_mean_entropy": 0.14483482998451452,
+    "head_mean_sat_frac": 0.6064672122435966,
+    "symmetry_disagreement": 0.8988913525498892,
+    "set_size": 4510,
+    "set_sha256": "309fb2577a27d5e40ec924994aefbf8fc0f4f8f38eb3f4c45314008ec675f313",
+    "recomputed_test_acc": 0.016702095353780748,
+    "logged_test_acc": null,
+    "acc_tie_rel": null,
+    "input_dep_std_max": 0.4458091897629172
+   }
+  },
+  "key_observations": [
+   "final: s0 entropy 0.18165 vs grokked 0.46228-0.52365; sat 0.50337 vs 0.000345-0.00933; symmetry disagreement 0.79379 on 4510 both-heldout ordered pairs vs 0.00000",
+   "memorization: s0 entropy 0.16028 is NOT the lowest (s1 0.14685); sat 0.57230 NOT the highest (s1 0.59579); disagreement 0.90111 NOT the highest (s1 0.93614) -> temporal condition unmet",
+   "memorization-stage saturation/disagreement is high for ALL seeds (sat 0.540-0.596, dis 0.808-0.936), so these descriptors alone do not distinguish s0 at that stage",
+   "wd0-s0/final descriptor (H 0.14483, sat 0.60647, dis 0.89889) resembles a memorization-like pattern; descriptor only, never pass/fail"
+  ],
+  "not_supported": [
+   "causal claim that seed0's final attention pattern prevented grokking",
+   "position-sensitivity or entropy as proof of a shortcut",
+   "any historical-learning-cause claim from static snapshots"
+  ]
+ },
+ "interpretation_discipline": {
+  "final_snapshot_associations": "described above as measured associations on saved weights",
+  "historical_causation": "UNRESOLVED; no diagnostic here establishes why seed0 did not grok within the mandated budget; whether seed0 would grok beyond 10000 remains unknown and untested"
+ },
+ "followup_declaration": {
+  "status": "NEW_POST_HOC_HYPOTHESIS_DECLARED_AFTER_OUTCOMES",
+  "name": "float32 logsoftmax cross-entropy gradient cancellation (p_true - 1 at near-zero loss)",
+  "registered_in": "followup-ce-cancellation/FOLLOWUP_PLAN.json",
+  "never_claimed_preregistered_with_diag09_diag10": true,
+  "scope": "pointwise numeric mechanism on saved checkpoint values; NOT historical learning causation"
+ },
+ "result_files": {
+  "diag09": "results/diag09/diag09_precision_gradients.json",
+  "diag10": "results/diag10/diag10_attention_structure.json"
+ },
+ "result_sha256": {
+  "diag09": "2e8a1367498414c32ff97ea859f82146248f3d61ac8357b23fc8409b112a194f",
+  "diag10": "2d413dce4a134556e34060fc24834598f7ec24b2f6f1b504e3ac200bcb13cf3a"
+ }
+}

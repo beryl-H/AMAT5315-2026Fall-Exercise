@@ -1,0 +1,18 @@
+{
+  "command": [
+    "env",
+    "JAX_PLATFORMS=cpu",
+    "taskset",
+    "-c",
+    "5",
+    "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/.venv/bin/python",
+    "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/diagnostics/minimal-diagnostics-03/diag10_attention_structure.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 16.388479232788086,
+  "utc_finished": "2026-10-28T08:24:10.147375+00:00",
+  "training": false,
+  "optimizer_updates": 0,
+  "plan_hash": "0ae5d43f96b571b86831badc58025cbca5d1b40b604ffbe911891a55406501ea",
+  "script_sha256": "225d3714f240ee9d8dbe287e13765d972fb7a539c2575a3a5973d21b4b00ac5c"
+}

@@ -1,0 +1,20 @@
+{
+  "runs": [
+    {
+      "log": "pi-investigate-02.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "final_stop_reason": "stop",
+      "tool_calls": 57
+    },
+    {
+      "log": "pi-review-03.jsonl",
+      "provider": "volcengine-plan",
+      "model": "glm-5-3-flash",
+      "final_stop_reason": "stop",
+      "tool_calls": 17
+    }
+  ],
+  "initial_launch": "CRLF failure; interrupted before substantive work; corrected LF script; original logs retained",
+  "raw_reasoning_and_credentials_excluded": true
+}

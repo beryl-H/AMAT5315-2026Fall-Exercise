@@ -242,3 +242,13 @@ pairs imply a maximum reachable training accuracy of 0.860786 < 0.99. It was
 stopped with all files preserved and is NOT mixed into any decoder result.
 The correction (learned positions + causal mask, only LayerNorm removed) is a
 verified capacity fix documented in the protocol, not metric tuning.
+
+
+## Seed 0 follow-up diagnostics
+
+See the [diagnostic evidence index](diagnostics/README.md) for the exact replay,
+worksheet conformance, predeclared minimal probes and independent audits.
+Equivalent stable cross-entropy removes most of the measured float32 gradient
+cancellation at the saved final checkpoint. This is a local numerical finding;
+the historical cause of seed 0's failed grokking gate remains unresolved. The
+formal result stays 4/5, and all original failures and criteria are preserved.

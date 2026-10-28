@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "original_artifacts_checked": 147,
+  "changed_original_artifacts": [],
+  "primary_h1_flags_recomputed": {
+    "main-s0/init": false,
+    "main-s0/memorization": false,
+    "main-s0/final": true,
+    "main-s1/init": false,
+    "main-s1/memorization": false,
+    "main-s1/final": false,
+    "main-s2/init": false,
+    "main-s2/memorization": false,
+    "main-s2/final": true,
+    "main-s3/init": false,
+    "main-s3/memorization": false,
+    "main-s3/final": true,
+    "main-s4/init": false,
+    "main-s4/memorization": false,
+    "main-s4/final": false
+  },
+  "h1_verdict": "defect_present_not_seed0_specific",
+  "h2_verdict": "inconclusive_outside_envelope",
+  "h2_final_only_saturation_signature": true,
+  "h2_early_saturation_signature": false,
+  "h2_final_only_order_signature": true,
+  "h2_early_order_signature": false,
+  "primary_controls_pass": true,
+  "new_training_runs": 0,
+  "optimizer_updates": 0,
+  "seed0_final_gradient_stats": {
+    "abs_diff": 3.35417214018281e-07,
+    "norm32": 3.0575805521998434e-06,
+    "norm64": 3.0742399855937106e-06,
+    "relL2": 0.10910573526793282,
+    "nonfinite32": 0,
+    "nonfinite64": 0,
+    "degenerate": false,
+    "cosine": 0.9940303022313803
+  },
+  "historical_grokking_cause": "UNRESOLVED",
+  "scientific_all_gates": false
+}

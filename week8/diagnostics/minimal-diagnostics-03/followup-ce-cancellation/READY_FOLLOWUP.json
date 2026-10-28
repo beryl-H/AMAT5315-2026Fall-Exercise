@@ -1,0 +1,51 @@
+{
+  "ready": "followup-ce-cancellation",
+  "status": "READY_FOR_CODEX_PREFLIGHT_DO_NOT_EXECUTE",
+  "date": "2026-10-28",
+  "author": "pi (native WSL, volcengine-plan/glm-5-3-flash)",
+  "hypothesis_class": "NEW_POST_HOC proposed AFTER diag09/diag10 outcomes; never claimed pre-registered with them",
+  "motivating_result": {
+    "file": "../results/diag09/diag09_precision_gradients.json",
+    "sha256": "2e8a1367498414c32ff97ea859f82146248f3d61ac8357b23fc8409b112a194f",
+    "key_values": {
+      "main_s0_final_whole_relL2": 0.1091057353,
+      "main_s0_final_cosine": 0.9940303022,
+      "main_s0_final_loss_rel": 0.0184
+    }
+  },
+  "files": {
+    "FOLLOWUP_PLAN.json": "81c99e0449dde8b390785757431eb74d806c06c2c650dace9267c80940bd616f",
+    "followup_ce_cancellation.py": "7631dbb47246fa2ab601144a762f2e52423c82cc09e531424e6ab34283345ff7"
+  },
+  "frozen_source": {
+    "week8/grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "expected_grok_py_sha": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447"
+  },
+  "inputs_root": "week8/artifacts/part4/formal-decoder-02",
+  "input_checkpoint_sha256": {
+    "main-s0/checkpoint-final.npz": "2978381f409bd1a695b19a61f844890c972ed2ca2177bd9b8202bd50f6543465",
+    "main-s1/checkpoint-final.npz": "f3a67da5601d8de71ff9196ac947425958d760cda276362a4bf8ef7287d2d685",
+    "main-s2/checkpoint-final.npz": "4102e38263ebf55ab4e34641bfe2889017505cb5baf92b2a4c8047a2a3a923a1",
+    "main-s3/checkpoint-final.npz": "af70b2e242c4693645bbc67bafddb1cd423a7ae634eb39863b87113aa3b6eb6d",
+    "main-s4/checkpoint-final.npz": "b180bcce12db387e2afb14e4717adbaca321538d2dcf9ca8538e59122d0cc4c3"
+  },
+  "constraints_confirmed": {
+    "no_training_no_optimizer_updates": true,
+    "not_executed": true,
+    "no_frozen_source_or_model_edits": true,
+    "no_original_plan_script_result_changes": true,
+    "no_deletes_commits_pushes_renames": true,
+    "exclusive_result_path": "followup-ce-cancellation/results/followup_ce_cancellation.json",
+    "budget": "<1 min CPU, <1 GB, inference/backward only",
+    "scope": "pointwise numeric mechanism only, not historical learning causation",
+    "engineering_tolerances_not_course_gates": true
+  },
+  "preflight_focus_for_codex": [
+    "form equivalence math (masked logsumexp + softplus vs log_softmax) and gate tolerances 1e-9 abs + 1e-7 rel",
+    "float32-first pass order and single x64 toggle; no dtype contamination",
+    "fixture design: equal logits (ln97, nonzero grad), correct+1000 (loss-only, ~0 grad documented), incorrect-1000 (nonzero grad); no vacuous zero-gradient controls",
+    "support criterion ratio>=10x AND stable relL2<1e-3; verdict granularity (main-s0 target, 4 fixed controls)",
+    "accuracy-unchanged and array-immutability final checks"
+  ],
+  "script_line_count": 180
+}

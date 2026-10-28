@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "complete": true,
+  "compared_log_points": 101,
+  "last_step": 10000,
+  "numeric_differences": [],
+  "checkpoint_arrays_bitwise_equal": {
+    "init": true,
+    "memorization": true,
+    "final": true
+  },
+  "original_artifacts_checked": 147,
+  "original_artifacts_changed": [],
+  "last_log": {
+    "step": 10000,
+    "train_loss": 8.443039405392483e-07,
+    "train_acc": 1.0,
+    "test_loss": 18.571989059448242,
+    "test_acc": 0.09535378217697144,
+    "param_norm": 46.23193359375,
+    "unix_ts": 1793169778.5677316
+  }
+}

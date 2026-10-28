@@ -11,3 +11,6 @@ __pycache__/
 
 # Nonformal rendering drafts (preserved locally)
 /evidence-preview/
+
+# Superseded external reference lookup; retained locally, outside published evidence
+/diagnostics/reference-comparison-02/

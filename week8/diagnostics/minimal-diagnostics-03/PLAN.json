@@ -1,0 +1,149 @@
+{
+  "plan": "minimal-diagnostics-03",
+  "version": 2,
+  "supersedes": "PLAN-v1.json (preserved unchanged; pre-execution revision per Codex review review-before-execution.md)",
+  "phase": "PRE_REGISTRATION",
+  "status": "DESIGNED_NOT_EXECUTED",
+  "date": "2026-10-28",
+  "author": "pi (native WSL, volcengine-plan/glm-5-3-flash)",
+  "review_gate": "root executes checks after this READY state; no script runs before authorization",
+  "constraints": {
+    "no_training": true,
+    "no_replay": true,
+    "inference_and_gradient_measurement_on_saved_weights_only": true,
+    "frozen_grok_py_sha256": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "no_seed_split_init_hyperparameter_gate_changes": true,
+    "course_gates_unchanged": true,
+    "decision_rules_are_engineering_diagnostics_not_course_gates": true,
+    "no_deletes_commits_remote_actions": true,
+    "no_cross_seed_tensor_transplant": true,
+    "interventions_transient_copies_only": true,
+    "no_new_seeds": true,
+    "fixed_comparison_set": "main-s0..s4, frozen split RNG 897, fraction 0.30",
+    "negative_mechanism_descriptor": "wd0-s0 final (descriptor only, never pass/fail)",
+    "result_namespaces": {
+      "diag09": "week8/diagnostics/minimal-diagnostics-03/results/diag09/",
+      "diag10": "week8/diagnostics/minimal-diagnostics-03/results/diag10/"
+    },
+    "exclusive_result_files_O_EXCL": true,
+    "harness_failures_retained_as_attempt01": true,
+    "no_post_hoc_threshold_changes": true,
+    "no_causal_claims_from_static_associations": true,
+    "no_eventual_grok_or_init_cause_claims": true,
+    "h1_outcomes_never_eliminate_float32_training_dynamics_effects": true
+  },
+  "narrative_correction_vs_v1": "diag02's WIDTH=16 local was unused; grok.init_params uses frozen WIDTH=64, so the prior FD check probed actual width-64 init params on a 64-pair subset. It never tested saved memorization/final weights, the full 2823-pair batch, or float32-vs-float64 on identical values.",
+  "snapshots": {
+    "root": "week8/artifacts/part4/formal-decoder-02",
+    "files": {
+      "main-s0/checkpoint-init.npz": "c618d453ce1e6c14b72356f482f2be985a7a09248bd53df5e0d1a110543cddbb",
+      "main-s0/checkpoint-memorization.npz": "3c6472e1410f4c3db9ff41181f09c08ee3e8dc50ad5d7ce91aad7bfba10f58b8",
+      "main-s0/checkpoint-final.npz": "2978381f409bd1a695b19a61f844890c972ed2ca2177bd9b8202bd50f6543465",
+      "main-s1/checkpoint-init.npz": "c5698c5b094d6085b3754260f5965640ec90703bdc0fb48428b3554f7ee0def2",
+      "main-s1/checkpoint-memorization.npz": "bfc4ffb0d82bd4ff64534ae4f040e27d1a97d8381ee59b34c43fe1961320b720",
+      "main-s1/checkpoint-final.npz": "f3a67da5601d8de71ff9196ac947425958d760cda276362a4bf8ef7287d2d685",
+      "main-s2/checkpoint-init.npz": "756b055dbb115bb9a1e2de20cf578f471999a455ba92b9e9b906cfb5cd628e6e",
+      "main-s2/checkpoint-memorization.npz": "e2bbdede32ca8d2574c099b79ccfc8c6721fe07b61841005a4fc37fa56c2aab6",
+      "main-s2/checkpoint-final.npz": "4102e38263ebf55ab4e34641bfe2889017505cb5baf92b2a4c8047a2a3a923a1",
+      "main-s3/checkpoint-init.npz": "768aacf19a4ee6ea5c14d40d8224cbd55248d856d21d9ed85bf6f843cebb6511",
+      "main-s3/checkpoint-memorization.npz": "573c419284842a955b0f0edc6f88b46af3248982045e82fca1e90b0399fdb99a",
+      "main-s3/checkpoint-final.npz": "af70b2e242c4693645bbc67bafddb1cd423a7ae634eb39863b87113aa3b6eb6d",
+      "main-s4/checkpoint-init.npz": "c9d0913b42dcbc16b6d2a024a785cda49784a0cd902f146f597f1bc3ec9565ca",
+      "main-s4/checkpoint-memorization.npz": "5856c32250d240dc6a96a2686614b768c499216ee067a309a14fcf35f3e3f85e",
+      "main-s4/checkpoint-final.npz": "b180bcce12db387e2afb14e4717adbaca321538d2dcf9ca8538e59122d0cc4c3",
+      "wd0-s0/checkpoint-final.npz": "7873cab166b01daa9d09c7fa2672b35f3e980f5a28818050ec25b689492ca371"
+    },
+    "log_row_tie_in": "init <-> train-log step 0; memorization <-> row at completion-receipt memorization_step; final <-> last row (steps_run)",
+    "data": "grok.build_dataset(); grok.fixed_split(0.30); full enumeration, no subsets"
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "float32 forward/backward loses small task gradients after memorization on saved values, seed-0-discriminatingly",
+      "script": "diag09_precision_gradients.py",
+      "result_file": "results/diag09/diag09_precision_gradients.json",
+      "observable_prediction": "At seed0 memorization and/or final snapshots, float32 autodiff of the full-batch train loss differs materially from float64 autodiff on the identical loaded parameter values and identical batch, on whole-vector or non-degenerate block vectors, while seed0 init and every seeds 1-4 snapshot stay clean.",
+      "falsifying_observation": "No material defect at seed0 memorization/final (rejected at these snapshots), or defects equally present in other seeds/init (not seed-0-specific).",
+      "metric_definitions": {
+        "raw_floor": 1e-30,
+        "decision_norm_floor": 1e-12,
+        "relL2": "||g32-g64||_2 / max(||g64||_2, raw_floor); reported for every leaf, block, whole",
+        "cosine": "<g32,g64> / (||g32||_2 * max(||g64||_2, raw_floor)); null when either norm < raw_floor; never coerced",
+        "decision_basis": "only whole and block vectors with norm64 >= 1e-12; degenerate vectors reported, excluded from material classification",
+        "meaningful_zero": "g32[i]==0 AND |g64[i]| > max(1e-12, 1e-6*||g64_whole||_2); g32-zero vs tiny g64 is NEVER classified material (gauge/roundoff safe)",
+        "gauge_sensitive_leaves": "raw near-zero leaf errors (e.g. key bias bk) reported separately, never inferred as underflow",
+        "granularity": "per leaf, per block (embedding={emb,pos}, attention={wq,bq,wk,bk,wv,bv,wo,bo}, mlp={mlp1,mlp2}, head={head}), whole flattened gradient",
+        "loss_rel": "|L32-L64| / max(|L64|, raw_floor)",
+        "dtype_and_flag_logging": "x64 flag and dtypes recorded for both passes; same in-memory arrays reused, float32 dtype asserted before cast; init_params never called"
+      },
+      "decision_rule_engineering_not_course_gate": {
+        "material_defect": "on whole or any non-degenerate block (norm64 >= 1e-12): relL2 > 1e-3 OR cosine < 0.999 (when defined) OR meaningful_zero_count > 0 OR nonfinite32 > 0",
+        "verdicts": {
+          "supported_seed0_specific_engineering": "material defect at seed0 mem and/or final AND none at seed0 init AND none at any seeds 1-4 snapshot",
+          "defect_present_not_seed0_specific": "material defects also in seeds 1-4 and/or seed0 init; no seed0-specific support; NOT an elimination of float32 training-dynamics effects",
+          "no_material_defect_at_snapshots": "no material defect measured; H1 rejected at these snapshots; NOT an elimination of float32 training-dynamics effects"
+        },
+        "threshold_justification": "float32 unit roundoff 1.19e-7; benign accumulation over 62.5k coords expected whole-vector relL2 <= 1e-5; threshold is 100x above",
+        "no_causal_claims": "even the supported branch is a snapshot-level association, not a demonstrated cause (dynamics not measured)"
+      },
+      "baseline_tie_in": "float32 recomputed train loss vs the EXACT corresponding log row per snapshot (step 0 / memorization_step / steps_run), relative tolerance 1e-5; mismatch aborts as harness defect (retained)",
+      "order_of_passes": "ALL float32 passes first (x64 off), then single x64 toggle with dtype assertions, then ALL float64 passes; no per-snapshot toggling",
+      "negative_anchor": "init snapshots (large gradients) must show negligible relL2",
+      "positive_control_metric_detector_validation": {
+        "what": "deterministic validation of the metric implementation on one snapshot's g64 (validates detector, NOT the float32 backend; no claim of backend proof)",
+        "checks": [
+          "self-comparison: relL2 exactly 0, cosine >= 1 - 1e-12 (sqrt-vs-dot float64 roundoff slack)",
+          "injected 10% scaling g64*1.1: relL2 == 0.1 up to float64 roundoff AND flagged material (> 1e-3)",
+          "injected meaningful zero: zero the single largest-|g64| coordinate of a non-degenerate block; meaningful-zero count increments and block flags"
+        ],
+        "conclusion_qualification": "matched float64 computation may differ by backend paths; conclusions qualified accordingly"
+      },
+      "precision_context": "x64 disabled at import; float32 pass first; then jax.config.update('jax_enable_x64', True) verified by dtype assertions; weights only loaded and explicitly cast; if toggle fails, abort with retained failure record (no silent fallback)",
+      "budget": {"cpu_minutes_max": 5, "ram_gb_max": 1, "processes": 1, "platform": "JAX_PLATFORMS=cpu"},
+      "allowed_conclusion": "whether float32 autodiff materially distorts loss/gradient on the saved weights and whether it is seed-0-specific",
+      "not_supported_conclusion": "that float32 precision caused seed0's non-grokking within 10000 steps; anything about steps > 10000; any model change; elimination of precision effects during training in general"
+    },
+    {
+      "id": "H2",
+      "name": "attention saturation and/or order sensitivity on symmetric unseen pairs (narrowed)",
+      "script": "diag10_attention_structure.py",
+      "result_file": "results/diag10/diag10_attention_structure.json",
+      "observable_prediction": "Seed0's answer-row attention at final (directionally at memorization) shows either (H2a) head_mean_entropy strictly below every grokked seed with head_mean_sat_frac > 0.5 while every grokked seed < 0.1, or (H2c) paired prediction symmetry disagreement > 0.5 on the fixed symmetric unseen set S while every grokked seed < 0.05.",
+      "falsifying_observation": "All seed0 metrics (entropies, sat fractions, disagreement, input-dependence) within the [min,max] envelope of seeds 1-4 at the same checkpoints.",
+      "inconclusive_outcome": "No signature fires but at least one seed0 metric lies outside the seeds-1-4 envelope: reported INCONCLUSIVE (honest non-binary), never forced to falsified.",
+      "metric_definitions": {
+        "attention_extraction": "diagnostic forward (frozen ops, float32, no x64) returning logits AND per-sample attention maps for all B inputs, because frozen grok.attention_weights returns only the first batch sample ([0][None])",
+        "baseline_match_gate": "before any metric/intervention is trusted: custom logits vs frozen grok.forward logits on the fixed test split satisfy |diff| <= 1e-5 + 1e-6*|ref| elementwise (explicit f32-appropriate), AND recomputed test accuracy matches the exact corresponding log row to relative 1e-6; failure aborts as harness defect (retained)",
+        "scope": "per snapshot, per head (4), answer row (row 2; positions 0,1,2 causal-visible), all 9409 pairs",
+        "entropy": "H = -sum_{j: w_j>0} w_j ln w_j (nats), 0*log0-safe; per-head mean/p10/p50/p90 over pairs",
+        "sat_frac": "per head, fraction of pairs with max_j w_j > 0.99; maxw_mean likewise",
+        "aggregates_exactly_defined": "head_mean_entropy = mean over 4 heads of per-head pair-means; head_mean_sat_frac = mean over 4 heads of per-head sat_frac",
+        "descriptive_only": "input_dep_std (max over positions of std of w over pairs), row-1 entropy mean (row 0 is mask-forced [1,0,0]), masked pre-softmax score min/max/range (finite entries)",
+        "order_sensitivity_set_S": "S = {(a,b): a != b, test_mask[a,b] AND test_mask[b,a]} (both orientations unseen), deterministic from frozen split; |S| and sha256 of sorted flat indices reported",
+        "symmetry_disagreement": "fraction of (a,b) in S with argmax logits(a,b,'=') != argmax logits(b,a,'=') (targets identical under swap); plus mean absolute logit difference over S",
+        "interventions": "I1 pos->0 transient copy, DESCRIPTIVE ONLY (no delta-acc criterion; affects all models' input geometry); harness-liveness: I1 must change logits on >= 1 pair for every snapshot else harness defect",
+        "removed_vs_v1": "whole-set swap removed (aggregate-accuracy invariant and leak-prone); I3 a->0 removed (changes true target: destructive input ablation, not task accuracy); score-softening beta=0.5 omitted for minimality (deliberate absence)"
+      },
+      "decision_rule_engineering_not_course_gate": {
+        "h2a_saturation": "seed0 head_mean_entropy at final strictly below every grokked seed AND seed0 head_mean_sat_frac > 0.5 while every grokked seed < 0.1",
+        "h2c_order_sensitivity": "seed0 symmetry disagreement on S > 0.5 while every grokked seed < 0.05 (predeclared positive-association criterion, NOT causal)",
+        "supported_engineering_level": "H2a or H2c at final AND the same metric moves in the same direction at memorization",
+        "falsified_within_envelope": "all seed0 metrics within seeds-1-4 [min,max] span",
+        "inconclusive_outside_envelope": "no signature but >=1 metric outside envelope",
+        "no_post_hoc_thresholds": "all thresholds fixed in this plan before execution",
+        "control_role": "wd0-s0 final descriptor only, never pass/fail"
+      },
+      "causality_caveat": "static-snapshot attention metrics and order-disagreement are conditional associations; they cannot establish a necessary cause of past learning failure; entropy alone never proves cause; position sensitivity alone is not proof of a shortcut",
+      "budget": {"cpu_minutes_max": 5, "ram_gb_max": 1, "processes": 1, "platform": "JAX_PLATFORMS=cpu"},
+      "allowed_conclusion": "whether seed0's saved attention differs mechanistically (saturation / order sensitivity) from all grokked seeds at the same stages, or is inconclusive",
+      "not_supported_conclusion": "causal claims about why seed0 did not grok; claims about steps > 10000; eventual-grok or init-cause claims"
+    }
+  ],
+  "execution_protocol": {
+    "order": ["root executes checks on READY", "run diag09 once", "run diag10 once", "findings note as new file"],
+    "single_shot": "each script asserts its own result file new (exclusive subdir, O_EXCL semantics) and refuses to overwrite anything including prior plan/READY files",
+    "harness_failures": "retained as attempt01; fixes only in new attempt files after re-review; metrics never changed after outcomes",
+    "stdout": "one concise PASS/FAIL line per script; full values in JSON",
+    "plan_immutable_after_execution": true
+  }
+}

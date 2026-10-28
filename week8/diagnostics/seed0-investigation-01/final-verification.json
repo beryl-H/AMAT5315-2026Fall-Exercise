@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "scientific_all_gates": false,
+  "root_cause": "UNRESOLVED",
+  "frozen_source_hashes": {
+    "grok.py": "d0501c3baf88a1194665123e47abc0a5b0035d0b203a56ca0dcc92853bc1d447",
+    "SPEC.md": "3af0d721e80e2d5070223a4e1ebc5e5bac17f6c6b01edc8b34c1fbd110b3bee1",
+    "run_part4.py": "f2ba51117119d285df63b6a69dcbf9a5710c4fff23ee956882a33b6c5ff19693",
+    "PART4_DECODER_PROTOCOL.md": "dc30615431deb72d12d810d7a1b72bf487297b37419924b1093623d9b07a9076"
+  },
+  "compiled_diagnostic_python_files": 9,
+  "gradient_max_abs_error": 1.1448008741064136e-10,
+  "independent_gradient_absolute_tolerance": 1e-09,
+  "negative_control_pass": true,
+  "optimizer_states_pass": true,
+  "replay": {
+    "status": "PASS",
+    "complete": true,
+    "compared_log_points": 101,
+    "last_step": 10000,
+    "numeric_differences": [],
+    "checkpoint_arrays_bitwise_equal": {
+      "init": true,
+      "memorization": true,
+      "final": true
+    },
+    "original_artifacts_checked": 147,
+    "original_artifacts_changed": [],
+    "last_log": {
+      "step": 10000,
+      "train_loss": 8.443039405392483e-07,
+      "train_acc": 1.0,
+      "test_loss": 18.571989059448242,
+      "test_acc": 0.09535378217697144,
+      "param_norm": 46.23193359375,
+      "unix_ts": 1793169778.5677316
+    }
+  },
+  "no_second_replay": true,
+  "no_seed_split_init_gate_or_budget_changes": true,
+  "no_remote_push": true
+}

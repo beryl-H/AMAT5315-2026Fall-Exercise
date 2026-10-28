@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "checked_utc": "2026-10-28T08:48:40.014930+00:00",
+  "original_artifacts_checked": 147,
+  "changed_original_artifacts": [],
+  "frozen_model_sources_unchanged": true,
+  "plans_and_execution_scripts_hashes_unchanged_since_release": true,
+  "executed_diagnostic_scripts_compile": 3,
+  "primary_controls_pass": true,
+  "followup_equivalence_gate_pass": true,
+  "independent_analytic_gradient_audit": {
+    "status": "PASS",
+    "scope": "independent local numerical-mechanism verification only, not training causation",
+    "analytic_vs_stable_relL2": 8.969004770087204e-07,
+    "original_vs_float64_relL2": 0.10910573526793282,
+    "stable_vs_float64_relL2": 1.2407943845487418e-05,
+    "analytic_target_complement_vs_float64_relL2": 1.2400604946958575e-05,
+    "optimizer_updates": 0
+  },
+  "new_training_runs": 0,
+  "optimizer_updates": 0,
+  "scientific_all_gates": false,
+  "historical_cause": "UNRESOLVED",
+  "local_ce_cancellation_mechanism": "SUPPORTED_AT_SAVED_VALUES",
+  "seed4_diagnostic_improvement_criterion": false,
+  "local_git_changes": "new diagnostics files only; no commits or push"
+}

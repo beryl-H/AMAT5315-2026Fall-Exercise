@@ -1,0 +1,60 @@
+{
+  "status": "RELEASED_FOR_TWO_NO_TRAINING_DIAGNOSTICS",
+  "utc": "2026-10-28T08:23:05.649083+00:00",
+  "actor": "Pi authored protocols and scripts; Codex preflight fixes and independent review",
+  "no_outcomes_existed_before_release": true,
+  "no_course_gate_changes": true,
+  "preflight_changes": [
+    {
+      "file": "diag09_precision_gradients.py",
+      "reason": "Flatten tensors before dot products; per-leaf gradients are matrices as well as vectors"
+    },
+    {
+      "file": "diag09_precision_gradients.py",
+      "reason": "Normalize tree paths to exact predeclared block names"
+    },
+    {
+      "file": "diag09_precision_gradients.py",
+      "reason": "Frobenius squared norms for multidimensional leaves"
+    },
+    {
+      "file": "diag09_precision_gradients.py",
+      "reason": "Prevent silently missing gradient blocks"
+    },
+    {
+      "file": "diag09_precision_gradients.py",
+      "reason": "Iterate statistic values rather than dictionary keys"
+    },
+    {
+      "file": "diag10_attention_structure.py",
+      "reason": "Match the predeclared comparator saturation threshold, not0.5"
+    },
+    {
+      "file": "diag10_attention_structure.py",
+      "reason": "Values are attention weights, not pre-softmax logits"
+    },
+    {
+      "file": "diag10_attention_structure.py",
+      "reason": "Measure actual logits change for the stated liveness control"
+    },
+    {
+      "file": "diag10_attention_structure.py",
+      "reason": "Use all9409 pairs for preregistered attention statistics"
+    },
+    {
+      "file": "diag10_attention_structure.py",
+      "reason": "Correct descriptor name to match the computation"
+    }
+  ],
+  "metric_only_fixtures": "PASS: matrix/vectornorm, pathnames, samevector and10percentdetector",
+  "frozen_plan_sha256": {
+    "PLAN.md": "106ce484ca6d84788fb56222a7b05990427678b1f12d08040763f7744018714a",
+    "PLAN.json": "0ae5d43f96b571b86831badc58025cbca5d1b40b604ffbe911891a55406501ea"
+  },
+  "executable_sha256": {
+    "diag09_precision_gradients.py": "415660699750e573d39087fd14c97cc6653acbb82ae5bd750bd7e12617191ad1",
+    "diag10_attention_structure.py": "225d3714f240ee9d8dbe287e13765d972fb7a539c2575a3a5973d21b4b00ac5c"
+  },
+  "pi_ready_snapshot": "READY.json (Pi scripts before Codex preflight; preserved)",
+  "historical_cause_status": "UNRESOLVED"
+}
