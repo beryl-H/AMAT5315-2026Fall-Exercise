@@ -113,16 +113,21 @@ Protocol and predeclared conventions (fixed before any Part-3 run):
 - Execution: one training per CPU worker, at most 4 concurrent workers,
   total WSL memory held < 6 GB. Full held-out loss via the Part-1 block
   protocol for every run.
-- Fit (declared before runs): width 8 excluded (bigram plateau). Fit
-  L(N) = a·N^(−α) by weighted least squares in log space on the 8 seed-mean
-  losses of widths 12..128. Per-point error σᵢ = |L(seed1)−L(seed2)|/√2
-  (scatter of the mean of 2 seeds), then inflated by the Birge ratio
-  √(χ²/dof), dof = 8 − 2 = 6. If a seed scatter is 0, the floor
-  σᵢ → max(σᵢ, 1e-3) applies (zero-scatter convention).
-- Uncertainty (declared before runs): deterministic parametric bootstrap,
-  10,000 draws, fixed seed 20260: for each width draw synthetic seed means
-  ~ Normal(fitted L(Nᵢ), σᵢ·Birge), refit, predict L(192), take the 2.5–97.5
-  percentile interval. The same bootstrap also yields the α interval.
+- Fit (corrected per spec-review-01, frozen before any Part-3 run): width 8
+excluded (bigram plateau). Fit L(N) = a·N^(−α) by direct nonlinear weighted
+least squares IN LOSS SPACE on the 8 seed-mean losses of widths 12..128,
+minimizing χ² = Σᵢ ((Lᵢ − a·Nᵢ^(−α))/σᵢ)². Conditional on α the scale is
+profiled analytically: a(α) = Σᵢ LᵢNᵢ^(−α)/σᵢ² / Σᵢ Nᵢ^(−2α)/σᵢ², leaving a
+1-D search over α. Per-point uncertainty is the standard error of the seed
+mean of two runs: σᵢ = |L(seed1) − L(seed2)| / 2 (the sample standard
+deviation of two runs is |L1−L2|/√2; the mean's standard error divides by
+√2 again), floored at 1e-3 if zero (zero-scatter convention), then inflated
+by max(1, √(χ²/dof)) (Birge), dof = 8 − 2 = 6.
+Uncertainty (declared before runs): deterministic parametric bootstrap IN
+LOSS SPACE, 10,000 draws, fixed seed 20260: for each width draw synthetic
+seed means Lᵢ* ~ Normal(fitted L(Nᵢ), σᵢ·Birge), refit (a, α) by the same
+profiled WLS, predict L(192), take the 2.5–97.5 percentile interval. The
+same bootstrap also yields the α interval.
 - Blind protocol: the width-192 prediction with interval, UTC timestamp and
   SHA256 of the prediction file are saved BEFORE either width-192 training
   starts; then width 192 is trained with both seeds. The fit is never
@@ -142,13 +147,20 @@ Protocol and predeclared conventions (fixed before any Part-4 run):
   `=` embedding.
 - Split (label-independent, declared before runs): one rng
   `np.random.default_rng(897)`, permutation of the 9409 pair indices; the
-  same permutation is reused for every Part-4 run: 30% split = first
-  round(0.30·9409) = 2823 pairs; 50% split = first round(0.50·9409) = 4705
-  pairs of the same permutation (nested). The split never sees labels.
-- Random-label convention (declared before runs): one permutation π of the
-  97 residues drawn with `np.random.default_rng(8970)`; every pair's label
-  (train AND test) becomes π((a+b) mod 97). Chance accuracy stays 1/97.
-  One run, main settings, seed 0, 3000 steps.
+  same permutation is reused for every Part-4 run. Training sizes use the
+  FLOOR convention (explicit integers, avoiding Python banker's rounding):
+  30% split = floor(0.30·9409) = 2822 pairs; 50% split = floor(0.50·9409) =
+  4704 pairs of the same permutation (nested). The split never sees labels.
+- Random-label control (corrected per spec-review-01, declared before
+  runs): a GLOBAL class permutation π((a+b) mod 97) would preserve the
+  modular-addition structure, so it is NOT used. Instead the vector of all
+  9409 true labels is permuted ACROSS PAIR INDICES with one fixed declared
+  rng `np.random.default_rng(8970)`: labels* = labels[permutation(9409)].
+  This preserves class frequencies exactly while destroying the
+  pair-to-label relationship, and applies to train and test pairs alike.
+  Chance test accuracy is 1/97 in expectation but is NOT a guaranteed
+  synthetic outcome and is not treated as one. One run, main settings,
+  seed 0, 3000 steps.
 - Main runs: full-batch AdamW, lr 3e-3, betas (0.9, 0.98), weight decay 1,
   up to 10000 steps, stop 1000 steps after test accuracy ≥ 0.99; log train/
   test loss, accuracies and parameter norm every 100 steps (with the
@@ -177,20 +189,24 @@ Protocol and predeclared conventions (fixed before any Part-4 run):
 
 - [x] T0 Setup: week8/ project, uv lock, corpus download + fingerprint check
 - [x] T1 SPEC.md with fixed acceptance criteria (this file)
-- [x] T2 Part-1 tests written first; failing log preserved; commit
-- [x] T3 Part-1 implementation (data, vocab, splits, blocks, predictors,
-      scoring, two-target example); tests pass; formal scoring run; figures;
-      README; commit
-- [x] T4 Part-2 tests written first (parameter count, causal mask math,
-      schedule, probe construction, AdamW step); failing log preserved; commit
-- [x] T5 Part-2 implementation; negative-control sabotage verified; tests
-      pass; commit
-- [x] T6 Part-2 formal run: 3000-step training, checkpoint + logs, causality
+- [x] T2 Part-1 tests written first; failing log preserved; commit (dd50d27)
+- [x] T3 Part-1 implementation and formal scoring run; all six acceptance
+      checks PASS (commit d09f365, evidence/part1-summary.json)
+- [x] T4 Part-2 tests written first; failing log preserved; commit (ece62db)
+- [x] T5 Part-2 implementation + unit negative control; 18/18 tests PASS
+      (commit 0a624de)
+- [ ] T6 Part-2 formal run: 3000-step training, checkpoint + logs, causality
       probe, attention audit + figure, loss curves, full-validation score,
-      generation at 0.5/1.0; README; commit
-- [x] T7 Chinese learning-and-demonstration guide in
+      generation at 0.5/1.0; README; commit — BLOCKED pending review of the
+      corrected driver (part2-review-01); formal training not yet launched
+- [ ] T7 Chinese learning-and-demonstration guide in
       `/mnt/d/Keria/Course/AMAT5315/week8-support/` with concise final
       results
 - [ ] T8 (after independent audit) Part-3 predeclared-fit file, sweep, blind
       prediction, width-192 runs
 - [ ] T9 (after independent audit) Part-4 runs, Fourier analysis, ablations
+
+Pre-run corrections applied from spec-review-01.md (commit history
+preserved; no budgets/seeds/tolerances changed): Part-3 SEM derivation,
+loss-space WLS + bootstrap; Part-4 label permutation across pair indices,
+floor-based split sizes.
