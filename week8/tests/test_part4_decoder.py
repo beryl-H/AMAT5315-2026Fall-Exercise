@@ -71,11 +71,13 @@ def test_swap_ab_not_structurally_invariant():
 
 
 def test_symmetric_variant_is_invariant_control():
-    # the preserved variant must still BE invariant (contrast for the fix)
+    # the preserved variant must still BE invariant (contrast for the fix).
+    # Mathematically exact invariance shows as float32 reduction-order noise
+    # (~1e-8) only; the decoder produces O(0.1) differences.
     params = gsv.init_params(jax.random.PRNGKey(0))
     la = gsv.forward(params, jnp.asarray([[5, 40, 97]]))[0, 2]
     lb = gsv.forward(params, jnp.asarray([[40, 5, 97]]))[0, 2]
-    assert float(jnp.max(jnp.abs(la - lb))) == 0.0
+    assert float(jnp.max(jnp.abs(la - lb))) < 1e-5
 
 
 def test_output_97_and_api_unchanged():

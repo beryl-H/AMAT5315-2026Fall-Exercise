@@ -137,9 +137,21 @@ same bootstrap also yields the α interval.
 - Figures: log-log seed means with fit, 95% band, excluded width 8 and
   bigram level; α with uncertainty and Birge ratio printed.
 
-## Part 4 architecture and policy freeze (before any formal run)
+## Part 4 architecture and policy freeze (CORRECTED by pi-task-08)
 
-Choices not fixed by the sheet, frozen here before implementation:
+SUPERSEDED ARCHITECTURE NOTE: the original freeze below described a symmetric
+variant (no positional embeddings, no causal mask). It was STOPPED and
+INVALIDATED before completion (artifacts/part4/formal-01/INVALIDATED-
+PROTOCOL.json): answer invariance under a<->b makes the worksheet random-label
+control (393 conflicting unordered training pairs, max train acc 0.860786)
+impossible. The corrected, authoritative protocol is PART4_DECODER_PROTOCOL.md
+and grok.py now implements the Part 2 decoder structure with learned 3x64
+positional embeddings and a causal tril mask, removing ONLY LayerNorm;
+62,497 parameters. The symmetric variant is preserved verbatim in
+grok_symmetric_variant.py (62,305 params) and is not evidence. Original
+freeze text retained below for provenance:
+
+Choices not fixed by the sheet, frozen before implementation:
 
 - Vocabulary: 98 tokens = residues 0..96 plus `=` (id 97). Input sequence is
   exactly `[a, b, =]` (3 tokens); NO positional embeddings (the `=` token

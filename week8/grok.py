@@ -46,13 +46,14 @@ ABLATION_SEED = 4497
 
 def init_params(key: jax.Array) -> dict:
     std = math.sqrt(2 / (WIDTH + P))
-    kemb, kq, kk, kv, ko, km1, km2, kh = jax.random.split(key, 8)
+    kemb, kpos, kq, kk, kv, ko, km1, km2, kh = jax.random.split(key, 9)
 
     def normal(k, shape):
         return std * jax.random.normal(k, shape)
 
     return {
         "emb": normal(kemb, (VOCAB, WIDTH)),
+        "pos": normal(kpos, (3, WIDTH)),
         "wq": normal(kq, (WIDTH, WIDTH)), "bq": jnp.zeros(WIDTH),
         "wk": normal(kk, (WIDTH, WIDTH)), "bk": jnp.zeros(WIDTH),
         "wv": normal(kv, (WIDTH, WIDTH)), "bv": jnp.zeros(WIDTH),
@@ -71,16 +72,31 @@ def param_norm(params: dict) -> float:
     return float(jnp.sqrt(sum((x**2).sum() for x in jax.tree_util.tree_leaves(params))))
 
 
-def forward(params: dict, tokens: jax.Array) -> jax.Array:
-    """tokens [B,3] -> logits [B,3,VOCAB]. No mask, no positional embedding."""
+def attention_weights(params: dict, tokens: jax.Array) -> jax.Array:
+    """[1, HEADS, T, T] attention matrices with the causal mask applied."""
     B, T = tokens.shape
-    x = params["emb"][tokens]                       # [B,T,W]
+    x = params["emb"][tokens] + params["pos"][:T]   # decoder: positions added
+    q = (x @ params["wq"] + params["bq"]).reshape(B, T, HEADS, WIDTH // HEADS)
+    k = (x @ params["wk"] + params["bk"]).reshape(B, T, HEADS, WIDTH // HEADS)
+    d = WIDTH // HEADS
+    scores = jnp.einsum("bthd,bshd->bhts", q, k) / math.sqrt(d)
+    tri = jnp.tril(jnp.ones((T, T), dtype=jnp.bool_))
+    scores = jnp.where(tri, scores, -jnp.inf)       # causal mask (decoder)
+    return jax.nn.softmax(scores, axis=-1)[0][None]
+
+
+def forward(params: dict, tokens: jax.Array) -> jax.Array:
+    """tokens [B,3] -> logits [B,3,97]. Causal decoder, no LayerNorm."""
+    B, T = tokens.shape
+    x = params["emb"][tokens] + params["pos"][:T]   # decoder: positions added
     q = (x @ params["wq"] + params["bq"]).reshape(B, T, HEADS, WIDTH // HEADS)
     k = (x @ params["wk"] + params["bk"]).reshape(B, T, HEADS, WIDTH // HEADS)
     v = (x @ params["wv"] + params["bv"]).reshape(B, T, HEADS, WIDTH // HEADS)
     d = WIDTH // HEADS
     scores = jnp.einsum("bthd,bshd->bhts", q, k) / math.sqrt(d)
-    w = jax.nn.softmax(scores, axis=-1)             # no causal mask (frozen)
+    tri = jnp.tril(jnp.ones((T, T), dtype=jnp.bool_))
+    scores = jnp.where(tri, scores, -jnp.inf)       # causal mask (decoder)
+    w = jax.nn.softmax(scores, axis=-1)
     att = jnp.einsum("bhts,bshd->bthd", w, v).reshape(B, T, WIDTH)
     x = x + att @ params["wo"] + params["bo"]
     h = jax.nn.gelu(x @ params["mlp1"]["w"] + params["mlp1"]["b"])

@@ -23,8 +23,14 @@ ROOT = Path(__file__).resolve().parent.parent
 # ---- architecture -------------------------------------------------------------
 
 def test_param_count_62305_and_no_layernorm():
+    # ADAPTED with provenance (pi-task-08): the corrected decoder in grok.py
+    # has 62,497 params (62305 + 192 positional); the original 62,305 count
+    # belongs to the preserved symmetric variant grok_symmetric_variant.py.
     params = gk.init_params(jax.random.PRNGKey(0))
-    assert gk.count_params(params) == 62305
+    assert gk.count_params(params) == 62497
+    assert params["pos"].shape == (3, 64)
+    import grok_symmetric_variant as gsv
+    assert gsv.count_params(gsv.init_params(jax.random.PRNGKey(0))) == 62305
     leaves_paths = [jax.tree_util.keystr(k) for k, _ in
                     jax.tree_util.tree_flatten_with_path(params)[0]]
     assert not any("ln" in p.lower() for p in leaves_paths)
