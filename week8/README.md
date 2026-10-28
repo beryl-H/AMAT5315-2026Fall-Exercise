@@ -52,3 +52,46 @@ Evidence figures:
 - `part1-bigram-after-t.png` — P(next | 't') distribution; 'h' takes 0.341,
   showing one character of context already captures much of English spelling.
 - `part1-scores.png` — held-out loss and PPL bars for the three predictors.
+
+## Part 2 — Causal transformer on a CPU
+
+Question: can a small transformer trained on a CPU beat the bigram while its
+earlier predictions provably ignore later characters?
+
+Producing command (formal run, exclusive-new attempt, preflight-checked):
+
+```bash
+JAX_PLATFORMS=cpu taskset -c 0-3 uv run python run_part2.py --attempt formal-01
+```
+
+Architecture: pre-LN decoder, token+position embeddings, 2 layers × width 64,
+4 causal attention heads, MLP 256, untied head with bias — exactly 116,673
+parameters (= 24·64² + 286·64 + 65). Training: 3000 AdamW steps, batch 16,
+lr 3e-3 with 100-step warmup then cosine to 3e-4, weight decay 0.1, seed 1337.
+
+Formal measured results (attempt `formal-01`, exit code 0, 160.8 s train):
+
+- Full held-out loss (block protocol, all 111,539 targets): **1.699743**,
+  PPL **5.473** — below the 1.85 gate and the bigram 2.481889 (all seven
+  SPEC gates PASS; no gate was tuned or rerun).
+- Causality probe over 8 corpus window pairs sharing a 64-character prefix:
+  **exactly 0.0** — earlier logits are bitwise unchanged by later characters.
+- Attention audit: largest above-diagonal weight **exactly 0.0**, largest
+  row-sum deviation 2.4e-7, every layer/head.
+- Unmasked negative control (300 steps, no mask): probe scored WITHOUT the
+  mask is **2.996** (leakage detected); the same model scored WITH the mask
+  gives exactly 0 by construction — the control validates the audit.
+- Generation (500 chars, prompt `"ROMEO:\n"`, seed 7, reloaded+hash-verified
+  checkpoint): temperature 0.5 produces speaker names, line breaks and
+  English-shaped words; temperature 1.0 is noisier with more invented words
+  (`evidence/part2-sample-temp*.txt`).
+
+Evidence figures:
+
+- `part2-loss-curves.png` — training and validation loss vs step with the
+  unigram 3.347 and bigram 2.482 levels; the transformer crosses the bigram
+  early and settles at 1.70.
+- `part2-attention.png` — first-layer attention heads for
+  `"ROMEO:\nBut soft, what light"`; the area above the diagonal is exactly
+  zero (the causal mask) and rows sum to one.
+- `part2-sample-temp0.5.txt`, `part2-sample-temp1.0.txt` — the two samples.
