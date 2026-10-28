@@ -38,19 +38,20 @@ def test_sentinel_is_context_only_inter_story_eos_are_actual_tokens():
 def test_ngram_windows_count_and_first_window_padding():
     stream = encode_stories(FakeSP(), ["a", "b", "c"])
     T = len(stream) - 1
+    eos = FakeSP().eos_id()
     for n in (1, 2, 3, 6):
         ctx, tgt = ngram_windows(stream, n)
         assert len(ctx) == len(tgt) == T  # no first n-1 targets lost
-        assert all(t != stream[0] or i > 0 for i, t in enumerate(tgt) for t in [tgt[i]])
         assert tgt[0] == stream[1]  # first target is the first actual token
+        assert tgt[-1] == stream[-1]
     ctx2, _ = ngram_windows(stream, 2)
-    assert ctx2[0] == stream[0]  # first bigram context is the sentinel
+    assert ctx2[0] == stream[0]  # bigram context = sentinel alone
     ctx3, _ = ngram_windows(stream, 3)
-    # first trigram context = EOS padding + sentinel (2 tokens, 9-bit packed)
-    eos = FakeSP().eos_id()
-    assert ctx3[0] == (eos << 9) | stream[0]
+    assert ctx3[0] == (eos << 9) | stream[0]  # EOS pad + sentinel
     ctx6, _ = ngram_windows(stream, 6)
-    assert ctx6[0] == ((eos << 36) | (eos << 27) | (eos << 18) | (eos << 9) | stream[0])
+    assert ctx6[0] == (
+        (eos << 36) | (eos << 27) | (eos << 18) | (eos << 9) | eos
+    )  # 4 EOS pads + sentinel (5 context tokens)
 
 
 def test_kselect_boundary_inner_fit_then_selection():
@@ -77,9 +78,7 @@ def test_frozen_corpus_accounting_numbers():
     va_chars = sum(len(s) for s in val)
     assert tr_chars == 19853989
     assert va_chars == 2213915
-    # uniform validation bpc, exact frozen formula
-    import math
-
-    bpc = 1078995 * math.log(512) / 2213915
+    # uniform validation bpc, exact frozen formula (log2(512) = 9 bits)
+    bpc = 1078995 * 9 / 2213915
     assert abs(bpc - 4.386327) < 5e-7
     assert chars_per_token(sp, train) == pytest.approx(19853989 / 9667034, rel=1e-12)

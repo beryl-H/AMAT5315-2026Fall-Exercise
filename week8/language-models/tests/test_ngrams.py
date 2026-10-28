@@ -82,10 +82,12 @@ def test_ancestral_sampler_matches_distribution_and_is_reproducible():
     rng = np.random.default_rng(0)
     P = np.full((V, V), 1.0 / V)
     P[5] = 0.0; P[5, 3] = 1.0  # context 5 -> token 3 always (one-hot row)
-    s1 = ancestral_sample_bigram(P, 50, seed=531501)
-    s2 = ancestral_sample_bigram(P, 50, seed=531501)
-    assert s1 == s2  # reproducible
-    assert s1[1:][np.array(s1[:-1]) == 5].tolist().count(3) == (np.array(s1[:-1]) == 5).sum()
+    s1 = np.array(ancestral_sample_bigram(P, 50, seed=531501))
+    s2 = np.array(ancestral_sample_bigram(P, 50, seed=531501))
+    assert np.array_equal(s1, s2)  # reproducible
+    ctx5 = s1[:-1] == 5
+    assert ctx5.any()
+    assert (s1[1:][ctx5] == 3).all()  # one-hot row: context 5 -> token 3 always
     # distribution: near-uniform context -> roughly uniform next tokens
     P2 = np.full((V, V), 1.0 / V)
     s = np.array(ancestral_sample_bigram(P2, 40000, seed=1))
@@ -96,17 +98,18 @@ def test_ancestral_sampler_matches_distribution_and_is_reproducible():
 
 
 def test_pooled_chi2_good_sampler_passes_bad_two_lag_fails():
-    rng = np.random.default_rng(3)
+    from src.ngrams import two_lag_sample_bigram
+
     # trainable structure: P[b|a] = 0.9 to (a+1)%64, else spread
     P = np.full((V, V), 0.1 / V)
     for a in range(64):
         P[a, (a + 1) % 64] += 0.9
     P /= P.sum(axis=1, keepdims=True)
     # generate a LONG sample with the true chain
-    s = ancestral_sample_bigram(P, 200000, seed=531501)
-    stat, df, p = pooled_chi2_bigram(np.array(s), P, top_ctx=np.arange(20), emin=5.0)
+    s = np.array(ancestral_sample_bigram(P, 200000, seed=531501))
+    stat, df, p = pooled_chi2_bigram(s, P, top_ctx=np.arange(20), emin=5.0)
     assert p > 0.001
-    # bad two-lag sampler: condition on the token two places back
-    s_bad = [s[0], s[1]] + [int(s[t - 2]) for t in range(2, len(s))]  # wrong: next=two-back
-    stat_b, df_b, p_b = pooled_chi2_bigram(np.array(s_bad), P, top_ctx=np.arange(20), emin=5.0)
+    # bad two-lag sampler: x_t drawn from the row of x_{t-2}
+    s_bad = np.array(two_lag_sample_bigram(P, 200000, seed=531501))
+    stat_b, df_b, p_b = pooled_chi2_bigram(s_bad, P, top_ctx=np.arange(20), emin=5.0)
     assert p_b < 1e-6
