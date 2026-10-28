@@ -59,7 +59,7 @@ def test_derive_optimal_compute_identity_and_first_order_condition():
     assert abs(num) < 1e-6 * abs(L(Ns))  # stationary to high relative accuracy
     # grid+refine argmin agrees
     grid = np.geomspace(Ns / 4, Ns * 4, 200001)
-    assert grid[np.argmin(L(grid))] == pytest.approx(Ns, rtol=1e-3)
+    assert np.isclose(grid[np.argmin(L(grid))], Ns, rtol=1e-3)
 
 
 def test_load_runs_filters_five_highest_losses():
