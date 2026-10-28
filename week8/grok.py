@@ -98,12 +98,13 @@ def loss_acc(params, tokens, targets):
 
 
 @jax.jit
-def train_step(params, state, tokens, targets, lr, step):
+def train_step(params, state, tokens, targets, lr, step, weight_decay=WD):
     """One full-batch update with the frozen betas/wd; state is threaded."""
     def loss_fn(p):
         return loss_acc(p, tokens, targets)[0]
     loss, grads = jax.value_and_grad(loss_fn)(params)
-    params, state = grok_adamw_step(params, grads, state, lr=lr, step=step)
+    params, state = grok_adamw_step(params, grads, state, lr=lr, step=step,
+                                     weight_decay=weight_decay)
     return params, state, loss
 
 
@@ -353,7 +354,8 @@ def run_one(seed: int, fraction: float = 0.30, wd: float = WD,
     mem_step, grok_step, saved_mem = None, None, False
     stop_step = max_steps
     for step in range(1, max_steps + 1):
-        params, state, _ = train_step(params, state, tr_tok, tr_tgt, LR, step)
+        params, state, _ = train_step(params, state, tr_tok, tr_tgt, LR, step,
+                                          weight_decay=wd)
         if step % log_every == 0 or step == max_steps:
             entry = snapshot(step)
             log.append(entry)

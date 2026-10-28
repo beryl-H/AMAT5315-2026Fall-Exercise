@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_weight_decay_control_changes_actual_training_weights ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-keria_h/pytest-22/test_weight_decay_control_chan0')
+
+    def test_weight_decay_control_changes_actual_training_weights(tmp_path):
+        zero=tmp_path/'smoke-wd0';one=tmp_path/'smoke-wd1'
+        g.run_one(seed=0,wd=0.,max_steps=2,log_every=1,outdir=zero)
+        g.run_one(seed=0,wd=1.,max_steps=2,log_every=1,outdir=one)
+        p0=g.load_params(zero/'checkpoint-final.npz')
+        p1=g.load_params(one/'checkpoint-final.npz')
+        delta=float(jnp.max(jnp.abs(p0['emb']-p1['emb'])))
+>       assert delta>1e-5, 'wd=0 and wd=1 produced identical weights; run_one wd is not threaded into actual train_step'
+E       AssertionError: wd=0 and wd=1 produced identical weights; run_one wd is not threaded into actual train_step
+E       assert 0.0 > 1e-05
+
+tests/test_part4_independent.py:16: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_part4_independent.py::test_weight_decay_control_changes_actual_training_weights
+1 failed in 5.52s
