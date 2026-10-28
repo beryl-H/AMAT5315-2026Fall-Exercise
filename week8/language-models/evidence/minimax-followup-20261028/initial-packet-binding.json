@@ -1,0 +1,13 @@
+{
+  "commit": "a00bcc932c5807b41251341ca20739fca0c42671",
+  "source_sha256": {
+    "src/memory.py": "22d4c7ec595daf8e53f8d4d0b2cb5f4d17be5e28e347182e884f8377abfd9e06",
+    "src/memory_sweep.py": "36cae12eead451db938469f31aa62752aef9d6c0d354bb71e318b66cff04362f",
+    "tools/audit_memory.py": "23e51d43b45794c48ee57b156922e764d47e5ce63e36e723a1ee0eb8f0553f4e",
+    "tests/test_memory_sweep.py": "373c463206162d79d3eb59b7b7508bd97d4fa8fb9ad732ecf2ffce1e49f0ffae",
+    "tests/test_memory_stores.py": "2a3a3d586901210eb8b0dab45a654dc145c6e1960e79d49ca1487247d341c803"
+  },
+  "input_chars": 39787,
+  "input_sha256": "8b8158611687ef9c36da8377d005a753f3f49920be23ab14eacae30d50453793",
+  "scope": "read-only advisory; no repeated formal computation"
+}

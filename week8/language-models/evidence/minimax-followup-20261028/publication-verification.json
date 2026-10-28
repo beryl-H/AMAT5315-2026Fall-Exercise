@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "scope": "documentation and compact advisory evidence only",
+  "baseline_commit": "a00bcc932c5807b41251341ca20739fca0c42671",
+  "accepted_connection_and_narrow_review": true,
+  "truncated_review_rejected": true,
+  "existing_records": 630,
+  "outer_records_reconstructed": 126,
+  "capacities": [
+    20.009493068152988,
+    34.935822943593536,
+    66.95665553744085
+  ],
+  "outer_slope_recomputed": 0.8712714249504048,
+  "gate_pass": false,
+  "model_source_hashes_unchanged": true,
+  "prior_worksheet_files_unchanged": 876,
+  "credential_matches": 0,
+  "raw_session_or_checkpoint_files_added": 0,
+  "new_training_runs": 0,
+  "new_random_draws": 0,
+  "unit_tests_rerun": false,
+  "unit_test_scope_note": "No implementation changes; original95-test evidence retained. Fresh checks cover added JSON, bindings, numerical reconstruction, fixture, publication paths and credential scan.",
+  "verified_utc": "2026-10-28T15:06:19.434997+00:00"
+}

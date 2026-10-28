@@ -1,0 +1,62 @@
+{
+  "status": "ADVISORY_REVIEW_COMPLETE_FAILURE_RETAINED",
+  "runtime": "native WSL Pi",
+  "provider": "minimax-direct",
+  "model": "MiniMax-M3.1-Flash",
+  "connection_test": "PASS: exact MINIMAX_WSL_OK and stopReason=stop",
+  "initial_broad_review": "REJECTED: stopReason=length; preserved, not accepted",
+  "narrow_review": "ACCEPTED: nonempty final answer and stopReason=stop",
+  "bound_commit": "a00bcc932c5807b41251341ca20739fca0c42671",
+  "diagnostics": {
+    "saved_progress_records": 630,
+    "outer_records_used": 126,
+    "progress_sha256_unchanged": "a7a6e7b3933e455c5b2d0eb9e5ef3cab9e81a54908fba02af9c387ff08d06f9c",
+    "three_seed_capacities_reconstructed": {
+      "101": [
+        14.433630397956659,
+        31.211986126464854,
+        68.09160203325739
+      ],
+      "102": [
+        20.009493068152988,
+        36.60567467431723,
+        65.92269657193869
+      ],
+      "103": [
+        20.540845096519693,
+        34.46924278307209,
+        66.95665553744085
+      ]
+    },
+    "median3_capacities_reconstructed": {
+      "16": 20.009493068152988,
+      "32": 34.935822943593536,
+      "64": 66.95665553744085
+    },
+    "OLS_slope": 0.8712714249504048,
+    "equal_log_spacing_endpoint_identity": 0.8712714249504047,
+    "zero_diagonal_fixture_ISR": [
+      1.0,
+      1.0
+    ]
+  },
+  "scientific_gate": {
+    "value": 0.8712714249504048,
+    "required": [
+      0.9,
+      1.1
+    ],
+    "pass": false
+  },
+  "adjudication": {
+    "accepted": "No concrete explanatory implementation defect demonstrated by supplied evidence. Finite-draw/interpolation sensitivity remains plausible, not established as the cause. Retain the original failed gate.",
+    "corrected_review_note": "The zero-diagonal Gram product is already the interference: off(KK^T)V = F - diag(KK^T)V. For unit keys this equals F - V up to roundoff; it does not need the own term restored when directly computing ISR. Exact fixture confirms this."
+  },
+  "formal_training_runs_added": 0,
+  "random_draws_added": 0,
+  "full_sweeps_added": 0,
+  "model_source_edits": 0,
+  "global_Pi_config_modified": false,
+  "Git_worktree_clean": true,
+  "created_utc": "2026-10-28T14:25:48.095738+00:00"
+}

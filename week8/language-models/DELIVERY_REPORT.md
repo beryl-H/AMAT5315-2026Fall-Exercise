@@ -33,3 +33,7 @@ Pinned Matplotlib/PyParsing emits deprecation warnings. The old glyph-preview ti
 Public: source, tests, prompts/protocol summaries, compact numerical evidence and figures. Local only: corpus/downloads,raw count arrays,all initial/mid/final optimizer checkpoints,failed-attempt directories andraw Pi sessions. Windows delivery mirror/manifest and Git publication receipt are produced after final checks. The updated worksheet explicitly requests pushing source and evidence; no course submission,message or PR review is made.
 
 Publication formatting check: two imported Windows JSON receipts used CRLF; git diff --check flagged trailingCR. Public copies were normalized toLF; original receipts remain in the support snapshot. No numerical/model changes.
+
+## Subsequent user-authorized MiniMax review
+
+Added compact connection/review receipts, the original advisory answer, coordinator adjudication and an evidence index under evidence/minimax-followup-20261028. README and TASK_STATUS now link the follow-up. The first broad review was truncated and rejected; the narrowed review completed. Existing-record reconstruction and a two-memory algebraic fixture were checked independently. No training, random draws, code changes or scientific acceptance changes occurred. See the follow-up index for commands, evidence limits and the corrected own-term caveat.

@@ -5,3 +5,7 @@ All required computations, independent checks and final figures completed. Scien
 Pi-authored MLP/Transformer formal runs: one each,4000/6000 updates; all neural required checks pass. Part2 formal-01 is invalidated and preserved; formal-02 cited. Native provider quota failure is recorded; no provider change occurred. All876 old tracked files remain unchanged.
 
 See README,DELIVERY_REPORT,evidence/ACCEPTANCE.json and LEARNING_GUIDE_ZH.md. Git publication receipt is written after actual push verification.
+
+## Authorized MiniMax follow-up
+
+Native WSL Pi + independent MiniMax connected and completed a narrowed read-only review after user authorization. An earlier truncated review was rejected and retained. Coordinator arithmetic checks reproduce the same failed outer slope; no model source, seeds, gates, or training changed. See evidence/minimax-followup-20261028/README.md.

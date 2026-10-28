@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "native_WSL_connection": "accepted nonempty exact reply, stopReason=stop",
+  "completed_advisory_review": "outer-review-02; stopReason=stop",
+  "original_public_files_unchanged": 130,
+  "credential_scan_files": 36,
+  "credential_matches": 0,
+  "Git_commit_unchanged": "a00bcc932c5807b41251341ca20739fca0c42671",
+  "new_formal_training": 0,
+  "new_random_draws": 0,
+  "remaining_gate": "outer slope .87127 remains FAIL against [.9,1.1]",
+  "no_global_default_provider_change": true
+}

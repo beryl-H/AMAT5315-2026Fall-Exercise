@@ -1,0 +1,38 @@
+{
+  "runtime": "native Ubuntu-24.04 WSL Pi",
+  "provider": "minimax-direct",
+  "model": "MiniMax-M3.1-Flash",
+  "endpoint": "https://api.minimax.cn/v1",
+  "automatic_retries": 0,
+  "tools": [],
+  "credential_storage": "existing private file -> child environment only; Pi models.json uses ${TASK_PROVIDER_KEY}",
+  "global_Pi_configuration_modified": false,
+  "input_sha256": "8b8158611687ef9c36da8377d005a753f3f49920be23ab14eacae30d50453793",
+  "input_chars": 39787,
+  "max_output_tokens": 8192,
+  "pricing": "unknown; zero config cost fields are placeholders",
+  "started_utc": "2026-10-28T14:19:33.318803+00:00",
+  "accepted": false,
+  "exit_code": 0,
+  "stop_reason": "length",
+  "reported_provider": "minimax-direct",
+  "reported_model": "MiniMax-M3.1-Flash",
+  "usage": {
+    "input": 13823,
+    "output": 8192,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "reasoning": 8191,
+    "totalTokens": 22015,
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "total": 0
+    }
+  },
+  "error": "",
+  "wrapper_error": "Failed, empty or truncated Pi response",
+  "finished_utc": "2026-10-28T14:20:25.780252+00:00"
+}

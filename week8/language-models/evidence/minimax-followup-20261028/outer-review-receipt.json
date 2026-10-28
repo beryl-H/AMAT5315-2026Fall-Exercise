@@ -1,0 +1,38 @@
+{
+  "runtime": "native Ubuntu-24.04 WSL Pi",
+  "provider": "minimax-direct",
+  "model": "MiniMax-M3.1-Flash",
+  "endpoint": "https://api.minimax.cn/v1",
+  "automatic_retries": 0,
+  "tools": [],
+  "credential_storage": "existing private file -> child environment only; Pi models.json uses ${TASK_PROVIDER_KEY}",
+  "global_Pi_configuration_modified": false,
+  "input_sha256": "1987c93533fbef70fa93955ce0461ba28277001efd53a00d6ddb439b1f4a622f",
+  "input_chars": 10632,
+  "max_output_tokens": 16384,
+  "pricing": "unknown; zero config cost fields are placeholders",
+  "started_utc": "2026-10-28T14:22:10.825810+00:00",
+  "accepted": true,
+  "exit_code": 0,
+  "stop_reason": "stop",
+  "reported_provider": "minimax-direct",
+  "reported_model": "MiniMax-M3.1-Flash",
+  "usage": {
+    "input": 3419,
+    "output": 7307,
+    "cacheRead": 256,
+    "cacheWrite": 0,
+    "reasoning": 6632,
+    "totalTokens": 10982,
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "total": 0
+    }
+  },
+  "error": "",
+  "answer_sha256": "7da651d001a7b00ae84edabfab46f7276b17becd714b9cceba626bbbcf87ba9f",
+  "finished_utc": "2026-10-28T14:22:58.405763+00:00"
+}

@@ -1,0 +1,8 @@
+{
+  "scope": "narrowed outer-only advisory, not identical retry",
+  "input_chars": 10632,
+  "input_sha256": "1987c93533fbef70fa93955ce0461ba28277001efd53a00d6ddb439b1f4a622f",
+  "source_sha256": "36cae12eead451db938469f31aa62752aef9d6c0d354bb71e318b66cff04362f",
+  "max_output_tokens": 16384,
+  "attempts_after_this": 0
+}

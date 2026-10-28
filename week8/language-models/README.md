@@ -25,7 +25,7 @@ The Chinchilla fit uses only the240 filtered published runs, log-Huberδ=.001,24
 
 ## Runtime and verification
 
-Native WSL Pi (`volcengine-plan/glm-5-3-flash`) authored the core models, drivers and test suites. Codex coordinated, identified defects, mechanically completed test indentation after a quota interruption, executed the formal jobs once, and wrote the independent audit/rendering tools. No MiniMax/provider fallback was used. Pi task07 ended in an explicit quota error; its exit0 was not treated as success. Already-created code was verified locally, without further provider inference.
+Native WSL Pi (`volcengine-plan/glm-5-3-flash`) authored the core models, drivers and test suites. Codex coordinated, identified defects, mechanically completed test indentation after a quota interruption, executed the formal jobs once, and wrote the independent audit/rendering tools. The original delivery at `a00bcc9` used no MiniMax/provider fallback. A subsequent explicitly authorized MiniMax advisory review is documented below. Pi task07 ended in an explicit quota error; its exit0 was not treated as success. Already-created code was verified locally, without further provider inference.
 
 Final audited runtime: Python3.11.17, JAX/JAXlib0.6.2 CPU, NumPy2.2.6, SciPy1.17.1, Matplotlib3.10.3, SentencePiece0.2.2. Versions pinned byuv.lock; pyproject permits Python3.11–3.12. No PyTorch/cloud model training.
 
@@ -140,3 +140,7 @@ Producing command: `.venv/bin/python tools/render_audited_figures.py`
 |scaling.py /tools/run_scaling_formal.py|245 pinned published runs|243-start traces,400 resample traces and bootstrap estimates|
 
 No corpus, downloaded model, tokenizer binary, raw checkpoint, font file, auth file or raw Pi session is committed. [Failure register](evidence/failures/failure-register.json) preserves unsupported/failed attempts and corrections; [old-file verification](evidence/audits/old-work-preservation.json) binds the historical baseline. Scientific acceptance remains partial because of the declared slope failure.
+
+## Subsequent authorized MiniMax review
+
+The user subsequently authorized an independent MiniMax channel through native WSL Pi. The connection test and narrowed review completed; the initial truncated review remains rejected and preserved. Independent reconstruction still gives outer slope **0.87127**, so the original failed gate remains unchanged. No training or random draws were added. See the [follow-up report and receipts](evidence/minimax-followup-20261028/README.md).
