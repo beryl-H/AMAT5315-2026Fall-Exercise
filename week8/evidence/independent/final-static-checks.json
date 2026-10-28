@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "compiled_python_files": 21,
+  "frozen_part3_sources_unchanged": true,
+  "frozen_decoder_sources_and_protocol_unchanged": true,
+  "evidence_json_strict_finite": true,
+  "uv_lock_check_offline": {
+    "exit_code": 0,
+    "output": "Resolved 25 packages in 1ms\n"
+  },
+  "git_diff_check_since_base": {
+    "exit_code": 0
+  },
+  "input_pdf_sha256": "4a9f5d0cc5223ed6c1863410cc1f4e03b890dba21649265ca8a91eacd0b95101"
+}

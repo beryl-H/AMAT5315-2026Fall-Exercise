@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "reviewer": "Codex visual inspection through view_image",
+  "scope": "10 final figures; observed title clipping, label overlap and legend occlusion corrected and final versions reinspected",
+  "scientific_values_changed": false,
+  "teacher_or_human_acceptance_claimed": false,
+  "utc_recorded": "2026-10-28T05:48:41.869528+00:00",
+  "files": [
+    {
+      "file": "evidence/part1-unigram.png",
+      "sha256": "7a6968002e702c6444c412daba83c9f1d0f928fa967b8c9423e56b9169a22350",
+      "pixels": [
+        1650,
+        600
+      ]
+    },
+    {
+      "file": "evidence/part1-bigram-after-t.png",
+      "sha256": "103fd3c3d0e328394e69a52a8c6cdb653a95d1e938072d8d42d058bacb0b6bfb",
+      "pixels": [
+        1200,
+        600
+      ]
+    },
+    {
+      "file": "evidence/part1-scores.png",
+      "sha256": "d5c8918af1e454855b914b047cfbc68c650a55fc9b7a9c42134a11e63cbb13ba",
+      "pixels": [
+        1350,
+        600
+      ]
+    },
+    {
+      "file": "evidence/part2-attention.png",
+      "sha256": "ea13d9135298e0c932e52b706dd8a0db0b6771387f33b44cbb1a7ff10892e18e",
+      "pixels": [
+        1843,
+        573
+      ]
+    },
+    {
+      "file": "evidence/part2-loss-curves.png",
+      "sha256": "b4ae51e342378b7150a48f5d7cc3c0e97b5aee45a52d11a32b7ffc73754f7f3b",
+      "pixels": [
+        1200,
+        750
+      ]
+    },
+    {
+      "file": "evidence/part3-scaling-blind-miss.png",
+      "sha256": "1e465b8ec1bb9c14aa6303650f61c972b8678844823470c25fe06b685d808abb",
+      "pixels": [
+        1333,
+        875
+      ]
+    },
+    {
+      "file": "evidence/part4-grok-curves.png",
+      "sha256": "3706454d1462a1376ccc228f9a203952d37e7fe30fbf266dc3ed0ff338b0b1b5",
+      "pixels": [
+        1312,
+        1645
+      ]
+    },
+    {
+      "file": "evidence/part4-controls.png",
+      "sha256": "1e87bd663e0f8f4eecbcd173e7d2c377bc43444db20bf025cba9f465410304a6",
+      "pixels": [
+        1484,
+        1032
+      ]
+    },
+    {
+      "file": "evidence/part4-fourier.png",
+      "sha256": "7398148b198ac1da209f9ecb4a76c2fbb4a47eb706b47c0ae6d98d3ca62723a8",
+      "pixels": [
+        1933,
+        961
+      ]
+    },
+    {
+      "file": "evidence/part4-ablations.png",
+      "sha256": "997a2049ac0339d3c35d274cd95c6c3a79e45b00ed5bc8f821ae248f5f002533",
+      "pixels": [
+        2229,
+        580
+      ]
+    }
+  ]
+}
