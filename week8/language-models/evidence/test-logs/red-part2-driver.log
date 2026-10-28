@@ -1,0 +1,3 @@
+=========================== short test summary info ============================
+ERROR tests/test_part2_driver.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
