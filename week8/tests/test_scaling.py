@@ -116,22 +116,23 @@ def test_predict_blind_matches_law():
 def test_bootstrap_deterministic_count_and_interval():
     Ns, Ls = _synthetic(noise=0.01, seed=1)
     fit = sc.fit_wls(Ns, Ls, np.full(len(Ns), 0.01))
-    b1 = sc.bootstrap(fit, n_draws=10000, seed=20260, n192=sc.nonembedding_params(192))
-    b2 = sc.bootstrap(fit, n_draws=10000, seed=20260, n192=sc.nonembedding_params(192))
+    b1 = sc.bootstrap(fit, target_width=192, target_N=sc.nonembedding_params(192))
+    b2 = sc.bootstrap(fit, target_width=192, target_N=sc.nonembedding_params(192))
     assert b1["n_draws"] == 10000
-    assert b1["pred192_point"] == b2["pred192_point"]
+    assert b1["pred_point"] == b2["pred_point"]
     assert b1["alpha_point"] == b2["alpha_point"]
-    lo, hi = b1["pred192_interval"]
+    lo, hi = b1["pred_interval"]
     assert hi > lo
-    assert b1["pred192_point"] == pytest.approx(sc.predict_blind(fit, sc.nonembedding_params(192)), rel=1e-6)
+    assert b1["pred_point"] == pytest.approx(sc.predict_blind(fit, sc.nonembedding_params(192)), rel=1e-6)
+    assert b1["target_width"] == 192 and b1["target_N"] == 890112
 
 
 def test_bootstrap_interval_covers_synthetic_truth():
     a, alpha = 5.0, 0.08
     Ns, Ls = _synthetic(a, alpha, noise=None)
     fit = sc.fit_wls(Ns, Ls, np.full(len(Ns), 0.02))
-    b = sc.bootstrap(fit, n_draws=10000, seed=20260, n192=sc.nonembedding_params(192))
-    lo, hi = b["pred192_interval"]
+    b = sc.bootstrap(fit, target_width=192, target_N=sc.nonembedding_params(192))
+    lo, hi = b["pred_interval"]
     assert lo <= a * sc.nonembedding_params(192) ** (-alpha) <= hi
 
 
@@ -139,8 +140,7 @@ def test_bootstrap_interval_covers_synthetic_truth():
 
 def test_prediction_receipt_timestamp_sha_and_ordering(tmp_path):
     fit = sc.fit_wls(*_synthetic(noise=0.01), np.full(8, 0.01))
-    rec_path = sc.save_prediction(tmp_path, fit, n192=sc.nonembedding_params(192),
-                                  bootstrap_seed=20260, n_draws=10000)
+    rec_path = sc.save_prediction(tmp_path, fit, target_width=192)
     rec = json.loads(rec_path.read_text())
     payload = json.dumps({k: v for k, v in rec.items() if k != "sha256"},
                          sort_keys=True).encode()

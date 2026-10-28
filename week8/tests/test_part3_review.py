@@ -143,7 +143,7 @@ def test_blind_protocol_requires_double_nonembedding_parameters(tmp_path):
 def test_utc_timestamp_true_timezone_parsing():
     sc.assert_prediction_before_run("2020-01-01T00:00:00Z", 2_000_000_000)
     with pytest.raises(ValueError):
-        sc.assert_prediction_before_run("2033-05-18T01:33:20Z", 2_000_000_000)
+        sc.assert_prediction_before_run("2033-05-18T03:33:20Z", 2_000_000_000)  # == 2e9
 
 
 # ---- item 5: outdir refusal and save ordering ---------------------------------
@@ -161,22 +161,24 @@ def test_worker_saves_settings_before_step1_and_checkpoint_before_scoring(tmp_pa
     real_score = rp.score_validation
 
     def spy_score(*a, **k):
-        events.append("score")
-        if not (Path(k["outdir"]) / "completion-receipt.json").exists():
+        if k.get("n_blocks") is not None:  # per-100-step eval (96 blocks)
+            return real_score(*a, **k)
+        events.append("score")  # the final full-validation score
+        if not ((tmp_path / "run") / "completion-receipt.json").exists():
             raise RuntimeError("scoring ran before checkpoint receipt")
         return real_score(*a, **k)
 
     rp.score_validation = spy_score
     try:
-        sweep.train_one(8, 1, 1, np.arange(1000) % 65, VAL[:200], tmp_path,
-                        _score_kwargs={"outdir": str(tmp_path)})
+        sweep.train_one(8, 1, 1, np.arange(1000) % 65, VAL[:200],
+                        tmp_path / "run")
     finally:
         rp.score_validation = real_score
-    events.count("score")  # scoring attempted exactly after receipt
-    settings = json.loads((tmp_path / "settings.json").read_text())
+    assert events.count("score") == 1  # final scoring attempted exactly after receipt
+    settings = json.loads((tmp_path / "run" / "settings.json").read_text())
     assert settings["started_unix_ts"] > 0 and settings["heads"] == 2
-    assert (tmp_path / "completion-receipt.json").exists()
-    assert (tmp_path / "weights.npz").exists()
+    assert (tmp_path / "run" / "completion-receipt.json").exists()
+    assert (tmp_path / "run" / "weights.npz").exists()
 
 
 # ---- item 7: bounded scorer batches and RSS ------------------------------------

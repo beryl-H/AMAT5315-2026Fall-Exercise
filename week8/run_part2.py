@@ -65,26 +65,30 @@ def block_windows(VAL: np.ndarray) -> tuple[np.ndarray, np.ndarray | None]:
     return np.stack(fulls), tail
 
 
-def batched_nll(params, windows, mask=True):
-    """windows [B,T+1] -> per-target nll [B,T] (targets = shifted windows)."""
-    fwd = lambda w: tf.forward(params, w[:-1], mask=mask)
+def batched_nll(params, windows, mask=True, heads=tf.HEADS):
+    """windows [B,T+1] -> per-target nll [B,T] (targets = shifted windows).
+    heads is explicit state, never inferred from width; default keeps Part 2."""
+    fwd = lambda w: tf.forward(params, w[:-1], mask=mask, heads=heads)
     logits = jax.vmap(fwd)(windows)
     lp = jax.nn.log_softmax(logits)
     tgt = windows[:, 1:]
     return -jnp.take_along_axis(lp, tgt[:, :, None], axis=-1)[:, :, 0]
 
 
-@partial(jax.jit, static_argnames="mask")
-def eval_windows(params, windows, mask=True):
-    return batched_nll(params, windows, mask=mask)
+@partial(jax.jit, static_argnames=("mask", "heads"))
+def eval_windows(params, windows, mask=True, heads=tf.HEADS):
+    return batched_nll(params, windows, mask=mask, heads=heads)
 
 
 def score_validation(params, VAL: np.ndarray, n_blocks: int | None = None,
-                     sabotage: str | None = None) -> dict:
+                     sabotage: str | None = None, heads: int = tf.HEADS,
+                     batch_size: int | None = None) -> dict:
     """Token-weighted loss over the block protocol; 111,539 targets in full.
 
     sabotage='swap_targets' is the negative control: inputs and targets swap
     roles, which a correct target handling must reject (different loss).
+    batch_size bounds the windows per jit call (Part 3 uses 16 so a width-192
+    model cannot allocate GBs at once); None keeps the Part 2 one-shot path.
     """
     full, tail = block_windows(VAL)
     if sabotage == "swap_targets":
@@ -92,9 +96,17 @@ def score_validation(params, VAL: np.ndarray, n_blocks: int | None = None,
         tail = np.concatenate([tail[1:], tail[:1]])
     if n_blocks is not None:
         full = full[:n_blocks]
-    parts = list(np.asarray(eval_windows(params, jnp.asarray(full))).ravel())
+    parts: list = []
+    if batch_size is None:
+        parts += list(np.asarray(eval_windows(params, jnp.asarray(full),
+                                              heads=heads)).ravel())
+    else:
+        for i in range(0, len(full), batch_size):
+            parts += list(np.asarray(eval_windows(
+                params, jnp.asarray(full[i:i + batch_size]), heads=heads)).ravel())
     if n_blocks is None and tail is not None:
-        parts += list(np.asarray(eval_windows(params, jnp.asarray(tail)[None]))[0])
+        parts += list(np.asarray(eval_windows(params, jnp.asarray(tail)[None],
+                                              heads=heads))[0])
     return tf.combine_nll([jnp.asarray(parts)])
 
 
@@ -102,10 +114,10 @@ def score_validation(params, VAL: np.ndarray, n_blocks: int | None = None,
 # training: jitted loss+grad+AdamW, incremental logs, attempt directories
 # --------------------------------------------------------------------------
 
-@partial(jax.jit, static_argnames="mask")
-def train_step(params, state, windows, lr, step, mask):
+@partial(jax.jit, static_argnames=("mask", "heads"))
+def train_step(params, state, windows, lr, step, mask, heads=tf.HEADS):
     def loss_fn(p):
-        return batched_nll(p, windows, mask=mask).mean()
+        return batched_nll(p, windows, mask=mask, heads=heads).mean()
     loss, grads = jax.value_and_grad(loss_fn)(params)
     params, state = tf.adamw_step(params, grads, state, lr=lr,
                                   weight_decay=WD, step=step)
