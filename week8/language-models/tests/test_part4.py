@@ -6,8 +6,7 @@ import os
 import numpy as np
 import pytest
 
-from src.part4_glyph import GATE_DEFS, picture_ISR_gate_eval
-from src.run_part4 import recall_part4, softmax_weights
+from src.run_part4 import picture_ISR_gate_eval, recall_part4, softmax_weights
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT = "/mnt/c/Windows/Fonts/simhei.ttf"
@@ -67,8 +66,10 @@ def test_recall_all_stores_shapes_and_own_weight():
 
 def test_gate_definitions():
     med = {("outer", 1024): 4.0, ("relu", 1024): 2.83, ("relu2", 4096): 1.2,
-           ("softmax", 4096): 0.057}
-    show = {("softmax", 4096): 0.06}
+           ("softmax", 4096): 0.057, ("softmax", 64): 0.01,
+           ("softmax", 256): 0.02, ("softmax", 1024): 0.04}
+    show = {("softmax", 4096): 0.06, ("softmax", 64): 0.01,
+            ("softmax", 256): 0.02, ("softmax", 1024): 0.04}
     res = picture_ISR_gate_eval(med, show)
     assert all(res.values())
     med_bad = {**med, ("relu2", 4096): 0.9}
