@@ -12,6 +12,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+import baselines as bl
 import transformer as tf
 
 CORPUS = Path(__file__).resolve().parent.parent / "data" / "input.txt"
@@ -19,7 +20,9 @@ CORPUS = Path(__file__).resolve().parent.parent / "data" / "input.txt"
 
 @pytest.fixture(scope="module")
 def ids():
-    return np.frombuffer(CORPUS.read_bytes(), dtype=np.uint8).astype(np.int64)
+    """Corpus encoded through the sorted 65-character vocabulary."""
+    text = CORPUS.read_text(encoding="utf-8")
+    return bl.encode(text, bl.sorted_vocab(text))
 
 
 def test_parameter_count_is_exactly_116673():
@@ -80,7 +83,7 @@ def test_adamw_decoupled_weight_decay_math():
     params, state = tf.adamw_step({"w": jnp.array(1.0)},
                                   {"w": jnp.array(0.0)}, state,
                                   lr=0.1, weight_decay=0.1, step=1)
-    assert float(params["w"]) == pytest.approx(0.99, abs=1e-9)
+    assert float(params["w"]) == pytest.approx(0.99, abs=1e-6)  # float32
     # One more step with unit gradient, checked against a manual update.
     p1 = params["w"]
     params, _ = tf.adamw_step(params, {"w": jnp.array(1.0)}, state,
@@ -90,7 +93,7 @@ def test_adamw_decoupled_weight_decay_math():
     m_hat = m / (1 - 0.9 ** 2)
     v_hat = v / (1 - 0.999 ** 2)
     expected = p1 - 0.1 * 0.1 * p1 - 0.1 * m_hat / (np.sqrt(v_hat) + 1e-8)
-    assert float(params["w"]) == pytest.approx(float(expected), abs=1e-7)
+    assert float(params["w"]) == pytest.approx(float(expected), abs=1e-5)
 
 
 def test_token_weighted_loss_combination():
@@ -112,9 +115,10 @@ def test_window_sampling_deterministic_and_in_range(ids):
     assert w1.min() >= 0 and w1.max() <= 64
 
 
-def test_generation_deterministic_and_valid():
+def test_generation_deterministic_and_valid(ids):
     params = tf.init_params(jax.random.PRNGKey(1337))
-    prompt = jnp.array([ord(c) for c in "ROMEO:\n"])
+    vocab = bl.sorted_vocab(CORPUS.read_text(encoding="utf-8"))
+    prompt = jnp.array(bl.encode("ROMEO:\n", vocab))
     out1 = tf.generate(params, prompt, n_new=20, temperature=1.0, key=jax.random.PRNGKey(7))
     out2 = tf.generate(params, prompt, n_new=20, temperature=1.0, key=jax.random.PRNGKey(7))
     assert out1.shape == (20 + 7,)
