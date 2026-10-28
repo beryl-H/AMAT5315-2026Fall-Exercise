@@ -77,7 +77,7 @@ def test_picture_R_uses_norm_32_denominator():
     assert np.linalg.norm(p) == pytest.approx(32.0)
     w_own = 0.7
     leak = np.zeros(1024)
-    leak[0] = 32.0  # ||leak|| = 32
+    leak[0] = abs(w_own) * 32.0  # ||leak|| = |w_own| * ||p|| -> R = 1
     recall = w_own * p + leak
     R = picture_R(recall, w_own, p)
     assert R == pytest.approx(1.0)  # factor-32 error would break this

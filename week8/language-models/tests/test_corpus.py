@@ -46,8 +46,10 @@ def test_encode_stories_leading_eos_and_between_stories_no_bos():
     from src.corpus import SPECIAL_EOS_ID
 
     class FakeSP:
-        eos_id = SPECIAL_EOS_ID
-        bos_id = 1
+        _eos = SPECIAL_EOS_ID
+
+        def eos_id(self):
+            return self._eos
 
         def encode(self, s):
             return {"a": [10], "b": [11, 12]}[s]

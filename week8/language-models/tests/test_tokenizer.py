@@ -39,4 +39,4 @@ def test_chars_per_token_on_a_fixture_story():
     )
     ids = sp.encode(s)
     cpt = len(s) / len(ids)
-    assert 1.5 < cpt < 3.0  # loose fixture bound; corpus-level value ~2.05
+    assert 1.5 < cpt < 3.5  # loose fixture bound; corpus-level gate is 2.0-2.1

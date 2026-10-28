@@ -43,11 +43,12 @@ def test_pair_loo_cosines_matches_direct_formula_two_pairs():
 
 
 def test_identical_offsets_give_loo_cosine_one():
-    # 9 pairs whose unit offsets are all equal -> every LOO cosine is exactly 1
-    w = np.array([1.0, 0.0])
-    a = np.eye(9) * 0.5  # arbitrary distinct unit rows
-    b = a + w
-    U = unit_rows(np.vstack([a, b]))
+    # All 9 pairs identical -> unit offsets all equal -> every LOO cosine is
+    # exactly 1 (degenerate hand case exercising the LOO aggregation).
+    u = np.array([1.0, 0.0])
+    v = np.array([1.0, 1.0])
+    E = np.vstack([np.tile(u, (9, 1)), np.tile(v, (9, 1))])
+    U = unit_rows(E)
     pairs = [(i, 9 + i) for i in range(9)]
     got = pair_loo_cosines(U, pairs)
     assert np.allclose(got, 1.0, atol=1e-12)
