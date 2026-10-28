@@ -18,10 +18,10 @@ def test_stable_ce_equals_naive_and_high_confidence():
     assert np.allclose(got, naive, atol=1e-10)
     # equal logits -> ln V
     logits_eq = jnp.zeros((1, 512))
-    assert np.isclose(float(stable_ce(logits_eq, jnp.array([0]))), np.log(512))
+    assert np.isclose(stable_ce(logits_eq, jnp.array([0]))[0].item(), np.log(512))
     # high-confidence case (+20 on target) -> near zero, still finite
     big = jnp.zeros((1, 8)).at[0, 3].set(20.0)
-    ce = float(stable_ce(big, jnp.array([3])))
+    ce = stable_ce(big, jnp.array([3]))[0].item()
     assert 0.0 <= ce < 1e-6
 
 
@@ -30,9 +30,9 @@ def test_stable_ce_gradient_sum_zero_and_target_complement_nonzero():
     logits = jnp.asarray(rng.normal(size=(1, 8)))
     targets = jnp.array([2])
     g = jax.grad(lambda z: stable_ce(z, targets).sum())(logits)
-    assert np.isclose(float(g.sum()), 0.0, atol=1e-12)  # softmax - onehot
-    assert float(g[0, 2]) < 0.0  # target gets negative gradient
-    assert np.abs(g[0] - g[0, 2]).max() > 0  # complement nonzero
+    assert np.isclose(g.sum().item(), 0.0, atol=1e-12)  # softmax - onehot
+    assert g[0, 2].item() < 0.0  # target gets negative gradient
+    assert (g[0] - g[0, 2]).max().item() > 0  # complement nonzero
     # +20 logits: gradient stays finite and correct
     big = jnp.zeros((1, 8)).at[0, 3].set(20.0)
     g2 = jax.grad(lambda z: stable_ce(z, jnp.array([3])).sum())(big)
