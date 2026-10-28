@@ -59,17 +59,17 @@ def test_load_or_encode_rejects_stale_cache_without_expected_length(tmp_path, mo
 
     monkeypatch.setattr(rp, "encode_stories", fake_encode)
     # no cache file: encode and record full integrity metadata
-    s = load_or_encode(object(), ["stories"], "train", str(tmp_path),
-                       expected_n_actual=50,
-                       input_hashes={"corpus": "abc", "tokenizer": "def"})
+    s, _ = load_or_encode(object(), ["stories"], "train", str(tmp_path),
+                          expected_n_actual=50,
+                          input_hashes={"corpus": "abc", "tokenizer": "def"})
     assert s[0] == 2 and len(s) == 51 and calls["n"] == 1
     meta = json.load(open(tmp_path / "encoded-train.npy.json"))
     assert meta["sha256"] == hashlib.sha256((tmp_path / "encoded-train.npy").read_bytes()).hexdigest()
     assert meta["n_actual"] == 50 and meta["input_hashes"] == {"corpus": "abc", "tokenizer": "def"}
     # tampered cache must NOT be trusted even though the file exists
     np.save(tmp_path / "encoded-train.npy", np.zeros(51, dtype=np.int32))
-    s2 = load_or_encode(object(), ["stories"], "train", str(tmp_path),
-                        expected_n_actual=50,
-                        input_hashes={"corpus": "abc", "tokenizer": "def"})
+    s2, _ = load_or_encode(object(), ["stories"], "train", str(tmp_path),
+                           expected_n_actual=50,
+                           input_hashes={"corpus": "abc", "tokenizer": "def"})
     assert calls["n"] == 2  # re-encoded, cache rejected
     assert s2[0] == 2 and len(s2) == 51
