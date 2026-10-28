@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "independently_recomputed_cells": 320,
+  "worst_absolute_ISR_difference": 3.552713678800501e-15,
+  "glyph": "算",
+  "glyph_norm": 32,
+  "mask_sha256_float64": "96d3c12e8b9876b71ef5090a97471f66314296dcac463fbce3d7a1c8b8251418",
+  "mandatory_gates": {
+    "outer_1024_within_15pct_of_4": true,
+    "relu_1024_within_15pct_of_2.83": true,
+    "relu2_4096_gt_1": true,
+    "softmax_allM_lt_0.1": true
+  },
+  "softmax_max_all_80_cells": 0.06103485089875065,
+  "medians": {
+    "outer|M=64": 0.9429736484674258,
+    "outer|M=256": 1.9529901955547113,
+    "outer|M=1024": 4.006604489004792,
+    "outer|M=4096": 8.065064214470466,
+    "relu|M=64": 0.6728566262989502,
+    "relu|M=256": 1.3634936349807723,
+    "relu|M=1024": 2.823748090181259,
+    "relu|M=4096": 5.635706563029547,
+    "relu2|M=64": 0.12500091842231484,
+    "relu2|M=256": 0.28198180136281126,
+    "relu2|M=1024": 0.6138400148785856,
+    "relu2|M=4096": 1.1886860697081758,
+    "softmax|M=64": 0.005899267622389319,
+    "softmax|M=256": 0.012975248677577553,
+    "softmax|M=1024": 0.02871262053523592,
+    "softmax|M=4096": 0.05507789005004127
+  },
+  "training_runs": 0
+}

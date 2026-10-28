@@ -1,0 +1,38 @@
+........................................................................ [ 75%]
+.......................                                                  [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/.venv/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+.venv/lib/python3.11/site-packages/matplotlib/_mathtext.py:45
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/.venv/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+tests/test_part4.py::test_render_mask_properties_and_provenance
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/src/part4_glyph.py:76: UserWarning: Glyph 31639 (\N{CJK UNIFIED IDEOGRAPH-7B97}) missing from font(s) DejaVu Sans.
+    fig2.savefig(os.path.join(out_dir, "glyph-preview.png"), dpi=120)
+
+tests/test_selfconsistency.py::test_uniform_draws_z_near_zero_and_gate_bounds
+  /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/src/selfconsistency.py:22: RuntimeWarning: divide by zero encountered in scalar divide
+    return float(D.mean() / se)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

@@ -1,0 +1,21 @@
+{
+  "status": "INVALIDATED_MULTIPLE_WRITERS",
+  "utc": "2026-10-28T12:52:00Z",
+  "declared_by": "native WSL pi (volcengine-plan/glm-5-3-flash) per root correctness review, task pi-task-04",
+  "reason": "operational custody failure: src/run_part2.py was launched more than once against this same attempt directory (formal-01) - nohup, setsid nohup and foreground launches; the driver used os.makedirs(exist_ok=True) and rewrote settings.json, and multiple writers appended to progress.log. Root observed an ALL PASS line followed by fresh k-selection lines from a second writer.",
+  "numerical_results": "NOT asserted wrong (the last completed pass reported gates ALL PASS and its numbers are plausible), but the attempt's provenance/custody is invalid; results must not be cited. Never reused; the refit runs as formal-02 under an exclusive atomic attempt guard.",
+  "launch_commands_known": [
+    "nohup uv run python src/run_part2.py > artifacts/part2/formal-01-console.log 2>&1 &   (pid 4717, died at spawn)",
+    "setsid nohup uv run python src/run_part2.py > artifacts/part2/formal-01-console.log 2>&1 &   (pid 4761, dir race)",
+    "uv run python src/run_part2.py (foreground tool call, returned 'No result provided')",
+    "uv run python src/run_part2.py (earlier foreground attempt in the same directory)"
+  ],
+  "worker_stop": "see support/part2-worker-stop-receipt.json - no live workers found at stop scan; progress quiet since 20:49:46 +0800",
+  "frozen_used_source": {
+    "run_part2.py": "9864984e4dd92cb5ad504d65020bcfd5e54ed65d956b3c0506f857cb83d936c2",
+    "ngrams.py": "273547b0551f92eecc628d9bd15d8822e31c574c814839b64d10a71d0730543c",
+    "corpus.py": "b89cbe38471e14ab3eb1412476ff99f83d35d5a8c213c38b83a7fa6f868cb493"
+  },
+  "preserved_files": ["settings.json", "progress.log", "part2-results-as-written.json", "used-source-snapshot/"],
+  "known_defect_to_fix": "pooled_chi2_bigram pooled bins with expected < 5: rare bins E<5 were pooled but the pooled total itself could remain < 5 (observed p=0.1553 df=1208 vs root oracle p=0.150906749943 df=1207 - one invalid small pooled bin). Fix: merge the rare pool with the smallest adequate bin until ALL expected >= 5; if only one group remains the context contributes 0 statistic and 0 df."
+}

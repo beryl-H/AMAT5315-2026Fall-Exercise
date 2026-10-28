@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "scope": "independent pinned-input/schema/split/tokenizer audit; no formal model scores",
+  "checked_utc": "2026-10-28T12:14:59.854400+00:00",
+  "input_hashes": {
+    "model.safetensors": "f65d0f325faadc1e121c319e2faa41170d3fa07d8c89abd48ca5358d9a223de2",
+    "tokenizer.json": "e67e803f624fb4d67dea1c730d06e1067e1b14d830e2c2202569e3ef0f70bb50",
+    "TinyStoriesV2-GPT4-valid.txt": "6874bae9a4c1a4e7edcf0e53b86c17817e9cf881fc75ff2368da457b80c0585d",
+    "tok512.model": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5"
+  },
+  "embedding_tensors": {
+    "embeddings": {
+      "shape": [
+        29528,
+        256
+      ],
+      "dtype": "float32",
+      "finite": true
+    }
+  },
+  "embedding_tokenizer_model_type": "WordPiece",
+  "requested_embedding_words": 54,
+  "all_requested_single_row_words_present": true,
+  "raw_corpus_CR_bytes": 0,
+  "tokenizer": {
+    "vocab_size": 512,
+    "eos_id": 2,
+    "bos_id": 1,
+    "unk_id": 0
+  },
+  "splits": {
+    "train": {
+      "stories": 24867,
+      "unicode_chars": 19853989,
+      "tokens_including_between_story_eos": 9667034,
+      "scored_target_count_if_first_token_context": 9667033,
+      "chars_per_token": 2.053782887284766,
+      "uniform_bpc_for_Nminus1_targets": 4.382157006332581
+    },
+    "validation": {
+      "stories": 2763,
+      "unicode_chars": 2213915,
+      "tokens_including_between_story_eos": 1078995,
+      "scored_target_count_if_first_token_context": 1078994,
+      "chars_per_token": 2.051830638696194,
+      "uniform_bpc_for_Nminus1_targets": 4.386322871474289
+    }
+  },
+  "validation_roundtrip_mismatches": [
+    {
+      "validation_story_index": 50,
+      "original_sha256": "6713c8cf9d4760d698152528557f53df1de5e09ddb14994fa2e140f14faf0606",
+      "decoded_sha256": "18521144015dd475229debdf874b39fa64f739b92abbbc77925b38b4b63ce07f",
+      "original_chars": 894,
+      "decoded_chars": 893,
+      "only_double_space_collapse": true
+    },
+    {
+      "validation_story_index": 819,
+      "original_sha256": "cde7a925b0959b7ac0dfd49209a5d238a852d2b852dbc8a66b0c5b622b33e12b",
+      "decoded_sha256": "b409fd7b2d7538a5121f03c5dfdc092159af05b12ecf583073e2360a5e8ecba3",
+      "original_chars": 847,
+      "decoded_chars": 846,
+      "only_double_space_collapse": true
+    },
+    {
+      "validation_story_index": 2017,
+      "original_sha256": "058de0606ea1eac99b534c78e733dd35f67927e83097508b05d60b6831b61c10",
+      "decoded_sha256": "876c8ccdbba6df8850d0cfa52d392e77a69292775233af1b95c606e40be8a215",
+      "original_chars": 818,
+      "decoded_chars": 817,
+      "only_double_space_collapse": true
+    }
+  ],
+  "BOS_included": false,
+  "EOS_between_stories_only": true
+}

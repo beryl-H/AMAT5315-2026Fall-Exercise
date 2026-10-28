@@ -1,0 +1,271 @@
+{
+  "scope": "independent dense-P explicit enumeration and fixed-seed conditional sampler check",
+  "seed": 531501,
+  "generated_actual_tokens": 250000,
+  "normalization_sums": [
+    1.0,
+    1.0000000000000009,
+    1.0000000000000007
+  ],
+  "enumerated_sequence_counts": [
+    512,
+    262144,
+    134217728
+  ],
+  "sampler": {
+    "stat": 1257.762118760062,
+    "df": 1207,
+    "p_value": 0.1509067499432535,
+    "minimum_expected": 5.012400533537626,
+    "contexts": [
+      {
+        "context": 426,
+        "samples": 10417,
+        "bins": 23,
+        "minimum_expected": 8.603183500919368
+      },
+      {
+        "context": 411,
+        "samples": 6995,
+        "bins": 105,
+        "minimum_expected": 6.580134235432163
+      },
+      {
+        "context": 261,
+        "samples": 6539,
+        "bins": 60,
+        "minimum_expected": 5.314740188190492
+      },
+      {
+        "context": 432,
+        "samples": 5677,
+        "bins": 66,
+        "minimum_expected": 5.019502432111236
+      },
+      {
+        "context": 265,
+        "samples": 5603,
+        "bins": 49,
+        "minimum_expected": 5.061589404400816
+      },
+      {
+        "context": 412,
+        "samples": 5359,
+        "bins": 57,
+        "minimum_expected": 5.233983426025523
+      },
+      {
+        "context": 419,
+        "samples": 5139,
+        "bins": 93,
+        "minimum_expected": 5.197971146333393
+      },
+      {
+        "context": 267,
+        "samples": 4875,
+        "bins": 54,
+        "minimum_expected": 5.173699239578724
+      },
+      {
+        "context": 414,
+        "samples": 4663,
+        "bins": 83,
+        "minimum_expected": 5.4123215613746245
+      },
+      {
+        "context": 269,
+        "samples": 4591,
+        "bins": 63,
+        "minimum_expected": 5.580054410249327
+      },
+      {
+        "context": 421,
+        "samples": 4231,
+        "bins": 88,
+        "minimum_expected": 5.0175316902797436
+      },
+      {
+        "context": 410,
+        "samples": 4310,
+        "bins": 40,
+        "minimum_expected": 5.090962712889394
+      },
+      {
+        "context": 413,
+        "samples": 4112,
+        "bins": 87,
+        "minimum_expected": 5.40897629802977
+      },
+      {
+        "context": 266,
+        "samples": 3999,
+        "bins": 58,
+        "minimum_expected": 5.048103597990403
+      },
+      {
+        "context": 422,
+        "samples": 3946,
+        "bins": 74,
+        "minimum_expected": 5.180330143550719
+      },
+      {
+        "context": 262,
+        "samples": 3602,
+        "bins": 32,
+        "minimum_expected": 5.215092694125233
+      },
+      {
+        "context": 425,
+        "samples": 3394,
+        "bins": 36,
+        "minimum_expected": 5.556511749242774
+      },
+      {
+        "context": 416,
+        "samples": 2951,
+        "bins": 58,
+        "minimum_expected": 5.012400533537626
+      },
+      {
+        "context": 280,
+        "samples": 2965,
+        "bins": 27,
+        "minimum_expected": 5.235950757093297
+      },
+      {
+        "context": 276,
+        "samples": 3028,
+        "bins": 74,
+        "minimum_expected": 5.14148262477449
+      }
+    ]
+  },
+  "bad_two_lag_control": {
+    "stat": 12896225.776273416,
+    "df": 1211,
+    "p_value": 0.0,
+    "minimum_expected": 5.01016974932676,
+    "contexts": [
+      {
+        "context": 426,
+        "samples": 10310,
+        "bins": 23,
+        "minimum_expected": 8.514814427808263
+      },
+      {
+        "context": 411,
+        "samples": 7074,
+        "bins": 106,
+        "minimum_expected": 5.01016974932676
+      },
+      {
+        "context": 261,
+        "samples": 6642,
+        "bins": 61,
+        "minimum_expected": 5.059438987288017
+      },
+      {
+        "context": 432,
+        "samples": 5556,
+        "bins": 65,
+        "minimum_expected": 5.475379570707684
+      },
+      {
+        "context": 265,
+        "samples": 5656,
+        "bins": 49,
+        "minimum_expected": 5.109468083400145
+      },
+      {
+        "context": 412,
+        "samples": 5227,
+        "bins": 57,
+        "minimum_expected": 5.105062766903416
+      },
+      {
+        "context": 419,
+        "samples": 5300,
+        "bins": 94,
+        "minimum_expected": 5.051555525472097
+      },
+      {
+        "context": 267,
+        "samples": 4941,
+        "bins": 54,
+        "minimum_expected": 5.243743167745328
+      },
+      {
+        "context": 414,
+        "samples": 4588,
+        "bins": 83,
+        "minimum_expected": 5.325269423887364
+      },
+      {
+        "context": 269,
+        "samples": 4664,
+        "bins": 63,
+        "minimum_expected": 5.668781043215609
+      },
+      {
+        "context": 421,
+        "samples": 4355,
+        "bins": 89,
+        "minimum_expected": 5.085537255484677
+      },
+      {
+        "context": 410,
+        "samples": 4334,
+        "bins": 40,
+        "minimum_expected": 5.119311461174624
+      },
+      {
+        "context": 413,
+        "samples": 4131,
+        "bins": 87,
+        "minimum_expected": 5.4339691359827285
+      },
+      {
+        "context": 266,
+        "samples": 4104,
+        "bins": 58,
+        "minimum_expected": 5.180649453901629
+      },
+      {
+        "context": 422,
+        "samples": 3897,
+        "bins": 74,
+        "minimum_expected": 5.1160026785142305
+      },
+      {
+        "context": 262,
+        "samples": 3586,
+        "bins": 32,
+        "minimum_expected": 5.191927373995859
+      },
+      {
+        "context": 425,
+        "samples": 3292,
+        "bins": 36,
+        "minimum_expected": 5.389521708458224
+      },
+      {
+        "context": 416,
+        "samples": 3104,
+        "bins": 59,
+        "minimum_expected": 5.060337410997403
+      },
+      {
+        "context": 280,
+        "samples": 3037,
+        "bins": 27,
+        "minimum_expected": 5.363096947484777
+      },
+      {
+        "context": 276,
+        "samples": 3015,
+        "bins": 74,
+        "minimum_expected": 5.119408888274467
+      }
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "status": "GATE_NOT_MET",
+  "capacities": {
+    "16": {
+      "outer": 20.009493068152988,
+      "ls": 31.98853236788349,
+      "relu1": 38.82350316919731,
+      "relu2": 213.98770924785694,
+      "relu3": 805.6237878001632
+    },
+    "32": {
+      "outer": 34.93582294359353,
+      "ls": 65.3561026703494,
+      "relu1": 68.17557552396921,
+      "relu2": 722.3852996337881,
+      "relu3": 5407.739416490601
+    },
+    "64": {
+      "outer": 66.95665553744084,
+      "ls": 128.7528125982897,
+      "relu1": 139.89841486992663,
+      "relu2": 2947.6220302738075,
+      "relu3": 39085.331878078636
+    }
+  },
+  "capacity_slopes": {
+    "outer": 0.8712714249504045,
+    "ls": 1.004488619960474,
+    "relu1": 0.9246887039933849,
+    "relu2": 1.8919758504714623,
+    "relu3": 2.8001885974982472
+  },
+  "LS_max_median_R_d64_Mle64": 9.561850776513721e-15,
+  "mandatory_gates": {
+    "outer_d64_capacity_50_85": true,
+    "LS_d64_capacity_100_170": true,
+    "LS_d64_R_below_1e-10_up_to64": true,
+    "outer_capacity_slope_09_11": false,
+    "ls_capacity_slope_09_11": true,
+    "relu1_capacity_slope_09_11": true,
+    "relu2_capacity_slope_185_215": true,
+    "relu3_capacity_slope_gt25": true
+  },
+  "independent_small_case_checks": [
+    {
+      "d": 16,
+      "M": 16,
+      "seed": 101,
+      "independent_median": 1.048552906348855,
+      "saved_median": 1.048552906348855
+    },
+    {
+      "d": 16,
+      "M": 16,
+      "seed": 102,
+      "independent_median": 0.8671177826240188,
+      "saved_median": 0.8671177826240188
+    },
+    {
+      "d": 16,
+      "M": 16,
+      "seed": 103,
+      "independent_median": 0.8654564070449673,
+      "saved_median": 0.8654564070449672
+    },
+    {
+      "d": 16,
+      "M": 32,
+      "seed": 101,
+      "independent_median": 1.3857566973337576,
+      "saved_median": 1.3857566973337576
+    },
+    {
+      "d": 16,
+      "M": 32,
+      "seed": 102,
+      "independent_median": 1.3490154540224537,
+      "saved_median": 1.3490154540224537
+    },
+    {
+      "d": 16,
+      "M": 32,
+      "seed": 103,
+      "independent_median": 1.2922876775601901,
+      "saved_median": 1.2922876775601901
+    },
+    {
+      "d": 32,
+      "M": 32,
+      "seed": 101,
+      "independent_median": 1.0123440692209975,
+      "saved_median": 1.012344069220998
+    },
+    {
+      "d": 32,
+      "M": 32,
+      "seed": 102,
+      "independent_median": 0.9240546516817549,
+      "saved_median": 0.9240546516817549
+    },
+    {
+      "d": 32,
+      "M": 32,
+      "seed": 103,
+      "independent_median": 0.9535321060552204,
+      "saved_median": 0.9535321060552205
+    },
+    {
+      "d": 32,
+      "M": 64,
+      "seed": 101,
+      "independent_median": 1.316770886726999,
+      "saved_median": 1.316770886726999
+    },
+    {
+      "d": 32,
+      "M": 64,
+      "seed": 102,
+      "independent_median": 1.3884109789820405,
+      "saved_median": 1.3884109789820407
+    },
+    {
+      "d": 32,
+      "M": 64,
+      "seed": 103,
+      "independent_median": 1.4860556800684792,
+      "saved_median": 1.4860556800684792
+    },
+    {
+      "d": 64,
+      "M": 64,
+      "seed": 101,
+      "independent_median": 0.9678959676878371,
+      "saved_median": 0.9678959676878371
+    },
+    {
+      "d": 64,
+      "M": 64,
+      "seed": 102,
+      "independent_median": 0.9844890785614446,
+      "saved_median": 0.9844890785614447
+    },
+    {
+      "d": 64,
+      "M": 64,
+      "seed": 103,
+      "independent_median": 0.9766534285898967,
+      "saved_median": 0.9766534285898967
+    },
+    {
+      "d": 64,
+      "M": 128,
+      "seed": 101,
+      "independent_median": 1.3942342369745944,
+      "saved_median": 1.3942342369745946
+    },
+    {
+      "d": 64,
+      "M": 128,
+      "seed": 102,
+      "independent_median": 1.4196904988013799,
+      "saved_median": 1.4196904988013799
+    },
+    {
+      "d": 64,
+      "M": 128,
+      "seed": 103,
+      "independent_median": 1.4034676762661467,
+      "saved_median": 1.4034676762661467
+    }
+  ],
+  "outer_drawwise_diagnostic": {
+    "101": {
+      "capacities": [
+        14.433630397956659,
+        31.21198612646486,
+        68.09160203325736
+      ],
+      "slope": 1.1190213297587008
+    },
+    "102": {
+      "capacities": [
+        20.009493068152988,
+        36.60567467431723,
+        65.92269657193866
+      ],
+      "slope": 0.8600453198024723
+    },
+    "103": {
+      "capacities": [
+        20.54084509651969,
+        34.46924278307208,
+        66.95665553744084
+      ],
+      "slope": 0.8523659644801463
+    }
+  },
+  "finding": "Outer capacity slope is the measured median-of-three result. Independent direct interference sums agree on 18 small cases; no implementation error demonstrated by this diagnostic. Sampling variability is a hypothesis, not a proven cause. Original fixed seeds, gate and all 630 outcomes retained.",
+  "training_repeated": false
+}

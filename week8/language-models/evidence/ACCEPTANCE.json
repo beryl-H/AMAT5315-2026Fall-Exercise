@@ -1,0 +1,37 @@
+{
+  "worksheet_sha256": "4e33bea929459c01511efc0298308a93d08d99ee7df38372bbf52e89be69cc35",
+  "worksheet_pages": 24,
+  "glyph": "算",
+  "execution_status": "ALL_REQUIRED_PARTS_EXECUTED",
+  "scientific_acceptance": "ONE_REQUIRED_GATE_NOT_MET",
+  "parts": {
+    "1": "PASS",
+    "2": "PASS (exclusive formal-02)",
+    "3_memory": "7/8 declared gates PASS; outer capacity slope FAIL",
+    "3_mlp": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS"
+  },
+  "remaining_failed_gate": {
+    "name": "outer capacity slope vsd",
+    "actual": 0.8712714249504045,
+    "required_interval": [
+      0.9,
+      1.1
+    ],
+    "seeds": [
+      101,
+      102,
+      103
+    ],
+    "changed_to_pass": false
+  },
+  "formal_neural_runs": {
+    "mlp": 1,
+    "transformer": 1
+  },
+  "tests_passed": 95,
+  "old_files_unchanged": 876,
+  "checked_utc": "2026-10-28T14:04:50.770495+00:00"
+}

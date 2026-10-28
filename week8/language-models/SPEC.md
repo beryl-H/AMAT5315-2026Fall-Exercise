@@ -363,3 +363,7 @@ interval.
 Failure policy: any unsupported glyph, OOV pair, schema error, hash mismatch,
 or failed gate is reported with its actual measured value. Nothing is marked
 passed without a number behind it.
+
+## Execution addendum (2026-10-28)
+
+The bounded preflight phase above was followed by the user-authorized complete execution. All scientific gates, seeds, budgets and model settings above remain fixed. Final uv-selected runtime was Python3.11.17 (within pyproject>=3.11,<3.13), with unchanged pinned numerical-library versions; actual runtime/source hashes are inCONTROL_TRAINING_READY.json. Pi task07 hit the provider quota after implementing reviewed corrections. The coordinator repaired unfinished test indentation only, independently verified existing Pi code, and dispatched/audited it locally. No alternate provider/model was used. The measured outer capacity slope remains a failed gate; no criterion was relaxed.

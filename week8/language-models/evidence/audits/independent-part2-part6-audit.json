@@ -1,0 +1,21 @@
+{
+  "part2": "PASS",
+  "all6_losses_match_independent_oracle_at_1e-12": true,
+  "probability_matrix_and_both_raw_samples_bitwise_match": true,
+  "chi2_df": 1207,
+  "p_value": 0.1509067499432535,
+  "validation_targets": 1078995,
+  "all_mandatory_gates": true,
+  "part6": {
+    "independent_objective": 4.242808407502509,
+    "mean_log_residual": -0.0006564333371968911,
+    "optimum_ratio": 17.921012028446505,
+    "bootstrap_95pct": [
+      7.888072316124188,
+      34.10784967512693
+    ],
+    "all643_fit_statuses_success": true,
+    "termination": "relative objective reduction; best projected gradient infinity 2.25e-6, NOT gtol 1e-12 reached",
+    "gate_status": "PASS"
+  }
+}

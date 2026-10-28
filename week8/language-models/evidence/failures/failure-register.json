@@ -1,0 +1,19 @@
+{
+  "old_worksheet": "Original 12-page worksheet failures and results retained at baseline24a860b; not reinterpreted as results of this new24-page task.",
+  "part2_custody": "formal-01 INVALIDATED_MULTIPLE_WRITERS, raw files/source snapshots retained; corrected exclusive formal-02 is the cited attempt.",
+  "pooled_chi2": "Rare expected-count pool could remain below5; fixed before cited run, independent exact sampler p=.150906749943.",
+  "NN_review_before_formal": [
+    "Detached MLP forward caused zero gradients; Pi fixed forward inside differentiation before formal.",
+    "List checkpoints produced object arrays; fixed portable dict/list NPZ roundtrip.",
+    "MLP full scoring selected only last window tokens; fixed all-target scoring.",
+    "Missing midpoint-save call and partial-metric unit error fixed before formal.",
+    "Root mechanically indented Pi unfinished f64 test scopes after provider quota error, retaining original and every assertion."
+  ],
+  "provider": "Volcengine stopped withAccountQuotaExceeded, reported reset2026-10-29T00:15:05+08:00; process exit0 was not accepted as model success; no MiniMax or provider fallback used. Existing Pi-authored code was independently tested/executed locally.",
+  "remaining_failed_gate": "Outer capacity slope .8712714249504045 outside [.9,1.1]. 18direct small-case interference checks agree; no demonstrated implementation error. Sampling variation remains a hypothesis. No new seeds/extra draws/gate changes.",
+  "other_operational_failures": [
+    "First Chinchilla WSLcurl download exited55; Windows retrieval hash/provenance retained.",
+    "Coordinator initial pytest invoked fromwrongcwd; data-relative lookup failed, correctedcwdfull95tests passed.",
+    "Initial final-plot script expected glyph-mask.npy; actual bitmap in glyph.json, corrected read and retained original plots."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "LS_d1_M2_identical_positive_values": {
+    "correct_own_contribution_R": 1.0000000000000002,
+    "incorrect_naive_subtraction_R": 3.3306690738754696e-16
+  },
+  "picture_1024_pixels_ownweight2": {
+    "correct_R": 0.5,
+    "incorrect_scalar_denominator_R": 16.0
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "status": "RELEASED_AFTER_INDEPENDENT_REVIEW",
+  "actor": "Pi Volcengine authored NN models, samplers and driver; Codex coordinator repaired only test indentation, independently checked data, architecture, tests, gradient/state updates and CLI-equivalent smoke execution",
+  "provider_state": "Volcengine quota exhausted after task07; no provider switched",
+  "fresh_test_count": 95,
+  "formal_updates": {
+    "mlp": 4000,
+    "transformer": 6000
+  },
+  "init_seed": 0,
+  "data_key_seed": 1,
+  "source_hashes": {
+    "nn_common.py": "da9ef763cab906eef2a14e7696b6c7b7ed30708850c2d500442822076f6802ae",
+    "mlp_model.py": "4752ab02216b1b17303762a9586a16ce0aa700a74a5626f476aefddeac5b3f04",
+    "transformer_model.py": "97eea36d89e9ec40d5b0d4093a9425b102a615c7154962092847a836a47a7b3a",
+    "train_driver.py": "ffd7c256ebbed8780005915cb44ad0d6c800c3ad631012f7957c4dd4ed45f1c0",
+    "train_models.py": "9706052ef198c4cbb37ef1215179e2460ce804ea7c9eb4f18ec9423ccf19d910"
+  },
+  "smokes": {
+    "mlp": {
+      "model": "mlp",
+      "attempt": "controller-smoke-01",
+      "n_updates": 5,
+      "completed": true,
+      "reload_bitwise_ok": true,
+      "final_state_finite": true,
+      "all_leaves_float32": true,
+      "optimizer_leaves_float32": true,
+      "final_step": 5,
+      "sec_per_update_post_compile": 0.049,
+      "receipt_utc": "2026-10-28T13:50:08Z",
+      "full_score": "separate postprocessing (final-score.json)",
+      "all_gradient_norms_positive": true,
+      "params_and_optimizer_changed": true,
+      "first_loss": 6.238332271575928,
+      "last_loss": 6.237460136413574,
+      "path": "artifacts/part3/mlp-controller-smoke-01"
+    },
+    "transformer": {
+      "model": "transformer",
+      "attempt": "controller-smoke-01",
+      "n_updates": 10,
+      "completed": true,
+      "reload_bitwise_ok": true,
+      "final_state_finite": true,
+      "all_leaves_float32": true,
+      "optimizer_leaves_float32": true,
+      "final_step": 10,
+      "sec_per_update_post_compile": 0.073,
+      "receipt_utc": "2026-10-28T13:50:11Z",
+      "full_score": "separate postprocessing (final-score.json)",
+      "all_gradient_norms_positive": true,
+      "params_and_optimizer_changed": true,
+      "first_loss": 6.252354621887207,
+      "last_loss": 6.159687042236328,
+      "path": "artifacts/part5/controller-smoke-01"
+    }
+  },
+  "released_utc": "2026-10-28T13:50:12.019720+00:00",
+  "runtime": {
+    "python": "3.11.17 (main, Oct  9 2026, 15:21:28) [Clang 22.1.3 ]",
+    "jax": "0.6.2",
+    "numpy": "2.2.6",
+    "jax_enable_x64": false,
+    "cpu_affinity": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "source_frozen": true
+}

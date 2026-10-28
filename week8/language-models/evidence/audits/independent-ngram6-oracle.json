@@ -1,0 +1,98 @@
+{
+  "status": "PASS",
+  "scope": "all six orders; independent packed count calculation, no primary source imports",
+  "models": {
+    "1": {
+      "selected_k": 0.0001,
+      "tuning_losses": [
+        4.836183503469736,
+        4.8361835302445115,
+        4.836183798052613,
+        4.8361864819968625,
+        4.836213782070416
+      ],
+      "nats_per_token": 4.839399030993707,
+      "bits_per_character": 3.4027062717680954,
+      "perplexity": 126.39337040297721,
+      "unseen_fraction": 0.0,
+      "targets_scored": 1078995
+    },
+    "2": {
+      "selected_k": 0.01,
+      "tuning_losses": [
+        3.0358751180922283,
+        3.0352389361074117,
+        3.0347017717967746,
+        3.035078499636913,
+        3.0439932854148966
+      ],
+      "nats_per_token": 3.038191771052508,
+      "bits_per_character": 2.136230992316374,
+      "perplexity": 20.867475925382664,
+      "unseen_fraction": 0.00026506146923757753,
+      "targets_scored": 1078995
+    },
+    "3": {
+      "selected_k": 0.01,
+      "tuning_losses": [
+        2.1146689167071093,
+        2.1004869089242915,
+        2.0918457152455514,
+        2.1202539081075824,
+        2.3295701300089493
+      ],
+      "nats_per_token": 2.0943404017522624,
+      "bits_per_character": 1.4725847516641788,
+      "perplexity": 8.120083210765202,
+      "unseen_fraction": 0.006329037669312647,
+      "targets_scored": 1078995
+    },
+    "4": {
+      "selected_k": 0.01,
+      "tuning_losses": [
+        1.9719387206383436,
+        1.8957622604365654,
+        1.8679358190922122,
+        2.0359147930689434,
+        2.6817451615499803
+      ],
+      "nats_per_token": 1.862754323955017,
+      "bits_per_character": 1.3097506075218943,
+      "perplexity": 6.441454212084197,
+      "unseen_fraction": 0.04151085037465419,
+      "targets_scored": 1078995
+    },
+    "5": {
+      "selected_k": 0.01,
+      "tuning_losses": [
+        2.2875151552511634,
+        2.1244321462052773,
+        2.1001125785359753,
+        2.466226665115006,
+        3.40367388171217
+      ],
+      "nats_per_token": 2.082535004940124,
+      "bits_per_character": 1.464284072692243,
+      "perplexity": 8.024786023643209,
+      "unseen_fraction": 0.12224616425469997,
+      "targets_scored": 1078995
+    },
+    "6": {
+      "selected_k": 0.001,
+      "tuning_losses": [
+        2.797392127057939,
+        2.5817840871261786,
+        2.5882647177607585,
+        3.0880168822066563,
+        4.094525212507386
+      ],
+      "nats_per_token": 2.5503980670551534,
+      "bits_per_character": 1.7932506583347045,
+      "perplexity": 12.81220288357555,
+      "unseen_fraction": 0.23499460145783807,
+      "targets_scored": 1078995
+    }
+  },
+  "validation_targets": 1078995,
+  "independent_dense_oracle_1to3_agreement": true
+}

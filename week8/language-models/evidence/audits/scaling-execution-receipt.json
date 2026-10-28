@@ -1,0 +1,115 @@
+{
+  "best": {
+    "start_index": 25,
+    "start_theta": [
+      0.4054651081081644,
+      2.302585092994046,
+      9.210340371976184,
+      0.45,
+      0.35
+    ],
+    "end_theta": [
+      0.597306814794127,
+      6.169246375357424,
+      7.670156733770394,
+      0.347310498980881,
+      0.36717243266024074
+    ],
+    "params": {
+      "E": 1.8172180992040867,
+      "A": 477.82586901479226,
+      "B": 2143.417364807216,
+      "alpha": 0.347310498980881,
+      "beta": 0.36717243266024074
+    },
+    "fun": 4.242808407502489,
+    "success": true,
+    "status": 0,
+    "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "nit": 218,
+    "nfev": 329,
+    "gradient": [
+      4.2620096091672976e-07,
+      8.414944043588664e-08,
+      9.894136009171827e-08,
+      -1.7237969515346287e-06,
+      -2.2549872559507467e-06
+    ],
+    "raw_gradient_L2": 2.873144833587262e-06,
+    "projected_gradient_infinity": 2.2549872559507467e-06
+  },
+  "successful_starts": 243,
+  "best_overall_status": {
+    "start_index": 25,
+    "start_theta": [
+      0.4054651081081644,
+      2.302585092994046,
+      9.210340371976184,
+      0.45,
+      0.35
+    ],
+    "end_theta": [
+      0.597306814794127,
+      6.169246375357424,
+      7.670156733770394,
+      0.347310498980881,
+      0.36717243266024074
+    ],
+    "params": {
+      "E": 1.8172180992040867,
+      "A": 477.82586901479226,
+      "B": 2143.417364807216,
+      "alpha": 0.347310498980881,
+      "beta": 0.36717243266024074
+    },
+    "fun": 4.242808407502489,
+    "success": true,
+    "status": 0,
+    "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "nit": 218,
+    "nfev": 329,
+    "gradient": [
+      4.2620096091672976e-07,
+      8.414944043588664e-08,
+      9.894136009171827e-08,
+      -1.7237969515346287e-06,
+      -2.2549872559507467e-06
+    ],
+    "raw_gradient_L2": 2.873144833587262e-06,
+    "projected_gradient_infinity": 2.2549872559507467e-06
+  },
+  "mean_log_residual_own": -0.0006564333371968466,
+  "mean_log_residual_printed": 0.01674190621106251,
+  "optimal_at_C5.76e23": {
+    "N": 73190438792.55988,
+    "D": 1311646733968.7422,
+    "D_over_N": 17.92101202844649
+  },
+  "elapsed_fit_seconds": 7.84313178062439,
+  "parameter_std_ddof1": {
+    "E": 0.02365085863772613,
+    "A": 118.00438289132006,
+    "B": 1306.2645200614222,
+    "alpha": 0.014840645760080876,
+    "beta": 0.019549549836535823
+  },
+  "optimal_ratio_bootstrap_95pct": [
+    7.8880723161242345,
+    34.107849675127135
+  ],
+  "bootstrap_failures": [],
+  "bootstrap_count": 400,
+  "mandatory_gates": {
+    "alpha_032_038": true,
+    "beta_032_042": true,
+    "E_175_190": true,
+    "own_mean_residual_abs_le_0005": true,
+    "printed_mean_gt_001": true,
+    "optimal_ratio_10_30": true,
+    "all_bootstrap_optimizer_success": true,
+    "compute_identity": true
+  },
+  "elapsed_seconds": 18.822122812271118,
+  "source_unchanged": true,
+  "finished_utc": "2026-10-28T13:21:55.429451+00:00"
+}

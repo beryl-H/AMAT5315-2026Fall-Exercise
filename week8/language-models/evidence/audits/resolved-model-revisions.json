@@ -1,0 +1,16 @@
+[
+  {
+    "repo": "minishlab/potion-base-8M",
+    "requested_revision": "bf8b056",
+    "resolved_commit": "bf8b056651a2c21b8d2565580b8569da283cab23",
+    "url": "https://huggingface.co/api/models/minishlab/potion-base-8M/revision/bf8b056",
+    "retrieval": "Windows Python public metadata API"
+  },
+  {
+    "repo": "karpathy/tinyllamas",
+    "requested_revision": "0bd21da",
+    "resolved_commit": "0bd21da7698eaf29a0d7de3992de8a46ef624add",
+    "url": "https://huggingface.co/api/models/karpathy/tinyllamas/revision/0bd21da",
+    "retrieval": "Windows Python public metadata API"
+  }
+]

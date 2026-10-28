@@ -1,0 +1,28 @@
+{
+  "provider": "volcengine-plan",
+  "model": "glm-5-3-flash",
+  "phase": "pi-task-07",
+  "status": "PROVIDER_QUOTA_EXHAUSTED",
+  "reported_reset_local": "2026-10-29 00:15:05 +0800",
+  "process_exit_code": 0,
+  "success": false,
+  "provider_attempt_errors": [
+    {
+      "stopReason": "error",
+      "errorMessage": "429: {\"code\":\"AccountQuotaExceeded\",\"message\":\"You have exceeded the 5-hour usage quota. It will reset at 2026-10-29 00:15:05 +0800 CST. We recommend upgrading your plan for more quota, or waiting for the reset. Request id: 021793194800179faae7fb2907d9df6cb16d7e62d67e7fdbb529e\",\"param\":\"\",\"type\":\"TooManyRequests\"}"
+    },
+    {
+      "stopReason": "error",
+      "errorMessage": "429: {\"code\":\"AccountQuotaExceeded\",\"message\":\"You have exceeded the 5-hour usage quota. It will reset at 2026-10-29 00:15:05 +0800 CST. We recommend upgrading your plan for more quota, or waiting for the reset. Request id: 021793194802431faae7fb2907d9df6cb16d7e62d67e7fd62ffc4\",\"param\":\"\",\"type\":\"TooManyRequests\"}"
+    },
+    {
+      "stopReason": "error",
+      "errorMessage": "429: {\"code\":\"AccountQuotaExceeded\",\"message\":\"You have exceeded the 5-hour usage quota. It will reset at 2026-10-29 00:15:05 +0800 CST. We recommend upgrading your plan for more quota, or waiting for the reset. Request id: 021793194806968e9cb6370e1c023d3432663e680fc5c29d2ada1\",\"param\":\"\",\"type\":\"TooManyRequests\"}"
+    },
+    {
+      "stopReason": "error",
+      "errorMessage": "429: {\"code\":\"AccountQuotaExceeded\",\"message\":\"You have exceeded the 5-hour usage quota. It will reset at 2026-10-29 00:15:05 +0800 CST. We recommend upgrading your plan for more quota, or waiting for the reset. Request id: 021793194816187c307614e525f20fb46bf280deeb3243d91fb75\",\"param\":\"\",\"type\":\"TooManyRequests\"}"
+    }
+  ],
+  "action": "No silent provider change; pending explicit human choice; no formal neural training started."
+}

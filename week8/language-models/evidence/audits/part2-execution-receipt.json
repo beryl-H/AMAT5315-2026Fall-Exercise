@@ -1,0 +1,28 @@
+{
+  "actor": "Codex sole dispatch; Pi-authored model/driver",
+  "command": [
+    "env",
+    "OPENBLAS_NUM_THREADS=1",
+    "/home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models/.venv/bin/python",
+    "src/run_part2.py",
+    "--attempt",
+    "formal-02"
+  ],
+  "pid": 6172,
+  "started_utc": "2026-10-28T13:00:52.188185+00:00",
+  "source_hashes": {
+    "src/corpus.py": "b89cbe38471e14ab3eb1412476ff99f83d35d5a8c213c38b83a7fa6f868cb493",
+    "src/ngrams.py": "491ec82a3016b6f5aa11ff71ba40055b2b81c37a555d21703eb9e9b1099f7ea4",
+    "src/run_part2.py": "a8210516710432e48fd60960f34845eb4f064d791ef63b65b67b4bde922fc719",
+    "tests/test_ngrams.py": "1f31ffd3f6f3660ee06b1159da508f0b8e6885743909c21ec9d5a8218942d45c",
+    "tests/test_pooled_chi2.py": "f22462689bf5c45b89a48a16676e9464a992315e4a8083f13fa81a76858c81fe",
+    "tests/test_part2_driver.py": "94578b6e219419cf186bd38204d7711e334453733f738751337cbf4e89174fc8",
+    "tests/test_corpus_boundaries.py": "8b878db6e19e45bdab7cfd9863d1577b714c4b3f3b6d577faaf460d691ede2b8"
+  },
+  "attempt": "formal-02",
+  "previous_attempt": "formal-01 INVALIDATED_MULTIPLE_WRITERS, all files retained",
+  "exit_code": 0,
+  "elapsed_seconds": 176.51473426818848,
+  "finished_utc": "2026-10-28T13:03:48.698983+00:00",
+  "source_hashes_still_match": true
+}

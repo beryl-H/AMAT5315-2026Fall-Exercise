@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "scope": "independent n1-n3 count oracle; source of truth raw pinned files, no primary source imports",
+  "leading_EOS": "one context sentinel, not a target",
+  "target_count": 1078995,
+  "validation_unicode_chars": 2213915,
+  "uniform_nats": 6.238324625039508,
+  "uniform_bpc": 4.3863269366710105,
+  "models": {
+    "1": {
+      "k": 0.0001,
+      "tuning_losses": {
+        "0.0001": 4.836183503469736,
+        "0.001": 4.8361835302445115,
+        "0.01": 4.836183798052613,
+        "0.1": 4.8361864819968625,
+        "1.0": 4.836213782070416
+      },
+      "nats_per_token": 4.839399030993707,
+      "perplexity": 126.39337040297721,
+      "bits_per_character": 3.4027062717680954,
+      "unseen_fraction": 0.0
+    },
+    "2": {
+      "k": 0.01,
+      "tuning_losses": {
+        "0.0001": 3.0358751180922283,
+        "0.001": 3.0352389361074117,
+        "0.01": 3.0347017717967746,
+        "0.1": 3.035078499636913,
+        "1.0": 3.0439932854148966
+      },
+      "nats_per_token": 3.038191771052508,
+      "perplexity": 20.867475925382664,
+      "bits_per_character": 2.136230992316374,
+      "unseen_fraction": 0.00026506146923757753
+    },
+    "3": {
+      "k": 0.01,
+      "tuning_losses": {
+        "0.0001": 2.1146689167071093,
+        "0.001": 2.1004869089242915,
+        "0.01": 2.0918457152455514,
+        "0.1": 2.1202539081075824,
+        "1.0": 2.3295701300089493
+      },
+      "nats_per_token": 2.0943404017522624,
+      "perplexity": 8.120083210765202,
+      "bits_per_character": 1.4725847516641788,
+      "unseen_fraction": 0.006329037669312647
+    }
+  },
+  "calibration_train_target_count": 8700330,
+  "calibration_tail_target_count": 966704
+}

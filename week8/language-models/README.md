@@ -1,69 +1,142 @@
-# Week 8 (revised): Language models and the transformer
+# Week8 revised: Language models and the transformer
 
-Six-part worksheet from the revised 24-page learning sheet (snapshot SHA256
-`4e33bea929459c01511efc0298308a93d08d99ee7df38372bbf52e89be69cc35`). Correctness
-contract: `SPEC.md`; phase plan: `PLAN.md`; live status: `TASK_STATUS.md`.
+All six required parts were executed against the updated24-page worksheet. **One scientific gate remains unmet:** the outer-product capacity slope is0.87127, outside0.9–1.1. This is reported as a failure; seeds and thresholds were not changed. All other declared gates passed. See [acceptance](evidence/ACCEPTANCE.json), [delivery report](DELIVERY_REPORT.md), [Chinese learning guide](LEARNING_GUIDE_ZH.md), and [fixed-seed stories](SAMPLES.md).
 
-Environment: Python 3.12 (uv), numpy 2.2.6, JAX 0.6.2 CPU, matplotlib 3.10.3,
-sentencepiece 0.2.2, safetensors 0.8.0, scipy 1.17.1.
+Authoritative worksheet SHA256: `4e33bea929459c01511efc0298308a93d08d99ee7df38372bbf52e89be69cc35`. The user selected **算 (U+7B97)**. This task lives in its own subdirectory; all876 pre-existing tracked files at24a860b remain byte-identical.
+
+## Measured results
+
+| Part | Result | Status |
+|---|---|---|
+|1 relations|LOO means0.466 /0.549 /0.433; shuffled+0.029 /−0.015 /+0.009|PASS|
+|2 n-grams|best4-gram1.309751 bpc; explicit512³ enumeration; sampler p=.150907|PASS|
+|3 memory|d64 capacities outer66.96,LS128.75; outer slope.87127|One gate FAIL|
+|3 MLP|3.044388 nats/token; bigram difference+.006196;4000 updates|PASS|
+|4 picture|all320 ratios independently reproduced; softmax R(4096)median.05508|PASS|
+|5 Transformer|1.207246 bpc;6000 updates; causality/sampler/entropy checks pass|PASS|
+|6 scaling|α=.34731,β=.36717,E=1.81722;D*/N*=17.92 [7.89,34.11]|PASS|
+
+Every language model scores exactly1,078,995 actual validation targets; every bpc uses2,213,915 original Unicode characters. The initial EOS is context only. BPE merges common character/byte sequences into512 token IDs; this differs from the pretrained WordPiece embedding vocabulary of29,528 rows. All4 pinned input URLs, hashes, schemas and split conventions are in [INPUTS](INPUTS.md) and [SPEC](SPEC.md). The corpus URL is
+`https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/TinyStoriesV2-GPT4-valid.txt`.
+
+The recalled picture is the fixed32x32 glyph among random±1 pictures. Its norm is32; ISR divides interference by the own-weight contribution, including that norm. The final image corrects a transposed earlier plot and removes its upper dot-area clipping. Numeric outcomes are unchanged; old images remain.
+
+The Chinchilla fit uses only the240 filtered published runs, log-Huberδ=.001,243 starts and400 fixed resamples. The refit mean log residual is−.000656; printed parameters give+.016742. Optimizer exits were by relative function reduction; the best projected gradient infinity norm was2.25e-6, not1e-12. This fit is separate from our TinyStories models and the historical worksheet.
+
+## Runtime and verification
+
+Native WSL Pi (`volcengine-plan/glm-5-3-flash`) authored the core models, drivers and test suites. Codex coordinated, identified defects, mechanically completed test indentation after a quota interruption, executed the formal jobs once, and wrote the independent audit/rendering tools. No MiniMax/provider fallback was used. Pi task07 ended in an explicit quota error; its exit0 was not treated as success. Already-created code was verified locally, without further provider inference.
+
+Final audited runtime: Python3.11.17, JAX/JAXlib0.6.2 CPU, NumPy2.2.6, SciPy1.17.1, Matplotlib3.10.3, SentencePiece0.2.2. Versions pinned byuv.lock; pyproject permits Python3.11–3.12. No PyTorch/cloud model training.
 
 ```bash
-uv sync
-uv run pytest tests/ -q
+cd week8/language-models
+uv sync --frozen
+JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest tests -q
 ```
 
-Pinned inputs (full provenance in `data/MANIFEST.md`; files git-ignored):
+Independent final review:95 tests passed, plus full-data numeric/statistical checks. A test pass is distinct from a worksheet scientific gate: the outer slope still fails.
 
-- `minishlab/potion-base-8M` @ `bf8b056` — `model.safetensors`, `tokenizer.json`
-- `roneneldan/TinyStories` @ `f54c09fd23315a6f9c86f9dc80f725de7d8f9c64` —
-  `TinyStoriesV2-GPT4-valid.txt`
-- `karpathy/tinyllamas` @ `0bd21da` — `stories260K/tok512.model`
-- `epoch-research/analyzing-chinchilla` @ `92258837425e1b5f2851d624287f0120583a3d0e`
-  — `data/svg_extracted_data.csv`
+## Producing commands
 
-Raw runs and checkpoints live in git-ignored `artifacts/`; evidence figures and
-result JSON are committed under `evidence/`.
+Commands document the original named runs. Attempts are exclusive and existing attempts cannot be overwritten. Use a fresh attempt name for an intentional new run. Raw artifacts/checkpoints are local and ignored byGit; plotting/auditing requires those saved artifacts, not merely the public figures.
 
-## Parts
+```bash
+.venv/bin/python src/run_part1.py
+.venv/bin/python src/run_part2.py --attempt formal-02
+OPENBLAS_NUM_THREADS=8 .venv/bin/python tools/run_memory_formal.py --attempt memory-formal-01
+JAX_PLATFORMS=cpu .venv/bin/python src/train_models.py --model mlp --attempt formal-01
+.venv/bin/python src/run_part4.py --attempt formal-01
+JAX_PLATFORMS=cpu .venv/bin/python src/train_models.py --model transformer --attempt formal-01
+OPENBLAS_NUM_THREADS=1 .venv/bin/python tools/run_scaling_formal.py --attempt formal-01
+```
 
-| Part | topic | status |
+The original exact controller dispatch receipts/source snapshots and all raw outcomes remain locally; portable orchestration wrappers reproduce the same frozen kernels. The unused older convenience bootstrap helper in`src/scaling.py` is not the canonical entry: the formal wrapper calls`fit_once` exactly once per fixed resample and saves every status/end parameter. No failed bootstrap was retried (all400 converged).
+
+## Evidence figures and their producing commands
+
+### All27 relation pairs; equal-aspect angles and fixed shuffle.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![All27 relation pairs; equal-aspect angles and fixed shuffle.](evidence/part1-relations-final.png)
+
+### Count-model loss and unseen fractions; cited formal-02.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Count-model loss and unseen fractions; cited formal-02.](evidence/part2-count-ladder-final.png)
+
+### 630 all-query cases; outer capacity slope FAIL retained.
+
+Producing command: `.venv/bin/python tools/audit_memory.py`
+
+![630 all-query cases; outer capacity slope FAIL retained.](evidence/part3-memory-final.png)
+
+### Fixed user-selected32x32 bitmap; +1 ink/-1 background.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Fixed user-selected32x32 bitmap; +1 ink/-1 background.](evidence/glyph-preview-final.png)
+
+### Predeclared showcase531504, correct row/column orientation, unclipped dot areas.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Predeclared showcase531504, correct row/column orientation, unclipped dot areas.](evidence/part4-recall-final.png)
+
+### Actual stochastic losses; first128-window held-out curves explicitly PARTIAL.
+
+Producing command: `.venv/bin/python tools/audit_neural.py`
+
+![Actual stochastic losses; first128-window held-out curves explicitly PARTIAL.](evidence/neural-training-curves.png)
+
+### All models on identical targets and original-character denominator.
+
+Producing command: `.venv/bin/python tools/audit_neural.py`
+
+![All models on identical targets and original-character denominator.](evidence/part5-model-comparison.png)
+
+### Full held-out per-position means and two-SE bands.
+
+Producing command: `.venv/bin/python tools/audit_neural.py`
+
+![Full held-out per-position means and two-SE bands.](evidence/part5-context-loss.png)
+
+### Optional: all8 heads of fixed first held-out window.
+
+Producing command: `.venv/bin/python tools/audit_neural.py`
+
+![Optional: all8 heads of fixed first held-out window.](evidence/part5-attention-heads.png)
+
+### Budget curves and residual means.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Budget curves and residual means.](evidence/part6-fit-residuals-final.png)
+
+### Measured vsfitted240 losses and residual histograms.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Measured vsfitted240 losses and residual histograms.](evidence/part6-diagonal-histogram-final.png)
+
+### Refit and printed N*,D* curves; Chinchilla and400-bootstrap interval.
+
+Producing command: `.venv/bin/python tools/render_audited_figures.py`
+
+![Refit and printed N*,D* curves; Chinchilla and400-bootstrap interval.](evidence/part6-optimal-allocation-final.png)
+
+## Source/input/output map
+
+| Source | Input | Output |
 |---|---|---|
-| 1 | embeddings: relations as directions | inference DONE, all mandatory gates PASS |
-| 2 | count models (Markov chains, n-grams) | code+driver ready (CONTROL_PART2_READY); formal-01 invalidated (multi-writer custody); formal run dispatched by root |
-| 3 | MLP as key–value memory | sweep driver + smoke done (d16); full sweep reserved for root dispatch |
-| 4 | attention: softmax store recalls 算 | formal 20-draw validation DONE, all mandatory gates PASS |
-| 5 | transformer: training and sampling | pending |
-| 6 | Chinchilla scaling law refit | fitter + smoke done (3/243 starts); full fit + bootstrap reserved for root dispatch |
+|corpus.py /part1_embeddings.py|pinned text/tokenizers/embedding table|verified streams, relation JSON|
+|ngrams.py /run_part2.py|same training/validation streams|exclusive count-model results and raw sampler arrays|
+|memory_sweep.py /memory.py|frozen unit-vector draws|630 cases and capacity curves|
+|part4_glyph.py /run_part4.py|user-selected glyph and fixed20 draws|bitmap, all320 ISR outcomes|
+|mlp_model.py /transformer_model.py /train_driver.py|fixed random training positions|initial/mid/final params,Adam states,PRNG and logs|
+|sampling.py /selfconsistency.py /tools/audit_neural.py|saved final weights|independent scores, sampler tests, stories, entropy, figures|
+|scaling.py /tools/run_scaling_formal.py|245 pinned published runs|243-start traces,400 resample traces and bootstrap estimates|
 
-Part 1 measured results (`evidence/part1-results.json`, seed protocol in
-`SPEC.md`): table mean LOO cosines 0.466 / 0.549 / 0.433 (gate ≥ 0.3); control
-seed-1730 means +0.030 / −0.015 / +0.009 (gate |·| ≤ 0.15); 20-shuffle means in
-[−0.089, +0.085] (descriptive). Figure: `evidence/part1-relations.png`.
-**Visual correction:** the first figure used unequal x/y scaling, so drawn
-angles were not arccos(cosine). Re-rendered from the same saved numbers with
-`set_aspect("equal")` into `evidence/part1-relations-equal-aspect.png`
-(producing command: `uv run python src/render_part1_figure.py`); data and
-gates unchanged. Pair numbering key —
-country_capital: 1 iran→tehran, 2 turkey→ankara, 3 russia→moscow, 4 china→beijing,
-5 france→paris, 6 sweden→stockholm, 7 japan→tokyo, 8 peru→lima, 9 kenya→nairobi;
-male_female: 1 king→queen, 2 man→woman, 3 he→she, 4 brother→sister, 5 father→mother,
-6 son→daughter, 7 uncle→aunt, 8 boy→girl, 9 husband→wife;
-adj_comparative: 1 big→bigger, 2 small→smaller, 3 fast→faster, 4 dark→darker,
-5 cold→colder, 6 old→older, 7 strong→stronger, 8 long→longer, 9 tall→taller.
-
-Corpus input preparation verified: 24,867 train / 2,763 validation stories,
-~2.05 characters per token, exactly 3 validation roundtrip exceptions.
-
-Part 4 (`evidence/part4-results.json`, `evidence/part4-recall.png`, showcase
-seed 531504 predeclared, 20-draw medians): outer R(1024) 3.89 (gate: within
-15 % of 4); ReLU R(1024) 2.82 (gate: within 15 % of 2.83); ReLU² R(1024) 0.614
-and R(4096) 1.189 (gate > 1; sheet references 0.60/1.2); softmax R < 0.056 at
-every M (gate < 0.1, sheet reference 0.057 at 4096). Producing command:
-`uv run python src/run_part4.py --attempt formal-01`.
-
-Part 2/3/6 code is ready under exclusive-attempt drivers; formal Part 2 is
-dispatched by the root (CONTROL_PART2_READY.json); the full memory sweep and
-the 243-start fit + 400 bootstrap refits are likewise reserved for root
-dispatch. Part 6 smoke (3 grid starts, real 240 runs): own mean log residual
-−0.00066, printed parameters +0.0167, D*/N* at 5.76e23 ≈ 17.9 — smoke only,
-not cited as the formal fit.
+No corpus, downloaded model, tokenizer binary, raw checkpoint, font file, auth file or raw Pi session is committed. [Failure register](evidence/failures/failure-register.json) preserves unsupported/failed attempts and corrections; [old-file verification](evidence/audits/old-work-preservation.json) binds the historical baseline. Scientific acceptance remains partial because of the declared slope failure.

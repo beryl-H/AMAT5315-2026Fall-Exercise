@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "tests": 95,
+  "test_exit_code": 0,
+  "compiled_src_and_tools": true,
+  "old_files_checked": 876,
+  "old_files_changed": [],
+  "frozen_NN_sources_match": true,
+  "public_candidate_count": 129,
+  "secret_and_raw_file_scan": [],
+  "scientific_status": "One required gate not met: outer capacity slope .87127; retained",
+  "checked_utc": "2026-10-28T14:06:37.742273+00:00"
+}

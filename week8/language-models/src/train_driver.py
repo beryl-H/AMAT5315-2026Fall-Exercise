@@ -142,8 +142,10 @@ def load_checkpoint(path):
 
 def load_train_val_streams():
     """Load the verified Part 2 cache arrays (read-only). Asserts both SHA256s,
-    lengths, corpus/tokenizer hashes, target counts and the EOS sentinel id;
-    cross-checks against support/oracle-data/*token*.npy when present."""
+    lengths, target counts and the EOS sentinel id; hashes the ACTUAL raw data
+    files and compares them with the declared cache hashes; cross-checks BOTH
+    arrays against oracle-data/*token*.npy when present (root finding 4: the
+    correct path has no extra /support component)."""
     meta_t = json.load(open(os.path.join(CACHE_DIR, "encoded-train.npy.json")))
     meta_v = json.load(open(os.path.join(CACHE_DIR, "encoded-val.npy.json")))
     p_t = os.path.join(CACHE_DIR, "encoded-train.npy")
@@ -154,18 +156,29 @@ def load_train_val_streams():
     val = np.load(p_v)
     assert len(train) - 1 == DATA_META["train_targets"]
     assert len(val) - 1 == DATA_META["val_targets"]
-    assert meta_t["input_hashes"]["corpus"] == meta_v["input_hashes"]["corpus"]
-    assert meta_t["input_hashes"]["tokenizer"] == meta_v["input_hashes"]["tokenizer"]
+    # raw data files must hash to the declared cache inputs before formal use
+    raw_corpus = os.path.join(HERE, "data", "TinyStoriesV2-GPT4-valid.txt")
+    raw_tok = os.path.join(HERE, "data", "tok512.model")
+    assert sha256(raw_corpus) == meta_t["input_hashes"]["corpus"], "raw corpus hash != cache declaration"
+    assert sha256(raw_tok) == meta_t["input_hashes"]["tokenizer"], "raw tokenizer hash != cache declaration"
     assert int(train[0]) == DATA_META["eos_id"] and int(val[0]) == DATA_META["eos_id"]
-    oracle_dir = "/mnt/d/Keria/Course/AMAT5315/week8-support/revised-4e33bea92945/support/oracle-data"
-    crosscheck = "no oracle files present"
+    oracle_dir = "/mnt/d/Keria/Course/AMAT5315/week8-support/revised-4e33bea92945/oracle-data"
+    crosschecks = []
     if os.path.isdir(oracle_dir):
         for name in sorted(os.listdir(oracle_dir)):
-            if "token" in name and "train" in name and name.endswith(".npy"):
+            if "token" in name and name.endswith(".npy"):
                 o = np.load(os.path.join(oracle_dir, name))
-                crosscheck = f"{name}: {'MATCH' if np.array_equal(o, train) else 'MISMATCH'} ({len(o)} vs {len(train)})"
+                if "train" in name:
+                    ok = np.array_equal(o, train)
+                elif "val" in name or "validation" in name:
+                    ok = np.array_equal(o, val)
+                else:
+                    continue
+                crosschecks.append({"file": name, "match": bool(ok),
+                                    "length": int(len(o))})
+                assert ok, f"oracle mismatch: {name}"
     return train, val, {"cache_meta": {"train": meta_t, "val": meta_v},
-                        "oracle_crosscheck": crosscheck}
+                        "oracle_crosschecks": crosschecks or "none present"}
 
 
 def sample_transformer_batch(stream, batch, key):
@@ -333,22 +346,19 @@ def run_training(model, attempt, train_stream, val_stream, art_root,
         # JIT the pure full train step: value_and_grad + clip + AdamW
         train_dev = jnp.asarray(train_stream)  # captured constant (9.7M int32)
 
+        # value_and_grad with the WHOLE compressed forward inside the
+        # differentiated function (root finding 1: the earlier closure computed
+        # all_logits outside and had exactly zero gradients — never again).
         def train_step(p, m, v, key, lr, t):
             idx = jax.random.randint(key, (hp["batch"],), 1, len(train_stream))
             pv = train_dev[idx - 1]
             tg = train_dev[idx]
-            all_logits = jnp.tanh(p["E"] @ p["W1"] + p["b1"]) @ p["W2"] + p["b2"]
             loss, grads = jax.value_and_grad(
-                lambda pp: jnp.mean(stable_ce_g(all_logits, pp, pv, tg)))(p)
+                lambda pp: jnp.mean(loss_from_all512(pp, pv, tg)))(p)
             gnorm = global_norm_jax(grads)
             grads = clip_grads_jax(grads, 1e9)  # no clip for MLP (SPEC: TR only)
             p2, m2, v2 = adamw_jax(p, m, v, grads, lr, t, hp["wd"])
             return p2, m2, v2, loss, gnorm
-
-        def stable_ce_g(all_logits, p, pv, tg):
-            from src.nn_common import stable_ce
-
-            return stable_ce(all_logits[pv], tg)
 
         def adamw_jax(p, m, v, g, lr, t, wd):
             import jax
@@ -451,9 +461,15 @@ def run_training(model, attempt, train_stream, val_stream, art_root,
             post_compile = time.time()
         if step % 200 == 0 and not smoke_updates:
             ptot, pcount = _partial_limited(params, val_arr, model)
-            log(f"step {step}: PARTIAL(128 windows) bpc "
-                f"{ptot / np.log(2) / min(pcount, 2213915):.4f} "
-                f"({pcount} targets; NOT full score)")
+            # nats per TOKEN (root finding 3: never divide by chars here)
+            rec_p = {"step": step, "scope": "PARTIAL first-128-windows",
+                     "nats_per_token": ptot / pcount, "targets": pcount}
+            with open(os.path.join(attempt_dir, "partial-metrics.jsonl"), "a") as pf:
+                pf.write(json.dumps(rec_p) + "\n")
+            log(f"step {step}: PARTIAL(128 windows) nats/token "
+                f"{rec_p['nats_per_token']:.4f} ({pcount} targets; NOT full score, NOT bpc)")
+        if step == mid_step:
+            save_ck("checkpoint-mid.npz", step)  # root finding 2: was missing
         if step in (mid_step, n_updates) or step % 200 == 0:
             log(f"step {step}/{n_updates} loss(pre) {loss:.4f} gnorm {gnorm:.2f}")
     flush()
@@ -470,6 +486,13 @@ def run_training(model, attempt, train_stream, val_stream, art_root,
     receipt = {"model": model, "attempt": attempt, "n_updates": n_updates,
                "completed": True, "reload_bitwise_ok": bool(reload_ok),
                "final_state_finite": bool(final_finite),
+               "all_leaves_float32": bool(all(
+                   np.asarray(x).dtype == np.float32
+                   for x in jax.tree_util.tree_leaves(params))),
+               "optimizer_leaves_float32": bool(all(
+                   np.asarray(x).dtype == np.float32
+                   for x in jax.tree_util.tree_leaves(
+                       {"m": opt_state["m"], "v": opt_state["v"]}))),
                "final_step": int(ck["step"]),
                "sec_per_update_post_compile": round(train_s_per_update, 3),
                "receipt_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
