@@ -137,7 +137,43 @@ same bootstrap also yields the α interval.
 - Figures: log-log seed means with fit, 95% band, excluded width 8 and
   bigram level; α with uncertainty and Birge ratio printed.
 
-## Part 4 — Grokking modular addition (SPEC ONLY; formal runs not launched this checkpoint)
+## Part 4 architecture and policy freeze (before any formal run)
+
+Choices not fixed by the sheet, frozen here before implementation:
+
+- Vocabulary: 98 tokens = residues 0..96 plus `=` (id 97). Input sequence is
+  exactly `[a, b, =]` (3 tokens); NO positional embeddings (the `=` token
+  marks the answer slot); NO causal mask (all three inputs are given, the
+  answer never appears as input). Answer read from logits at position 2,
+  softmax over 98 tokens, cross-entropy on the true residue c.
+- One layer, no LayerNorm, width 64, 4 heads (head width 16, qkv + out
+  projections with biases), MLP 64→256→64 with biases, untied head 64→98.
+  Total parameters = 98·64 + (3·(64·64+64) + 64·64+64) + (64·256+256 +
+  256·64+64) + (64·98+98) = 62,370. All weights init N(0, sqrt(2/(64+97))),
+  biases zero (gives initial parameter norm ≈ 28, the reference value).
+- AdamW lr 3e-3, betas (0.9, 0.98), weight decay 1, FULL batch (all training
+  pairs each step), no gradient clipping, float32.
+- Logging grid: every 100 steps AND step 0 (initialization: loss, accuracy,
+  parameter norm recorded before any update). Memorization step = first
+  LOGGED step with train accuracy ≥ 0.99; grokking step = first LOGGED step
+  with test accuracy ≥ 0.99; stop rule: stop at grok_step + 1000, capped at
+  10000 steps. Crossings from the actual log grid only; checkpoints saved at
+  initialization, memorization and final, incrementally, per-run exclusive
+  attempt directory.
+- Parameter norm ‖θ‖₂ over ALL parameters (weights and biases).
+- Fourier convention: np.fft.rfft of each residue-embedding dimension over
+  the residue index a = 0..96; power_k = Σ_dims |X_k|² for k = 1..48 (97 odd
+  ⇒ k 1..48 are exactly the non-DC bins; conjugate pairs folded by |·|²).
+  Top-5 share denominator = total power over k=1..48 (DC EXCLUDED from the
+  share; DC is preserved in every ablation). `=` embedding row is never
+  part of the DFT or any ablation. Top-5 at each snapshot from that
+  snapshot's own spectrum.
+- Ablation (final model): keep-only K (E_res ← DC + Σ_{k∈K} trig components),
+  remove K (E_res ← E_res − Σ_{k∈K}), remove/keep 5 random OTHER frequencies
+  (10 draws, one rng `np.random.default_rng(4497)`, drawn from the
+  complement of the final top-5 within 1..48, no overlap).
+
+## Part 4 — Grokking modular addition (protocol; formal runs not launched)
 
 Protocol and predeclared conventions (fixed before any Part-4 run):
 
@@ -145,12 +181,12 @@ Protocol and predeclared conventions (fixed before any Part-4 run):
   answer read at position of `=`. One-layer pre-LN-free transformer
   (no LayerNorm), width 64, 4 heads, MLP 256, residue embeddings 97×64 plus
   `=` embedding.
-- Split (label-independent, declared before runs): one rng
-  `np.random.default_rng(897)`, permutation of the 9409 pair indices; the
-  same permutation is reused for every Part-4 run. Training sizes use the
-  FLOOR convention (explicit integers, avoiding Python banker's rounding):
-  30% split = floor(0.30·9409) = 2822 pairs; 50% split = floor(0.50·9409) =
-  4704 pairs of the same permutation (nested). The split never sees labels.
+- Split (label-independent, frozen): one rng `np.random.default_rng(897)`,
+  permutation of the 9409 pair indices; the same permutation is reused for
+  every Part-4 run. Training sizes (coordinator instruction 2026-10-28,
+  superseding the earlier floor note): 30% split = round(0.30·9409) = 2823
+  pairs; 50% split = round(0.50·9409) = 4704 pairs of the same permutation
+  (nested). The split never sees labels; train/test indices never overlap.
 - Random-label control (corrected per spec-review-01, declared before
   runs): a GLOBAL class permutation π((a+b) mod 97) would preserve the
   modular-addition structure, so it is NOT used. Instead the vector of all
