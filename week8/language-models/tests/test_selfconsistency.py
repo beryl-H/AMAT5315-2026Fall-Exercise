@@ -12,9 +12,8 @@ def test_zscore_closed_form_oracle_fixture():
     n = 128
     rng = np.random.default_rng(0)
     D = rng.normal(0.0, 0.3, size=n)  # per-seq mean differences
-    surprise = np.stack([D + 1.0] * 1)  # D_i = mean(surprise - entropy) = D
-    entropies = np.zeros((n, 1))
-    surprises = D[:, None] + 1.0
+    entropies = np.ones((n, 1))
+    surprises = D[:, None] + 1.0  # surprise - entropy = D per sequence
     z = entropy_zscore(surprises, entropies)
     expected = D.mean() / (D.std(ddof=1) / np.sqrt(n))
     assert z == pytest.approx(expected, rel=1e-12)
