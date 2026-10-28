@@ -40,15 +40,12 @@ def test_rare_pool_merged_with_smallest_adequate_bin():
     assert meta["bins"] == 2  # [700] and [300]; the E=3 pool merged into E=297
     assert meta["df"] == 1  # 2 bins - 1
     assert meta["minimum_expected"] == pytest.approx(300.0)
-    # closed form: observed counts ~ (700, 300); stat = sum (O-E)^2/E over 2 bins
+    # closed form after the corrected merge: bins are [700] and [300] where
+    # the second group = token 2 plus the whole rare pool
     o1 = int((nxt == 1).sum())
     o2 = int((nxt == 2).sum())
     o_rest = 1000 - o1 - o2
-    expected_stat = (
-        (o1 - 700.0) ** 2 / 700.0
-        + (o2 - 297.0) ** 2 / 297.0
-        + (o_rest - 3.0) ** 2 / 300.0
-    )
+    expected_stat = (o1 - 700.0) ** 2 / 700.0 + (o2 + o_rest - 300.0) ** 2 / 300.0
     assert stat == pytest.approx(expected_stat)
     assert 0.0 < p < 1.0
 
