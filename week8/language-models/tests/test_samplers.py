@@ -92,11 +92,11 @@ def test_temperature_1e4_returns_argmax_always():
     assert (draws == int(np.argmax(z))).all()
 
 
-def test_support_violation_reported_not_nan():
+def test_support_violation_explicit_zero_p_rejection():
     d = np.array([0.5, 0.5, 0.0])  # token 2 impossible
     rng = np.random.default_rng(1)
     draws = rng.choice(2, size=100, p=np.array([0.5, 0.5]))
     draws = np.concatenate([draws, np.full(10, 2)])  # observed mass on impossible
     stat, df, p, meta = chi2_pooled(d, draws, emin=5.0)
     assert meta["support_violation"] is True
-    assert np.isnan(p)
+    assert p == 0.0  # EXPLICIT rejection, never nan (a nan must not pass gates)

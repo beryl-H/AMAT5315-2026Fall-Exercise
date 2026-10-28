@@ -1,0 +1,2 @@
+=========================== short test summary info ============================
+FAILED tests/test_samplers.py::test_support_violation_explicit_zero_p_rejection

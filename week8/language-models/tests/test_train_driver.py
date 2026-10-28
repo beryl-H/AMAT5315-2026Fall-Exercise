@@ -59,12 +59,11 @@ def test_heldout_windows_cover_every_target_exactly_once():
     val = [2] + list(range(100, 120))  # sentinel + 20 actual tokens
     wins = list(heldout_windows(val, ctx=64))
     all_targets = []
-    for x, y, mask in wins:
-        assert len(x) <= 64
+    for x, y, mask, start in wins:
+        assert len(x) <= 64 and len(y) == len(mask)
         all_targets.extend([t for t, m in zip(y, mask) if m])
     assert all_targets == val[1:]  # every actual target exactly once, in order
-    # boundary: window starting at 64 shares one input token, no double target
-    starts = [w[3] for w in wins] if len(wins[0]) > 3 else None
+    assert len(wins) == 1  # 20 targets fit in one 64-window
 
 
 def test_smoke_run_end_to_end(tmp_path):
