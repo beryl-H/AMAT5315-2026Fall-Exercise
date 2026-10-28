@@ -1,0 +1,28 @@
+{
+  "control": "CONTROL_PART2_READY",
+  "utc": "2026-10-28T13:10:00Z",
+  "agent": "native WSL pi (volcengine-plan/glm-5-3-flash)",
+  "meaning": "Part 2 code/tests are fixed and green; the agent will NOT run a formal attempt. The root dispatches the single formal run.",
+  "dispatch_command": "cd /home/keria_h/AMAT5315-2026Fall-Exercise/week8/language-models && uv run python src/run_part2.py --attempt formal-02",
+  "exclusivity": "attempt dir artifacts/part2/<attempt>/ created atomically (exist_ok=False) BEFORE settings write; existing formal-01 is INVALIDATED (see artifacts/part2/formal-01/INVALIDATED_MULTIPLE_WRITERS.json) and must never be reused; console log at artifacts/part2/<attempt>.console.log outside the attempt dir",
+  "chi2_fix": "pooled_chi2_bigram now merges the rare pool (E<5 bins) with the smallest adequate bin repeatedly until ALL expected >= 5; a context reduced to one group contributes 0 stat / 0 df; metadata (minimum expected, bins, df, context counts) recorded. Unit tests: root fixture (N=1000, P=[.7,.297,510x.003/510] relabeled off token 0) -> 2 bins (700,300) df=1 with closed-form stat; degenerate one-hot context -> nan p, no fake p.",
+  "driver_changes": [
+    "incremental crash-safe results.json inside the attempt (k-selection, per-n results, sampler, gates written as computed)",
+    "caches verified by SHA256 of array file + recorded corpus/tokenizer hashes + expected actual-token length (9667034/1078995); tampered or unhashed caches are re-encoded, never trusted or deleted",
+    "oracle cross-check vs support/oracle-data marked pending (not yet published by root); existing cache superseded by hashed one",
+    "saved for independent audit: bigram-P.npy, sample-seed531501.npy, sample-twolag-seed531501.npy inside the attempt dir",
+    "explicit chunked joint enumeration restricted to the bigram (L=1,2,3 incl. all 512^3), per worksheet",
+    "gates extended: PPL within 3% of sheet references, monotonic PPL ladder to n=4 and rising after; all previous gates kept unchanged (k grid, seeds, tolerances)"
+  ],
+  "source_hashes": {
+    "src/corpus.py": "b89cbe38471e14ab3eb1412476ff99f83d35d5a8c213c38b83a7fa6f868cb493",
+    "src/ngrams.py": "491ec82a3016b6f5aa11ff71ba40055b2b81c37a555d21703eb9e9b1099f7ea4",
+    "src/run_part2.py": "a8210516710432e48fd60960f34845eb4f064d791ef63b65b67b4bde922fc719",
+    "tests/test_ngrams.py": "1f31ffd3f6f3660ee06b1159da508f0b8e6885743909c21ec9d5a8218942d45c",
+    "tests/test_pooled_chi2.py": "f22462689bf5c45b89a48a16676e9464a992315e4a8083f13fa81a76858c81fe",
+    "tests/test_part2_driver.py": "94578b6e219419cf186bd38204d7711e334453733f738751337cbf4e89174fc8",
+    "tests/test_corpus_boundaries.py": "8b878db6e19e45bdab7cfd9863d1577b714c4b3f3b6d577faaf460d691ede2b8"
+  },
+  "test_status": "42 passed (uv run pytest tests/ -q), no skips",
+  "old_results_untouched": "formal-01 artifacts preserved incl. used-source-snapshot and part2-results-as-written.json"
+}
