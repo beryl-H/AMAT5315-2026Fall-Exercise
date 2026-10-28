@@ -1,0 +1,22 @@
+# Local environments / caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Data (corpus, embedding table, tokenizer model, CSV) stays out of git;
+# only data/MANIFEST.md records provenance.
+data/*
+!data/MANIFEST.md
+
+# Raw runs, checkpoints, large logs
+artifacts/
+
+# Anything potentially large or secret never enters git
+*.safetensors
+*.model
+*.npy
+*.npz
+*.bin
+*.pt
