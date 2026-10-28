@@ -1,0 +1,129 @@
+{
+  "read_only": true,
+  "fit_widths": [
+    12,
+    16,
+    24,
+    32,
+    48,
+    64,
+    96,
+    128
+  ],
+  "per_run_losses": {
+    "w8-s1": 2.512430429458618,
+    "w8-s2": 2.5260894298553467,
+    "w12-s1": 2.4191322326660156,
+    "w12-s2": 2.3526878356933594,
+    "w16-s1": 2.2988734245300293,
+    "w16-s2": 2.3463871479034424,
+    "w24-s1": 2.165186643600464,
+    "w24-s2": 2.1079132556915283,
+    "w32-s1": 2.053312301635742,
+    "w32-s2": 2.034747838973999,
+    "w48-s1": 1.9493070840835571,
+    "w48-s2": 1.8930578231811523,
+    "w64-s1": 1.8187077045440674,
+    "w64-s2": 1.9398918151855469,
+    "w96-s1": 1.7493623495101929,
+    "w96-s2": 1.78886878490448,
+    "w128-s1": 1.7430533170700073,
+    "w128-s2": 1.72953462600708
+  },
+  "seed_means": {
+    "12": 2.3859100341796875,
+    "16": 2.322630286216736,
+    "24": 2.136549949645996,
+    "32": 2.0440300703048706,
+    "48": 1.9211824536323547,
+    "64": 1.8792997598648071,
+    "96": 1.7691155672073364,
+    "128": 1.7362939715385437
+  },
+  "sigmas_sem_floor1e-3": [
+    0.033222198486328125,
+    0.023756861686706543,
+    0.028636693954467773,
+    0.009282231330871582,
+    0.028124630451202393,
+    0.060592055320739746,
+    0.019753217697143555,
+    0.006759345531463623
+  ],
+  "alpha": 0.06482319250802698,
+  "a": 3.9846005479012834,
+  "chi2": 20.612355237654455,
+  "dof": 6,
+  "birge": 1.8534811948355656,
+  "alpha_interval": [
+    0.058859551670285795,
+    0.07079794402166548
+  ],
+  "sealed_prediction": {
+    "utc_timestamp": "2026-10-28T04:20:00Z",
+    "point": 1.6395429349551007,
+    "interval": [
+      1.6119085393335262,
+      1.6675368797482817
+    ],
+    "interval_width": 0.055628340414755506,
+    "sha256": "74f6c3daf7d6809bfb168f1c6310b1459e02efb5a6f3abea0e99d7716392bc5b"
+  },
+  "holdout": {
+    "losses": [
+      1.7143664360046387,
+      1.7300323247909546
+    ],
+    "seed_mean": 1.7221993803977966,
+    "inside_interval": false,
+    "miss_nats": 0.054662500649514945,
+    "first_run_started_utc": "2026-10-28T04:20:15.596583+00:00",
+    "dispatch_started_utc": "2026-10-28T04:20:13.128634+00:00",
+    "first_run_started_unix": 1793161213.1286469,
+    "finished_unix": {
+      "1": 1793161741.6641774,
+      "2": 1793161741.750343
+    },
+    "finished_utc": {
+      "1": "2026-10-28T04:29:01Z",
+      "2": "2026-10-28T04:29:01Z"
+    },
+    "metrics_sha256": {
+      "1": "ea9ae92abb996b4d5040c65f9dcc8d14bde0cef401270d06edb198890e1dffb0",
+      "2": "4d0ce1a1a8f07c1d099b3337bf8461d75a887ac58a20a040dfe8a4140f15854a"
+    }
+  },
+  "gates": {
+    "fit_matches_sealed": true,
+    "bootstrap_quantiles_match_sealed": true,
+    "alpha_within_0.05_0.10": true,
+    "interval_width_below_0.2": true,
+    "target_N_gt_2x_max_fit_N": true,
+    "prediction_older_than_first_holdout_start": true,
+    "trained_mean_inside_interval": false
+  },
+  "protocol_hashes": {
+    "prediction_file": "8c39f12d4314179fce66354f4291dc4a464a44a6592c846e937112e8fcfd1661",
+    "fit_manifest_shas": [
+      "b2ab27191919612af0fbda38737a7e6a0059698dbf801045ff508c28c851cc19",
+      "1d0c8fdd7bedd8b3a83d3dbea6e8bead7c81a9070009afef263dd7e111e2f2b2",
+      "f837703a59714d5ab3c6310c0ebcce375587127fd7ed25e85931edcad3460df9",
+      "d2c8c77e6cc9b402ce8cd65629e5d1e5d69b3b498ae975c538c13a6adccb4990",
+      "b910be3c4e9fd5cc625feb1e81b12146f3b2d52636bd2c53f5a03f3eda79e954",
+      "3f75765ed995cec100477f197d18a6a20dafceb4bdb16afc6173ded78f73c39c",
+      "490eb292ec8c42a45b981539707d9953379314ffac62f0b36b233b218d7c51db",
+      "8cf096e1a31df37d98af92b0525d82900c01a1221dc59d14b379c2a0af370e23",
+      "15eea9cc8286f68bfd048880d281b8beda280b2c7aa95422bc9a22da84deb40c",
+      "2171f92f5f00eed1af602656fbb8d67676371292e639a6bccc3f9a7ddc7ef846",
+      "4f680dcab5dd3337179d4f57b17609b25500ddce754705367809980fae6baa06",
+      "034d86700e4bcd3060d016d6c98554526c8f00100c74bf93665aaf1cc1b63668",
+      "3891ff812c4575268ed0a9e7511b00d3a8efdd7db47cdbb504bdaa7c20829c8e",
+      "7077576e695c0ff5579b67d3b2d768d295ceafb70cb807090cb426003c8bb818",
+      "750a378120ab926a312643d5448e54cca6e7ae0b3a1b39f9a036f7026881ff47",
+      "9beaf88f74c8dbf2f930c4a38f9f293fb96b568c8fcc8c0d82cbb4db51a8e816",
+      "b06501c024499d4e258b53cfe2473254835bfc3b217516d3764f7e23d8a6dff9",
+      "1aef85d0e76ad99aa1617894af647c3d56099b5ffedb252f5b14c318e88e021f"
+    ]
+  },
+  "interpretation_note": "The pure power law was frozen before the run; width 192 was never fitted. The trained losses fall ABOVE the interval \u2014 a legitimate failed blind extrapolation. Plausible explanations (compute-limited flattening at a fixed 1500-step budget) are interpretation, not proven mechanism. The sheet's floor-term Protocol A failure is COURSE REFERENCE HISTORY, not an experiment performed here."
+}
