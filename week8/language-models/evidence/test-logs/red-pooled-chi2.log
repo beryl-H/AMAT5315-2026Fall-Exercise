@@ -1,0 +1,3 @@
+=========================== short test summary info ============================
+FAILED tests/test_pooled_chi2.py::test_rare_pool_merged_with_smallest_adequate_bin
+FAILED tests/test_pooled_chi2.py::test_single_group_context_contributes_zero
