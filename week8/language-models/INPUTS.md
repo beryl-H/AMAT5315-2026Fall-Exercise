@@ -5,10 +5,10 @@ All files live in git-ignored `week8/language-models/data/`. This document and
 
 | # | item | repo @ pinned revision | resolved full SHA | file | bytes | SHA256 |
 |---|---|---|---|---|---|---|
-| 1 | embedding table | `minishlab/potion-base-8M` @ `bf8b056` | not resolved (HF API timed out within bounded 30 s request; pinned short revision kept) | `model.safetensors` | 30236760 | `f65d0f325faadc1e121c319e2faa41170d3fa07d8c89abd48ca5358d9a223de2` |
-| 2 | tokenizer (Part 1) | `minishlab/potion-base-8M` @ `bf8b056` | not resolved (same) | `tokenizer.json` | 683666 | `e67e803f624fb4d67dea1c730d06e1067e1b14d830e2c2202569e3ef0f70bb50` |
+| 1 | embedding table | `minishlab/potion-base-8M` @ `bf8b056` | `bf8b056651a2c21b8d2565580b8569da283cab23` (resolved by root coordinator, Windows HF API) | `model.safetensors` | 30236760 | `f65d0f325faadc1e121c319e2faa41170d3fa07d8c89abd48ca5358d9a223de2` |
+| 2 | tokenizer (Part 1) | `minishlab/potion-base-8M` @ `bf8b056` | `bf8b056651a2c21b8d2565580b8569da283cab23` (resolved by root coordinator, Windows HF API) | `tokenizer.json` | 683666 | `e67e803f624fb4d67dea1c730d06e1067e1b14d830e2c2202569e3ef0f70bb50` |
 | 3 | corpus | `roneneldan/TinyStories` @ `f54c09fd23315a6f9c86f9dc80f725de7d8f9c64` | `f54c09fd23315a6f9c86f9dc80f725de7d8f9c64` (API-confirmed) | `TinyStoriesV2-GPT4-valid.txt` | 22502601 | `6874bae9a4c1a4e7edcf0e53b86c17817e9cf881fc75ff2368da457b80c0585d` |
-| 4 | BPE tokenizer | `karpathy/tinyllamas` @ `0bd21da` | not resolved (HF API timed out within bounded 30 s request; pinned short revision kept) | `tok512.model` | 7645 | `dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5` |
+| 4 | BPE tokenizer | `karpathy/tinyllamas` @ `0bd21da` | `0bd21da7698eaf29a0d7de3992de8a46ef624add` (resolved by root coordinator, Windows HF API) | `tok512.model` | 7645 | `dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5` |
 | 5 | scaling runs | `epoch-research/analyzing-chinchilla` @ `92258837425e1b5f2851d624287f0120583a3d0e` | `92258837425e1b5f2851d624287f0120583a3d0e` (API-confirmed) | `chinchilla-runs.csv` | 23224 | `193478df4e90f040016431996c45682659306840ecdadf83cfb9cd5ca0aa1b30` |
 
 Primary URLs (all public, no credentials):
@@ -45,8 +45,10 @@ Primary URLs (all public, no credentials):
   file exactly); copied byte-identical into `data/chinchilla-runs.csv`.
 - Commit-resolution API lookups: bounded 30 s requests on 2026-10-28; datasets
   and GitHub endpoints resolved to the pinned full SHAs; the two HF model-repo
-  endpoints did not respond in time and are recorded as unresolved (short
-  pinned revisions), per protocol.
+  endpoints did not respond to the WSL agent in time and were later resolved by
+  the root coordinator via the Windows HF API (support/resolved-model-revisions.json):
+  potion-base-8M -> bf8b056651a2c21b8d2565580b8569da283cab23,
+  tinyllamas -> 0bd21da7698eaf29a0d7de3992de8a46ef624add. Source credit: root.
 
 No credentials were used or stored. No full model framework (e.g., PyTorch)
 was downloaded.
