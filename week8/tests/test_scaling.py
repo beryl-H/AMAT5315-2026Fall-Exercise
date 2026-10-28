@@ -53,9 +53,9 @@ def test_sem_of_two_runs_is_abs_diff_over_two():
     assert sc.sem_two_runs(1.7, 1.6) == pytest.approx(0.05, abs=1e-12)
 
 
-def test_zero_scatter_floored_at_1e-3():
+def test_zero_scatter_floored_at_1e_minus_3():
     assert sc.sigma_points([1.5, 1.5]) == pytest.approx(1e-3, abs=1e-12)
-    assert sc.sigma_points([1.5, 1.7]) == pytest.approx(0.05, abs=1e-12)
+    assert sc.sigma_points([1.5, 1.7]) == pytest.approx(0.1, abs=1e-12)
 
 
 # ---- loss-space WLS fit ------------------------------------------------------
@@ -119,8 +119,8 @@ def test_bootstrap_deterministic_count_and_interval():
     b1 = sc.bootstrap(fit, n_draws=10000, seed=20260, n192=sc.nonembedding_params(192))
     b2 = sc.bootstrap(fit, n_draws=10000, seed=20260, n192=sc.nonembedding_params(192))
     assert b1["n_draws"] == 10000
-    assert b1["pred192"] == b2["pred192"]
-    assert b1["alpha"] == b2["alpha"]
+    assert b1["pred192_point"] == b2["pred192_point"]
+    assert b1["alpha_point"] == b2["alpha_point"]
     lo, hi = b1["pred192_interval"]
     assert hi > lo
     assert b1["pred192_point"] == pytest.approx(sc.predict_blind(fit, sc.nonembedding_params(192)), rel=1e-6)

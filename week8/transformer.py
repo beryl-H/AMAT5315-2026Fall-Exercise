@@ -23,31 +23,36 @@ LAYERS = 2
 MLP = 256
 
 
-def init_params(key: jax.Array) -> dict:
-    """Gaussian init, std scaled like GPT (embeddings 0.02+ head 0.02)."""
+def init_params(key: jax.Array, width: int = WIDTH, heads: int = HEADS,
+                layers: int = LAYERS, mlp: int = MLP,
+                context: int = CONTEXT, vocab: int = VOCAB) -> dict:
+    """Gaussian init, std scaled like GPT. Generic over width/heads/layers;
+    the defaults reproduce the Part 2 model (116,673 parameters at width 64).
+    Total params = 24*width^2 + 286*width + 65 for mlp = 4*width, heads >= 1.
+    """
 
     def normal(k, shape, std=0.02):
         return std * jax.random.normal(k, shape)
 
-    ktok, kpos, *klayers = jax.random.split(key, LAYERS + 3)
+    ktok, kpos, *klayers = jax.random.split(key, layers + 3)
     params = {
-        "tok_emb": normal(ktok, (VOCAB, WIDTH)),
-        "pos_emb": normal(kpos, (CONTEXT, WIDTH)),
+        "tok_emb": normal(ktok, (vocab, width)),
+        "pos_emb": normal(kpos, (context, width)),
         "layers": [],
-        "ln_f": {"g": jnp.ones(WIDTH), "b": jnp.zeros(WIDTH)},
-        "head": {"w": normal(klayers[-1], (WIDTH, VOCAB)), "b": jnp.zeros(VOCAB)},
+        "ln_f": {"g": jnp.ones(width), "b": jnp.zeros(width)},
+        "head": {"w": normal(klayers[-1], (width, vocab)), "b": jnp.zeros(vocab)},
     }
-    for kl in klayers[:LAYERS]:
+    for kl in klayers[:layers]:
         kq, kk, kv, ko, km1, km2 = jax.random.split(kl, 6)
         params["layers"].append({
-            "ln1": {"g": jnp.ones(WIDTH), "b": jnp.zeros(WIDTH)},
-            "wq": normal(kq, (WIDTH, WIDTH), 1 / math.sqrt(WIDTH)), "bq": jnp.zeros(WIDTH),
-            "wk": normal(kk, (WIDTH, WIDTH), 1 / math.sqrt(WIDTH)), "bk": jnp.zeros(WIDTH),
-            "wv": normal(kv, (WIDTH, WIDTH), 1 / math.sqrt(WIDTH)), "bv": jnp.zeros(WIDTH),
-            "wo": normal(ko, (WIDTH, WIDTH), 1 / math.sqrt(WIDTH)), "bo": jnp.zeros(WIDTH),
-            "ln2": {"g": jnp.ones(WIDTH), "b": jnp.zeros(WIDTH)},
-            "mlp1": {"w": normal(km1, (WIDTH, MLP), 1 / math.sqrt(WIDTH)), "b": jnp.zeros(MLP)},
-            "mlp2": {"w": normal(km2, (MLP, WIDTH), 1 / math.sqrt(MLP)), "b": jnp.zeros(WIDTH)},
+            "ln1": {"g": jnp.ones(width), "b": jnp.zeros(width)},
+            "wq": normal(kq, (width, width), 1 / math.sqrt(width)), "bq": jnp.zeros(width),
+            "wk": normal(kk, (width, width), 1 / math.sqrt(width)), "bk": jnp.zeros(width),
+            "wv": normal(kv, (width, width), 1 / math.sqrt(width)), "bv": jnp.zeros(width),
+            "wo": normal(ko, (width, width), 1 / math.sqrt(width)), "bo": jnp.zeros(width),
+            "ln2": {"g": jnp.ones(width), "b": jnp.zeros(width)},
+            "mlp1": {"w": normal(km1, (width, mlp), 1 / math.sqrt(width)), "b": jnp.zeros(mlp)},
+            "mlp2": {"w": normal(km2, (mlp, width), 1 / math.sqrt(mlp)), "b": jnp.zeros(width)},
         })
     return params
 
@@ -63,28 +68,29 @@ def layer_norm(x, ln):
     return (x - mu) / jnp.sqrt(var + 1e-5) * ln["g"] + ln["b"]
 
 
-def attention_block(x, p, mask: bool):
+def attention_block(x, p, mask: bool, heads: int = HEADS):
     """x: [T, W] -> (out [T, W], weights [H, T, T])."""
-    T = x.shape[0]
-    q = (x @ p["wq"] + p["bq"]).reshape(T, HEADS, WIDTH // HEADS)
-    k = (x @ p["wk"] + p["bk"]).reshape(T, HEADS, WIDTH // HEADS)
-    v = (x @ p["wv"] + p["bv"]).reshape(T, HEADS, WIDTH // HEADS)
-    d = WIDTH // HEADS
+    T, W = x.shape
+    q = (x @ p["wq"] + p["bq"]).reshape(T, heads, W // heads)
+    k = (x @ p["wk"] + p["bk"]).reshape(T, heads, W // heads)
+    v = (x @ p["wv"] + p["bv"]).reshape(T, heads, W // heads)
+    d = W // heads
     scores = jnp.einsum("thd,shd->hts", q, k) / math.sqrt(d)
     if mask:
         tri = jnp.tril(jnp.ones((T, T), dtype=jnp.bool_))
         scores = jnp.where(tri, scores, -jnp.inf)
     w = jax.nn.softmax(scores, axis=-1)
-    out = jnp.einsum("hts,shd->thd", w, v).reshape(T, WIDTH)
+    out = jnp.einsum("hts,shd->thd", w, v).reshape(T, W)
     return out @ p["wo"] + p["bo"], w
 
 
-def forward(params: dict, tokens: jax.Array, mask: bool = True) -> jax.Array:
-    """tokens: [T] -> logits [T, VOCAB]."""
+def forward(params: dict, tokens: jax.Array, mask: bool = True,
+            heads: int = HEADS) -> jax.Array:
+    """tokens: [T] -> logits [T, vocab]."""
     T = tokens.shape[0]
     x = params["tok_emb"][tokens] + params["pos_emb"][:T]
     for p in params["layers"]:
-        h, _ = attention_block(layer_norm(x, p["ln1"]), p, mask)
+        h, _ = attention_block(layer_norm(x, p["ln1"]), p, mask, heads)
         x = x + h
         m = jax.nn.gelu(layer_norm(x, p["ln2"]) @ p["mlp1"]["w"] + p["mlp1"]["b"])
         x = x + m @ p["mlp2"]["w"] + p["mlp2"]["b"]
@@ -92,13 +98,13 @@ def forward(params: dict, tokens: jax.Array, mask: bool = True) -> jax.Array:
     return x @ params["head"]["w"] + params["head"]["b"]
 
 
-def attention_weights(params: dict, tokens: jax.Array) -> jax.Array:
+def attention_weights(params: dict, tokens: jax.Array, heads: int = HEADS) -> jax.Array:
     """[layers, heads, T, T] attention matrices for the audit figures."""
     T = tokens.shape[0]
     x = params["tok_emb"][tokens] + params["pos_emb"][:T]
     ws = []
     for p in params["layers"]:
-        h, w = attention_block(layer_norm(x, p["ln1"]), p, mask=True)
+        h, w = attention_block(layer_norm(x, p["ln1"]), p, True, heads)
         x = x + h
         m = jax.nn.gelu(layer_norm(x, p["ln2"]) @ p["mlp1"]["w"] + p["mlp1"]["b"])
         x = x + m @ p["mlp2"]["w"] + p["mlp2"]["b"]
@@ -119,13 +125,19 @@ def combine_nll(parts: list) -> dict:
     return {"loss": loss, "ppl": math.exp(loss), "n_scored": int(nlls.size)}
 
 
-def lr_schedule(step: int) -> float:
-    """3e-3 linear warmup over 100 steps, cosine decay to 3e-4 at 3000."""
-    peak, final, warmup, total = 3e-3, 3e-4, 100, 3000
+def lr_schedule(step: int, total: int = 3000) -> float:
+    """3e-3 linear warmup over 100 steps, cosine decay to 3e-4 at `total`.
+    Part 3 uses total=1500 (same schedule adapted to its budget)."""
+    peak, final, warmup = 3e-3, 3e-4, 100
     if step < warmup:
         return peak * step / warmup
     t = min(step - warmup, total - warmup) / (total - warmup)
     return final + 0.5 * (peak - final) * (1 + math.cos(math.pi * t))
+
+
+def lr_schedule_adapted(step: int, total: int) -> float:
+    """Explicit alias for the adapted-budget schedule (Part 3)."""
+    return lr_schedule(step, total=total)
 
 
 def adamw_init(params: dict) -> dict:
