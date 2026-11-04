@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-04T11:59:47.070119+00:00",
+  "created_utc": "2026-11-04T12:06:42.378475+00:00",
   "learning_sheet": {
     "filename": "week9-learning-sheet.pdf",
     "pages": 15,
@@ -38,16 +38,16 @@
     }
   ],
   "source_sha256": {
-    "src\\bp.rs": "19f7216e850ffac933389770d4d8eb88e60b5edd111a43396ac059009cea0e0c",
-    "src\\exact.rs": "041c774874c619071ba2ada4f0df8cf3686873bc2b04251f863857a002972668",
-    "src\\lib.rs": "8e05c6003f58777d43accc7c1858a26f228de0925e11f418089b03a989abbb79",
-    "src\\main.rs": "ae250a5771db387ed6632bc764a3fab3485ef5105f033e7c330300047f6bb697",
-    "src\\model.rs": "57233b13680ac63648de99969a5799e94cb33063439fd3235de25aa6d8a6a2d4",
-    "src\\plan.rs": "d95f5712c71819788cb30a7589f7d42a3ed48e0d542cf02a0b94fbaab399dad2",
-    "tests\\behavior.rs": "e9ebec70e794eac36de480148ab9fcb9aa6e5f8f45d874cf6971b9083cc27032",
-    "tests\\test_python_audit.py": "983827ff37b7304914e298cf225a3f5ec27e1dbbe6bb6e263e01470e0241bde8",
-    "examples\\memory_probe.rs": "dcfbd33bafc5d32654feaede0ab11449de59d5cc04efa26ffb11970fb3013183",
-    "examples\\plan_probe.rs": "a326d6ca61cdb3834d7ca425c687d815de31e8b250226aa223ece0938397bf60",
+    "src/bp.rs": "19f7216e850ffac933389770d4d8eb88e60b5edd111a43396ac059009cea0e0c",
+    "src/exact.rs": "041c774874c619071ba2ada4f0df8cf3686873bc2b04251f863857a002972668",
+    "src/lib.rs": "8e05c6003f58777d43accc7c1858a26f228de0925e11f418089b03a989abbb79",
+    "src/main.rs": "ae250a5771db387ed6632bc764a3fab3485ef5105f033e7c330300047f6bb697",
+    "src/model.rs": "57233b13680ac63648de99969a5799e94cb33063439fd3235de25aa6d8a6a2d4",
+    "src/plan.rs": "d95f5712c71819788cb30a7589f7d42a3ed48e0d542cf02a0b94fbaab399dad2",
+    "tests/behavior.rs": "e9ebec70e794eac36de480148ab9fcb9aa6e5f8f45d874cf6971b9083cc27032",
+    "tests/test_python_audit.py": "983827ff37b7304914e298cf225a3f5ec27e1dbbe6bb6e263e01470e0241bde8",
+    "examples/memory_probe.rs": "dcfbd33bafc5d32654feaede0ab11449de59d5cc04efa26ffb11970fb3013183",
+    "examples/plan_probe.rs": "a326d6ca61cdb3834d7ca425c687d815de31e8b250226aa223ece0938397bf60",
     "Cargo.toml": "c48f404b18cadd86690f24d8bb1ddaf50da1d7ae3c4c482298cf33be5d79a655",
     "Cargo.lock": "52431af159c68a1f5c6cc909211e98113ec8b560b81ce7f4e2464e98d876a843",
     "infer.design.toml": "b3b54a8d31d1d075eceae4a1141a1379d6878fc22880e7a6b01b1a9c0e46b479",
@@ -56,7 +56,7 @@
     "requirements-plot.txt": "235a633bd55c449510d4e59f0af96504fbde99cd953a11ff2d18812eb72c5ab6"
   },
   "independent_audit": {
-    "path": "evidence\\audit-20261104T115359.910097Z.json",
+    "path": "evidence/audit-20261104T115359.910097Z.json",
     "sha256": "aeab9ad6de3846719aa42af0189f5023e44205a91937878da47be2415ef68c94",
     "checks": 16,
     "failures": 0
@@ -79,18 +79,18 @@
     "executable_sha256": "6eb67ebcca7717c1e1b4e4b040206bc078bf1c2e4fcdf51794b37ab82c4ee649"
   },
   "evidence": {
-    "artifacts\\AD\\run.json": "e3302631f43463fed8c034c688a7b149a79a7ae83af8d891b3404b8a229864a7",
-    "artifacts\\ADX\\run.json": "b3a95a59f1fcedb9a4f5058a3eff5db7876f5fb01ee8742e4566974554f3af89",
-    "artifacts\\bp-AD\\run.json": "d8bcdd5324ffd6c5a1f3fbb5e296c9c789293bda488b205098f5b3d8a03b37d8",
-    "artifacts\\bp-ADX\\run.json": "51d9c8fd05f131db7a865f2c8d2e38817d2e7412240c5c3ecc06a3306d9a951e",
-    "artifacts\\bp-prior\\run.json": "d6dba4faf6628c1bc77681a9c5e6e73c4093a7495ffbc22e0fbc6b18f95c91c0",
-    "artifacts\\bp-promedus\\run.json": "8b2105a3522f78e8d41813f12691d6557a2adfb180f5a7bb7449bfcdbefcf0e5",
-    "artifacts\\prior\\run.json": "5dd214f122eae099db579b619679d5f1690e98f5691c30e64f5e42f7e177ec48",
-    "runs\\greedy\\run.json": "9de0ddc40b9d765746da1392426456f1a45ac7fa5ac9347838c1ca26c51770f7",
-    "runs\\promedus-greedy\\run.json": "0926f50079d0b82fee5c6c90eb51e381f15de0e1c4adb9a649509d2586c7e926",
-    "runs\\promedus-treesa\\run.json": "9feba11d9085c883cece5ebf69dffcce70eaba48269956e3b78d508813a0c82b",
-    "runs\\random\\run.json": "6d3cd6b7c0987bbbfd9e253ca9d86b938f88863e246ee5f2f3ffbf9aec727e06",
-    "runs\\replay\\run.json": "5bd21d5469ea1d41f5033a178707d62e0236134d0f53d163653be82508c072b1"
+    "artifacts/AD/run.json": "e3302631f43463fed8c034c688a7b149a79a7ae83af8d891b3404b8a229864a7",
+    "artifacts/ADX/run.json": "b3a95a59f1fcedb9a4f5058a3eff5db7876f5fb01ee8742e4566974554f3af89",
+    "artifacts/bp-AD/run.json": "d8bcdd5324ffd6c5a1f3fbb5e296c9c789293bda488b205098f5b3d8a03b37d8",
+    "artifacts/bp-ADX/run.json": "51d9c8fd05f131db7a865f2c8d2e38817d2e7412240c5c3ecc06a3306d9a951e",
+    "artifacts/bp-prior/run.json": "d6dba4faf6628c1bc77681a9c5e6e73c4093a7495ffbc22e0fbc6b18f95c91c0",
+    "artifacts/bp-promedus/run.json": "8b2105a3522f78e8d41813f12691d6557a2adfb180f5a7bb7449bfcdbefcf0e5",
+    "artifacts/prior/run.json": "5dd214f122eae099db579b619679d5f1690e98f5691c30e64f5e42f7e177ec48",
+    "runs/greedy/run.json": "9de0ddc40b9d765746da1392426456f1a45ac7fa5ac9347838c1ca26c51770f7",
+    "runs/promedus-greedy/run.json": "0926f50079d0b82fee5c6c90eb51e381f15de0e1c4adb9a649509d2586c7e926",
+    "runs/promedus-treesa/run.json": "9feba11d9085c883cece5ebf69dffcce70eaba48269956e3b78d508813a0c82b",
+    "runs/random/run.json": "6d3cd6b7c0987bbbfd9e253ca9d86b938f88863e246ee5f2f3ffbf9aec727e06",
+    "runs/replay/run.json": "5bd21d5469ea1d41f5033a178707d62e0236134d0f53d163653be82508c072b1"
   },
   "limitations": [
     "BP convergence and marginal accuracy are separate; see actual traces",
