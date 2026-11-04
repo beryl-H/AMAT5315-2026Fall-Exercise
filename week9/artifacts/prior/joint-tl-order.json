@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "method": "greedy",
+  "seed": null,
+  "settings": {
+    "evidence_representation": "conditioned/sliced factors; observed axes removed and scalar factors retained (no change for prior)",
+    "label_policy": "earliest safe sum; optimizer binary topology retained",
+    "query_axis_size_multiplier": 4,
+    "query_topology_source": "scalar evidence plan; identical binary children, re-canonicalized open output axes; no independent query optimizer run",
+    "scalar_largest_generated_tensor": 4,
+    "scalar_planning_method": "greedy",
+    "scalar_work": 52,
+    "search_cost_vs_executed_cost": "omeco searches its native label-retention work; saved/recounted execution uses earliest-safe-sum labels; these costs need not coincide",
+    "topology_source": "omeco 0.2.6 optimize_code"
+  },
+  "dimensions": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "input_labels": [
+    [
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      2
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      4,
+      2
+    ],
+    [
+      5,
+      3,
+      1
+    ],
+    [
+      6,
+      5
+    ],
+    [
+      7,
+      5,
+      4
+    ]
+  ],
+  "output_labels": [
+    1,
+    3
+  ],
+  "tree": {
+    "Node": {
+      "args": [
+        {
+          "Node": {
+            "args": [
+              {
+                "Leaf": {
+                  "tensor_index": 3
+                }
+              },
+              {
+                "Node": {
+                  "args": [
+                    {
+                      "Leaf": {
+                        "tensor_index": 2
+                      }
+                    },
+                    {
+                      "Leaf": {
+                        "tensor_index": 4
+                      }
+                    }
+                  ],
+                  "eins": {
+                    "ixs": [
+                      [
+                        2
+                      ],
+                      [
+                        4,
+                        2
+                      ]
+                    ],
+                    "iy": [
+                      2,
+                      4
+                    ]
+                  }
+                }
+              }
+            ],
+            "eins": {
+              "ixs": [
+                [
+                  3,
+                  2
+                ],
+                [
+                  2,
+                  4
+                ]
+              ],
+              "iy": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "Node": {
+            "args": [
+              {
+                "Node": {
+                  "args": [
+                    {
+                      "Leaf": {
+                        "tensor_index": 6
+                      }
+                    },
+                    {
+                      "Leaf": {
+                        "tensor_index": 7
+                      }
+                    }
+                  ],
+                  "eins": {
+                    "ixs": [
+                      [
+                        6,
+                        5
+                      ],
+                      [
+                        7,
+                        5,
+                        4
+                      ]
+                    ],
+                    "iy": [
+                      4,
+                      5
+                    ]
+                  }
+                }
+              },
+              {
+                "Node": {
+                  "args": [
+                    {
+                      "Leaf": {
+                        "tensor_index": 5
+                      }
+                    },
+                    {
+                      "Node": {
+                        "args": [
+                          {
+                            "Leaf": {
+                              "tensor_index": 0
+                            }
+                          },
+                          {
+                            "Leaf": {
+                              "tensor_index": 1
+                            }
+                          }
+                        ],
+                        "eins": {
+                          "ixs": [
+                            [
+                              0
+                            ],
+                            [
+                              1,
+                              0
+                            ]
+                          ],
+                          "iy": [
+                            1
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "eins": {
+                    "ixs": [
+                      [
+                        5,
+                        3,
+                        1
+                      ],
+                      [
+                        1
+                      ]
+                    ],
+                    "iy": [
+                      1,
+                      3,
+                      5
+                    ]
+                  }
+                }
+              }
+            ],
+            "eins": {
+              "ixs": [
+                [
+                  4,
+                  5
+                ],
+                [
+                  1,
+                  3,
+                  5
+                ]
+              ],
+              "iy": [
+                1,
+                3,
+                4
+              ]
+            }
+          }
+        }
+      ],
+      "eins": {
+        "ixs": [
+          [
+            3,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ]
+        ],
+        "iy": [
+          1,
+          3
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+/target/
+/vendor-reference/
+__pycache__/
+*.pyc
+/reproductions/

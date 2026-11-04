@@ -1,0 +1,39 @@
+usage = "infer --model asia.uai --evidence AD --out artifacts/AD"
+description = "infer probabilities from local factors; no unstated defaults"
+[args]
+model = "UAI model path; retain unchanged nonnegative factors and scope axis order"
+evidence = "prior, AD, ADX, or path to UAI evidence file"
+out = "new output directory; existing artifact files are never overwritten"
+queries = "comma-separated variable IDs; ASIA requires all nodes in ID order (omit option for default); larger model default 59,102,139"
+[writes]
+"<out>/run.json" = "observations, evidence mass/log10 partition sum, state-ordered node marginals and ASIA T,L joint; ASIA enumeration and sanity checks"
+stdout = "evidence probability, disease probabilities, discrepancies, log10 partition sum and work"
+[args.ordering]
+order = "scalar evidence order: random, greedy (default), or treesa; exclusive with plan/analyze"
+seed = "required random seed; TreeSA requires 42 (upstream fixed seeds 42+trial); absent for greedy"
+plan = "replay saved scalar-query plan"
+analyze = "analyse saved scalar-query plan without tensor evaluation"
+trials = "TreeSA independent trials, default 4"
+iterations = "TreeSA iterations per beta, default 50"
+[writes.ordering]
+"<out>/order.json" = "schema, original conditioned scopes/dimensions, full tree, method, seed and complete search settings"
+"<out>/complexity.json" = "sum of pair-union dimension products, maximum entries including inputs, largest generated tensor, per-step child IDs and retained/union labels"
+"<out>/query-<id>-order.json" = "actual query contraction plan, not just scalar plan"
+"<out>/query-<id>-complexity.json" = "actual query cost"
+[args.bp]
+method = "exact (default) or bp"
+damping = "required bp fraction of proposed message; exact forbids it"
+tolerance = "required bp undamped fixed-point residual threshold"
+max-sweeps = "required bp update limit, not a convergence claim"
+[writes.bp]
+"<out>/run.json" = "observations, settings, beliefs, convergence flag and history at returned states; each history row contains undamped residual, beliefs and cumulative update work"
+stdout = "sweep, undamped residual and cumulative update work"
+
+[implementation]
+asia-evidence = "exact: unchanged original factors plus unary one-hot evidence caps, matching the teaching diagram; BP: slice observed axes"
+promedus-evidence = "slice observed axes, retain resulting scalar factors; preserve original MARKOV potentials in Model"
+scale = "rescale every input and generated tensor by its maximum; accumulate removed multipliers in log10 scale"
+plan-labels = "keep actual omeco binary topology; canonicalize retained labels using outside-subtree/output rule; distinguish native search costs and independently recounted executed costs"
+limitations = "isolated model variables are rejected explicitly; small-model enumeration limited to 2^24 assignments; omeco TreeSA 0.2.6 exposes fixed seeds 42+trial_index"
+
+query-topology = "all exact open-query plans reuse the optimized scalar evidence binary tree and recompute retained axes; no independent query optimizer; binary single-query work/generated entries <=2x scalar; query plans and costs are saved before execution"

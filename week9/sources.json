@@ -1,0 +1,32 @@
+[
+  {
+    "path": "asia.uai",
+    "url": "https://raw.githubusercontent.com/TensorBFS/TensorInference.jl/935ed86f8e473f523cac9461c45a1f470e74f0f9/examples/asia-network/model.uai",
+    "bytes": 265,
+    "sha256": "0d78314c96b1cbbfd94682f0e99f73461cb50a935a1da85cbc814c70e3fff32d"
+  },
+  {
+    "path": "promedus/Promedus_14.uai",
+    "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai",
+    "bytes": 48170,
+    "sha256": "f213b76a7f145a06f39daa9061408981dbd525e4ce2e5156edb83a7073d71349"
+  },
+  {
+    "path": "promedus/Promedus_14.uai.evid",
+    "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai.evid",
+    "bytes": 47,
+    "sha256": "e345a4ebecf02cdd9fdaf42e7456afa5f6ecafa989b6a3c15ef525abe736a403"
+  },
+  {
+    "path": "promedus/Promedus_14.uai.PR",
+    "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai.PR",
+    "bytes": 12,
+    "sha256": "d52ca345f79e79f0385f7bd91a3c2e3521eff165b3dcb7b29be1e56ca5f96dfc"
+  },
+  {
+    "path": "promedus/Promedus_14.uai.MAR",
+    "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/MAR/Promedus_14.uai.MAR",
+    "bytes": 8607,
+    "sha256": "06e3145bb59fd0a22af235af43bc7c45bee71a764647e152314bdded4f0d256f"
+  }
+]
