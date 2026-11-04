@@ -1,0 +1,13 @@
+Bounded isolated tenferro 0.9.0 probes, CPU serial, full binary dimensions=2, original query-102 step label lists.
+Linux limits: ulimit -c 0; ulimit -v 1572864 (1.5 GiB address space); no model rerun.
+step823 input_ranks=[17,18], output_rank=24, pool_limit=104857600
+inputs VmPeak41828 kB, VmRSS9080 kB
+success 492.239066 ms; output16777216 entries; sample16 (expected2^4)
+cache entries1 retained_bytes1006512; VmPeak436304 kB; VmRSS145176 kB
+step824 input_ranks=[20,24], output_rank=20, pool_limit=104857600
+inputs VmPeak178020 kB VmRSS145116 kB
+success241.972486 ms; output1048576 entries; sample4096 (expected2^12)
+cache entries2 retained_bytes14275296; VmPeak208660 kB VmRSS169704 kB
+Static saved-tree live-data bound (left then right recursion, inputs+two output copies; excludes backend scratch):
+scalar50.06 MiB; query59 160.50 MiB; query102 275.00 MiB.
+Critical code-order observation: query plan/complexity files are written AFTER contraction returns successfully. Existing query102 files prove query102 completed; the failing phase may instead be following query139. No exact.rs production change made.

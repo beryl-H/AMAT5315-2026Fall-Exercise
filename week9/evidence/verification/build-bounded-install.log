@@ -1,0 +1,5 @@
+  Installing infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)
+    Updating crates.io index
+    Finished `release` profile [optimized] target(s) in 7.46s
+   Replacing /mnt/d/Keria/Course/AMAT5315/week9-support/install/bin/infer
+    Replaced package `infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)` with `infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)` (executable `infer`)

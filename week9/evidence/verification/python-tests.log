@@ -1,0 +1,13 @@
+Coordinator console readback receipt (unittest wrote to stderr, so the original stdout-only redirect was empty).
+Executed command:
+wsl -d Ubuntu-24.04 -- /home/keria_h/AMAT5315-2026Fall-Exercise/week8/.venv/bin/python -m unittest discover -s /mnt/d/Keria/Course/AMAT5315/week9/tests -p test_python_audit.py -v
+
+Observed tests, all reported ok:
+test_asia_state_and_scope_order
+test_duplicate_factor_is_rejected
+test_hyperedge_kept_until_last_occurrence
+test_swapped_tb_scope_with_unchanged_values_is_rejected
+
+Observed console summary:
+Ran 4 tests in 0.092s
+OK

@@ -1,0 +1,48 @@
+[
+  {
+    "arguments": [
+      "--order",
+      "random"
+    ],
+    "exit_code": 1,
+    "stderr": "Error: random requires seed\n"
+  },
+  {
+    "arguments": [
+      "--order",
+      "greedy",
+      "--seed",
+      "42"
+    ],
+    "exit_code": 1,
+    "stderr": "Error: seed only valid with random or treesa\n"
+  },
+  {
+    "arguments": [
+      "--order",
+      "greedy",
+      "--plan",
+      "runs/greedy/order.json"
+    ],
+    "exit_code": 2,
+    "stderr": "error: the argument '--order <ORDER>' cannot be used with '--plan <PLAN>'\n\nUsage: infer --model <MODEL> --evidence <EVIDENCE> --out <OUT> --order <ORDER>\n\nFor more information, try '--help'.\n"
+  },
+  {
+    "arguments": [
+      "--damping",
+      "0.5"
+    ],
+    "exit_code": 1,
+    "stderr": "Error: BP settings require method bp\n"
+  },
+  {
+    "arguments": [
+      "--method",
+      "bp",
+      "--damping",
+      "0.5"
+    ],
+    "exit_code": 1,
+    "stderr": "Error: bp requires tolerance\n"
+  }
+]

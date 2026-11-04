@@ -1,0 +1,46 @@
+   Compiling infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)
+    Finished `release` profile [optimized] target(s) in 19.07s
+     Running unittests src/lib.rs (/home/keria_h/.cache/amat5315-week9-target/release/deps/infer-8f4e3365f6822fd1)
+
+running 8 tests
+test bp::tests::invalid_settings_are_rejected ... ok
+test bp::tests::conflicting_supports_error_with_zero_sum ... ok
+test bp::tests::isolated_unobserved_variable_is_uniform ... ok
+test bp::tests::observed_variables_are_one_hot_and_condition_marginals_match ... ok
+test bp::tests::trace_reports_every_recorded_state ... ok
+test bp::tests::unary_initial_residual_is_exact_and_final_matches_analytic_proposal ... ok
+test bp::tests::zero_mass_factor_errors ... ok
+test bp::tests::tree_matches_exact_enumeration ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/home/keria_h/.cache/amat5315-week9-target/release/deps/infer-4313e7dd0a732586)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/behavior.rs (/home/keria_h/.cache/amat5315-week9-target/release/deps/behavior-36878c2741fe4780)
+
+running 12 tests
+test evidence_parser_accepts_both_competition_encodings ... ok
+test invalid_tables_are_rejected ... ok
+test isolated_variable_is_explicitly_rejected ... ok
+test malformed_plan_returns_error_instead_of_panicking ... ok
+test retarget_preserves_subnormal_partition_log_scale ... ok
+test scalar_scale_survives_and_random_replays ... ok
+test scope_order_and_evidence_mass ... ok
+test hyperedge_and_joint_output_preserve_dependence ... ok
+test asia_caps_preserve_evidence_and_cost_accounting ... ok
+test matrix_and_ising_checks ... ok
+test retarget_keeps_open_queries_with_binary_space_bound_and_exact_marginals ... ok
+test asia_partial_query_is_a_clear_cli_error_not_a_panic ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+   Doc-tests infer
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

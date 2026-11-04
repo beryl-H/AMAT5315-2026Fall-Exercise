@@ -1,0 +1,4 @@
+   Compiling infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)
+    Finished `release` profile [optimized] target(s) in 9.00s
+     Running `/home/keria_h/.cache/amat5315-week9-target/release/examples/plan_probe`
+plan-only: work=14006989794 largest_tensor=67108864 largest_generated_tensor=67108864; no contraction invoked

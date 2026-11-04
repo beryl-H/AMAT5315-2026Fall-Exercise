@@ -1,0 +1,827 @@
+infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)
+├── tenferro-einsum v0.9.0
+│   ├── tenferro-cpu v0.9.0
+│   │   ├── tenferro-runtime v0.9.0
+│   │   │   ├── tenferro-internal-ops v0.9.0
+│   │   │   │   ├── tenferro-tensor v0.9.0
+│   │   │   │   │   ├── thiserror feature "default"
+│   │   │   │   │   │   ├── thiserror v2.0.21
+│   │   │   │   │   │   │   └── thiserror-impl feature "default"
+│   │   │   │   │   │   │       └── thiserror-impl v2.0.21 (proc-macro)
+│   │   │   │   │   │   │           ├── proc-macro2 feature "default"
+│   │   │   │   │   │   │           │   ├── proc-macro2 v1.0.107
+│   │   │   │   │   │   │           │   │   └── unicode-ident feature "default"
+│   │   │   │   │   │   │           │   │       └── unicode-ident v1.0.27
+│   │   │   │   │   │   │           │   └── proc-macro2 feature "proc-macro"
+│   │   │   │   │   │   │           │       └── proc-macro2 v1.0.107 (*)
+│   │   │   │   │   │   │           ├── quote feature "default"
+│   │   │   │   │   │   │           │   ├── quote v1.0.47
+│   │   │   │   │   │   │           │   │   └── proc-macro2 v1.0.107 (*)
+│   │   │   │   │   │   │           │   └── quote feature "proc-macro"
+│   │   │   │   │   │   │           │       ├── quote v1.0.47 (*)
+│   │   │   │   │   │   │           │       └── proc-macro2 feature "proc-macro" (*)
+│   │   │   │   │   │   │           └── syn feature "default"
+│   │   │   │   │   │   │               ├── syn v3.0.9
+│   │   │   │   │   │   │               │   ├── proc-macro2 v1.0.107 (*)
+│   │   │   │   │   │   │               │   ├── quote v1.0.47 (*)
+│   │   │   │   │   │   │               │   └── unicode-ident feature "default" (*)
+│   │   │   │   │   │   │               ├── syn feature "clone-impls"
+│   │   │   │   │   │   │               │   └── syn v3.0.9 (*)
+│   │   │   │   │   │   │               ├── syn feature "derive"
+│   │   │   │   │   │   │               │   └── syn v3.0.9 (*)
+│   │   │   │   │   │   │               ├── syn feature "parsing"
+│   │   │   │   │   │   │               │   └── syn v3.0.9 (*)
+│   │   │   │   │   │   │               ├── syn feature "printing"
+│   │   │   │   │   │   │               │   └── syn v3.0.9 (*)
+│   │   │   │   │   │   │               └── syn feature "proc-macro"
+│   │   │   │   │   │   │                   ├── syn v3.0.9 (*)
+│   │   │   │   │   │   │                   ├── proc-macro2 feature "proc-macro" (*)
+│   │   │   │   │   │   │                   └── quote feature "proc-macro" (*)
+│   │   │   │   │   │   └── thiserror feature "std"
+│   │   │   │   │   │       └── thiserror v2.0.21 (*)
+│   │   │   │   │   ├── num-complex feature "default"
+│   │   │   │   │   │   ├── num-complex v0.4.6
+│   │   │   │   │   │   │   ├── bytemuck feature "default"
+│   │   │   │   │   │   │   │   └── bytemuck v1.25.2
+│   │   │   │   │   │   │   └── num-traits feature "i128"
+│   │   │   │   │   │   │       └── num-traits v0.2.19
+│   │   │   │   │   │   │           [build-dependencies]
+│   │   │   │   │   │   │           └── autocfg feature "default"
+│   │   │   │   │   │   │               └── autocfg v1.5.1
+│   │   │   │   │   │   └── num-complex feature "std"
+│   │   │   │   │   │       ├── num-complex v0.4.6 (*)
+│   │   │   │   │   │       └── num-traits feature "std"
+│   │   │   │   │   │           └── num-traits v0.2.19 (*)
+│   │   │   │   │   ├── num-traits feature "default"
+│   │   │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   │   │   │   └── num-traits feature "std" (*)
+│   │   │   │   │   ├── tinyvec feature "alloc"
+│   │   │   │   │   │   └── tinyvec v1.13.3
+│   │   │   │   │   ├── tinyvec feature "default"
+│   │   │   │   │   │   └── tinyvec v1.13.3
+│   │   │   │   │   ├── tenferro-core-ops feature "default"
+│   │   │   │   │   │   └── tenferro-core-ops v0.9.0
+│   │   │   │   │   └── tenferro-tensor-core feature "default"
+│   │   │   │   │       └── tenferro-tensor-core v0.9.0
+│   │   │   │   │           ├── thiserror feature "default" (*)
+│   │   │   │   │           ├── num-complex feature "default" (*)
+│   │   │   │   │           ├── tinyvec feature "alloc" (*)
+│   │   │   │   │           └── tinyvec feature "default" (*)
+│   │   │   │   ├── thiserror feature "default" (*)
+│   │   │   │   ├── num-complex feature "default" (*)
+│   │   │   │   ├── tenferro-core-ops feature "default" (*)
+│   │   │   │   ├── computegraph feature "default"
+│   │   │   │   │   └── computegraph v0.1.0
+│   │   │   │   └── tenferro-internal-extension-macros feature "default"
+│   │   │   │       └── tenferro-internal-extension-macros v0.9.0 (proc-macro)
+│   │   │   │           ├── proc-macro2 feature "default" (*)
+│   │   │   │           ├── quote feature "default" (*)
+│   │   │   │           ├── syn feature "default"
+│   │   │   │           │   ├── syn v2.0.119
+│   │   │   │           │   │   ├── proc-macro2 v1.0.107 (*)
+│   │   │   │           │   │   ├── quote v1.0.47 (*)
+│   │   │   │           │   │   └── unicode-ident feature "default" (*)
+│   │   │   │           │   ├── syn feature "clone-impls"
+│   │   │   │           │   │   └── syn v2.0.119 (*)
+│   │   │   │           │   ├── syn feature "derive"
+│   │   │   │           │   │   └── syn v2.0.119 (*)
+│   │   │   │           │   ├── syn feature "parsing"
+│   │   │   │           │   │   └── syn v2.0.119 (*)
+│   │   │   │           │   ├── syn feature "printing"
+│   │   │   │           │   │   └── syn v2.0.119 (*)
+│   │   │   │           │   └── syn feature "proc-macro"
+│   │   │   │           │       ├── syn v2.0.119 (*)
+│   │   │   │           │       ├── proc-macro2 feature "proc-macro" (*)
+│   │   │   │           │       └── quote feature "proc-macro" (*)
+│   │   │   │           └── syn feature "derive" (*)
+│   │   │   ├── tenferro-tensor v0.9.0 (*)
+│   │   │   ├── thiserror feature "default" (*)
+│   │   │   ├── num-complex feature "default" (*)
+│   │   │   ├── num-traits feature "default" (*)
+│   │   │   ├── tinyvec feature "alloc" (*)
+│   │   │   ├── tinyvec feature "default" (*)
+│   │   │   ├── lru feature "default"
+│   │   │   │   ├── lru v0.18.5
+│   │   │   │   │   ├── hashbrown feature "default-hasher"
+│   │   │   │   │   │   └── hashbrown v0.17.1
+│   │   │   │   │   │       └── foldhash v0.2.0
+│   │   │   │   │   └── hashbrown feature "inline-more"
+│   │   │   │   │       └── hashbrown v0.17.1 (*)
+│   │   │   │   └── lru feature "hashbrown"
+│   │   │   │       └── lru v0.18.5 (*)
+│   │   │   ├── smallvec feature "default"
+│   │   │   │   └── smallvec v1.16.4
+│   │   │   ├── smallvec feature "union"
+│   │   │   │   └── smallvec v1.16.4
+│   │   │   ├── tenferro-core-ops feature "default" (*)
+│   │   │   ├── computegraph feature "default" (*)
+│   │   │   └── tenferro-internal-extension-macros feature "default" (*)
+│   │   ├── thiserror feature "default" (*)
+│   │   ├── cpueinsum feature "default"
+│   │   │   └── cpueinsum v0.9.1
+│   │   │       ├── num-complex feature "default" (*)
+│   │   │       ├── strided-view feature "default"
+│   │   │       │   └── strided-view v0.7.1
+│   │   │       │       ├── num-complex feature "default" (*)
+│   │   │       │       ├── num-traits feature "default" (*)
+│   │   │       │       ├── strided-traits feature "default"
+│   │   │       │       │   └── strided-traits v0.7.0
+│   │   │       │       │       ├── num-complex feature "default" (*)
+│   │   │       │       │       └── num-traits feature "default" (*)
+│   │   │       │       ├── thiserror feature "default"
+│   │   │       │       │   └── thiserror v1.0.69
+│   │   │       │       │       └── thiserror-impl feature "default"
+│   │   │       │       │           └── thiserror-impl v1.0.69 (proc-macro)
+│   │   │       │       │               ├── proc-macro2 feature "default" (*)
+│   │   │       │       │               ├── quote feature "default" (*)
+│   │   │       │       │               └── syn feature "default" (*)
+│   │   │       │       ├── tinyvec feature "alloc" (*)
+│   │   │       │       └── tinyvec feature "default" (*)
+│   │   │       ├── thiserror feature "default" (*)
+│   │   │       ├── tcontract feature "default"
+│   │   │       │   └── tcontract v0.9.1
+│   │   │       │       ├── num-complex feature "default" (*)
+│   │   │       │       ├── num-traits feature "default" (*)
+│   │   │       │       ├── strided-view feature "default" (*)
+│   │   │       │       ├── thiserror feature "default" (*)
+│   │   │       │       ├── tinyvec feature "alloc" (*)
+│   │   │       │       ├── strided-basic feature "parallel"
+│   │   │       │       │   ├── strided-basic v0.10.0
+│   │   │       │       │   │   ├── threadteam v0.3.0
+│   │   │       │       │   │   │   ├── libc feature "default"
+│   │   │       │       │   │   │   │   ├── libc v0.2.191
+│   │   │       │       │   │   │   │   └── libc feature "std"
+│   │   │       │       │   │   │   │       └── libc v0.2.191
+│   │   │       │       │   │   │   ├── rayon feature "default"
+│   │   │       │       │   │   │   │   └── rayon v1.12.0
+│   │   │       │       │   │   │   │       ├── either v1.19.0
+│   │   │       │       │   │   │   │       └── rayon-core feature "default"
+│   │   │       │       │   │   │   │           └── rayon-core v1.13.0
+│   │   │       │       │   │   │   │               ├── crossbeam-deque feature "default"
+│   │   │       │       │   │   │   │               │   ├── crossbeam-deque v0.8.8
+│   │   │       │       │   │   │   │               │   │   ├── crossbeam-epoch v0.9.21
+│   │   │       │       │   │   │   │               │   │   │   └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │               │   │   └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │               │   └── crossbeam-deque feature "std"
+│   │   │       │       │   │   │   │               │       ├── crossbeam-deque v0.8.8 (*)
+│   │   │       │       │   │   │   │               │       ├── crossbeam-epoch feature "std"
+│   │   │       │       │   │   │   │               │       │   ├── crossbeam-epoch v0.9.21 (*)
+│   │   │       │       │   │   │   │               │       │   ├── crossbeam-epoch feature "alloc"
+│   │   │       │       │   │   │   │               │       │   │   └── crossbeam-epoch v0.9.21 (*)
+│   │   │       │       │   │   │   │               │       │   └── crossbeam-utils feature "std"
+│   │   │       │       │   │   │   │               │       │       └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │               │       └── crossbeam-utils feature "std" (*)
+│   │   │       │       │   │   │   │               └── crossbeam-utils feature "default"
+│   │   │       │       │   │   │   │                   ├── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │                   └── crossbeam-utils feature "std" (*)
+│   │   │       │       │   │   │   └── thiserror feature "default" (*)
+│   │   │       │       │   │   ├── num-complex feature "default" (*)
+│   │   │       │       │   │   ├── num-traits feature "default" (*)
+│   │   │       │       │   │   ├── strided-view feature "default" (*)
+│   │   │       │       │   │   ├── tinyvec feature "alloc" (*)
+│   │   │       │       │   │   ├── tinyvec feature "default" (*)
+│   │   │       │       │   │   ├── pulp feature "default"
+│   │   │       │       │   │   │   ├── pulp v0.22.3
+│   │   │       │       │   │   │   │   ├── libm v0.2.16
+│   │   │       │       │   │   │   │   ├── pulp-wasm-simd-flag v0.1.1
+│   │   │       │       │   │   │   │   ├── raw-cpuid v11.6.0
+│   │   │       │       │   │   │   │   │   └── bitflags feature "default"
+│   │   │       │       │   │   │   │   │       └── bitflags v2.13.2
+│   │   │       │       │   │   │   │   ├── cfg-if feature "default"
+│   │   │       │       │   │   │   │   │   └── cfg-if v1.0.5
+│   │   │       │       │   │   │   │   ├── num-complex feature "bytemuck"
+│   │   │       │       │   │   │   │   │   └── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   ├── bytemuck feature "aarch64_simd"
+│   │   │       │       │   │   │   │   │   └── bytemuck v1.25.2
+│   │   │       │       │   │   │   │   ├── bytemuck feature "default" (*)
+│   │   │       │       │   │   │   │   ├── bytemuck feature "wasm_simd"
+│   │   │       │       │   │   │   │   │   └── bytemuck v1.25.2
+│   │   │       │       │   │   │   │   ├── paste feature "default"
+│   │   │       │       │   │   │   │   │   └── paste v1.0.15 (proc-macro)
+│   │   │       │       │   │   │   │   └── reborrow feature "default"
+│   │   │       │       │   │   │   │       └── reborrow v0.5.5
+│   │   │       │       │   │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   │   └── version_check feature "default"
+│   │   │       │       │   │   │   │       └── version_check v0.9.5
+│   │   │       │       │   │   │   ├── pulp feature "relaxed-simd"
+│   │   │       │       │   │   │   │   ├── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   │   └── pulp-wasm-simd-flag feature "relaxed-simd"
+│   │   │       │       │   │   │   │       └── pulp-wasm-simd-flag v0.1.1
+│   │   │       │       │   │   │   ├── pulp feature "std"
+│   │   │       │       │   │   │   │   └── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   └── pulp feature "x86-v3"
+│   │   │       │       │   │   │       └── pulp v0.22.3 (*)
+│   │   │       │       │   │   ├── pulp feature "x86-v4"
+│   │   │       │       │   │   │   ├── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   └── bytemuck feature "avx512_simd"
+│   │   │       │       │   │   │       └── bytemuck v1.25.2
+│   │   │       │       │   │   └── strided-perm feature "default"
+│   │   │       │       │   │       └── strided-perm v0.10.0
+│   │   │       │       │   │           ├── threadteam v0.3.0 (*)
+│   │   │       │       │   │           ├── strided-view feature "default" (*)
+│   │   │       │       │   │           ├── thiserror feature "default" (*)
+│   │   │       │       │   │           ├── tinyvec feature "alloc" (*)
+│   │   │       │       │   │           └── tinyvec feature "default" (*)
+│   │   │       │       │   ├── strided-perm feature "parallel"
+│   │   │       │       │   │   ├── strided-perm v0.10.0 (*)
+│   │   │       │       │   │   └── threadteam feature "parallel"
+│   │   │       │       │   │       └── threadteam v0.3.0 (*)
+│   │   │       │       │   └── threadteam feature "parallel" (*)
+│   │   │       │       ├── threadteam feature "default"
+│   │   │       │       │   ├── threadteam v0.3.0 (*)
+│   │   │       │       │   └── threadteam feature "parallel" (*)
+│   │   │       │       ├── t4a-faer feature "rayon"
+│   │   │       │       │   ├── t4a-faer v0.28.2
+│   │   │       │       │   │   ├── libm v0.2.16
+│   │   │       │       │   │   ├── nano-gemm v0.2.2
+│   │   │       │       │   │   │   ├── nano-gemm-c32 v0.2.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   └── nano-gemm-core feature "default"
+│   │   │       │       │   │   │   │       └── nano-gemm-core v0.2.1
+│   │   │       │       │   │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   │   └── nano-gemm-codegen feature "default"
+│   │   │       │       │   │   │   │       └── nano-gemm-codegen v0.2.1
+│   │   │       │       │   │   │   ├── nano-gemm-c64 v0.2.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   └── nano-gemm-core feature "default" (*)
+│   │   │       │       │   │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   │   └── nano-gemm-codegen feature "default" (*)
+│   │   │       │       │   │   │   ├── nano-gemm-f32 v0.2.1
+│   │   │       │       │   │   │   │   └── nano-gemm-core feature "default" (*)
+│   │   │       │       │   │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   │   └── nano-gemm-codegen feature "default" (*)
+│   │   │       │       │   │   │   ├── nano-gemm-f64 v0.2.1
+│   │   │       │       │   │   │   │   └── nano-gemm-core feature "default" (*)
+│   │   │       │       │   │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   │   └── nano-gemm-codegen feature "default" (*)
+│   │   │       │       │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   ├── equator feature "default"
+│   │   │       │       │   │   │   │   └── equator v0.2.2
+│   │   │       │       │   │   │   │       └── equator-macro feature "default"
+│   │   │       │       │   │   │   │           └── equator-macro v0.2.1 (proc-macro)
+│   │   │       │       │   │   │   │               ├── proc-macro2 feature "default" (*)
+│   │   │       │       │   │   │   │               ├── quote feature "default" (*)
+│   │   │       │       │   │   │   │               ├── syn feature "default" (*)
+│   │   │       │       │   │   │   │               └── syn feature "full"
+│   │   │       │       │   │   │   │                   └── syn v2.0.119 (*)
+│   │   │       │       │   │   │   └── nano-gemm-core feature "default" (*)
+│   │   │       │       │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   └── nano-gemm-codegen feature "default" (*)
+│   │   │       │       │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   ├── t4a-faer-traits v0.24.2
+│   │   │       │       │   │   │   ├── libm v0.2.16
+│   │   │       │       │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   ├── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   ├── qd v0.8.0
+│   │   │       │       │   │   │   │   ├── bytemuck v1.25.2
+│   │   │       │       │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   ├── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   │   └── libm feature "default"
+│   │   │       │       │   │   │   │       ├── libm v0.2.16
+│   │   │       │       │   │   │   │       └── libm feature "arch"
+│   │   │       │       │   │   │   │           └── libm v0.2.16
+│   │   │       │       │   │   │   ├── bytemuck feature "default" (*)
+│   │   │       │       │   │   │   ├── reborrow feature "default" (*)
+│   │   │       │       │   │   │   ├── dyn-stack feature "alloc"
+│   │   │       │       │   │   │   │   └── dyn-stack v0.13.2
+│   │   │       │       │   │   │   │       ├── bytemuck feature "default" (*)
+│   │   │       │       │   │   │   │       └── dyn-stack-macros feature "default"
+│   │   │       │       │   │   │   │           └── dyn-stack-macros v0.1.3 (proc-macro)
+│   │   │       │       │   │   │   ├── dyn-stack feature "core-error"
+│   │   │       │       │   │   │   │   └── dyn-stack v0.13.2 (*)
+│   │   │       │       │   │   │   └── generativity feature "default"
+│   │   │       │       │   │   │       └── generativity v1.2.1
+│   │   │       │       │   │   ├── t4a-gemm v0.20.1
+│   │   │       │       │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 v0.20.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   │   ├── t4a-gemm-common v0.20.3
+│   │   │       │       │   │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   │   ├── pulp v0.22.3 (*)
+│   │   │       │       │   │   │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   │   │   ├── rayon feature "default" (*)
+│   │   │       │       │   │   │   │   │   ├── bytemuck feature "default" (*)
+│   │   │       │       │   │   │   │   │   ├── libm feature "default" (*)
+│   │   │       │       │   │   │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   │   │   ├── seq-macro feature "default"
+│   │   │       │       │   │   │   │   │   │   └── seq-macro v0.3.6 (proc-macro)
+│   │   │       │       │   │   │   │   │   ├── once_cell feature "alloc"
+│   │   │       │       │   │   │   │   │   │   ├── once_cell v1.21.4
+│   │   │       │       │   │   │   │   │   │   └── once_cell feature "race"
+│   │   │       │       │   │   │   │   │   │       └── once_cell v1.21.4
+│   │   │       │       │   │   │   │   │   └── once_cell feature "race" (*)
+│   │   │       │       │   │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   │   └── seq-macro feature "default" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c64 v0.20.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   │   ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   │   └── seq-macro feature "default" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-f32 v0.20.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   │   ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   │   └── seq-macro feature "default" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-f64 v0.20.1
+│   │   │       │       │   │   │   │   ├── num-complex v0.4.6 (*)
+│   │   │       │       │   │   │   │   ├── num-traits v0.2.19 (*)
+│   │   │       │       │   │   │   │   ├── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   │   ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   │   └── seq-macro feature "default" (*)
+│   │   │       │       │   │   │   ├── paste feature "default" (*)
+│   │   │       │       │   │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   │   └── seq-macro feature "default" (*)
+│   │   │       │       │   │   ├── t4a-private-gemm-x86 v0.1.28
+│   │   │       │       │   │   │   ├── rayon feature "default" (*)
+│   │   │       │       │   │   │   ├── raw-cpuid feature "default"
+│   │   │       │       │   │   │   │   └── raw-cpuid v11.6.0 (*)
+│   │   │       │       │   │   │   ├── crossbeam feature "default"
+│   │   │       │       │   │   │   │   ├── crossbeam v0.8.5
+│   │   │       │       │   │   │   │   │   ├── crossbeam-channel v0.5.17
+│   │   │       │       │   │   │   │   │   │   └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │   │   ├── crossbeam-deque v0.8.8 (*)
+│   │   │       │       │   │   │   │   │   ├── crossbeam-epoch v0.9.21 (*)
+│   │   │       │       │   │   │   │   │   ├── crossbeam-queue v0.3.14
+│   │   │       │       │   │   │   │   │   │   └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │   │   └── crossbeam-utils v0.8.23
+│   │   │       │       │   │   │   │   └── crossbeam feature "std"
+│   │   │       │       │   │   │   │       ├── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       ├── crossbeam-deque feature "std" (*)
+│   │   │       │       │   │   │   │       ├── crossbeam-epoch feature "std" (*)
+│   │   │       │       │   │   │   │       ├── crossbeam-utils feature "std" (*)
+│   │   │       │       │   │   │   │       ├── crossbeam feature "alloc"
+│   │   │       │       │   │   │   │       │   ├── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       │   ├── crossbeam-epoch feature "alloc" (*)
+│   │   │       │       │   │   │   │       │   ├── crossbeam feature "crossbeam-epoch"
+│   │   │       │       │   │   │   │       │   │   └── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       │   ├── crossbeam feature "crossbeam-queue"
+│   │   │       │       │   │   │   │       │   │   └── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       │   └── crossbeam-queue feature "alloc"
+│   │   │       │       │   │   │   │       │       └── crossbeam-queue v0.3.14 (*)
+│   │   │       │       │   │   │   │       ├── crossbeam feature "crossbeam-channel"
+│   │   │       │       │   │   │   │       │   └── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       ├── crossbeam feature "crossbeam-deque"
+│   │   │       │       │   │   │   │       │   └── crossbeam v0.8.5 (*)
+│   │   │       │       │   │   │   │       ├── crossbeam feature "crossbeam-epoch" (*)
+│   │   │       │       │   │   │   │       ├── crossbeam feature "crossbeam-queue" (*)
+│   │   │       │       │   │   │   │       ├── crossbeam-channel feature "std"
+│   │   │       │       │   │   │   │       │   ├── crossbeam-channel v0.5.17 (*)
+│   │   │       │       │   │   │   │       │   └── crossbeam-utils feature "std" (*)
+│   │   │       │       │   │   │   │       └── crossbeam-queue feature "std"
+│   │   │       │       │   │   │   │           ├── crossbeam-queue v0.3.14 (*)
+│   │   │       │       │   │   │   │           ├── crossbeam-utils feature "std" (*)
+│   │   │       │       │   │   │   │           └── crossbeam-queue feature "alloc" (*)
+│   │   │       │       │   │   │   ├── num_cpus feature "default"
+│   │   │       │       │   │   │   │   └── num_cpus v1.17.0
+│   │   │       │       │   │   │   │       └── libc feature "default" (*)
+│   │   │       │       │   │   │   └── spindle feature "default"
+│   │   │       │       │   │   │       └── spindle v0.2.6
+│   │   │       │       │   │   │           ├── rayon feature "default" (*)
+│   │   │       │       │   │   │           ├── crossbeam feature "default" (*)
+│   │   │       │       │   │   │           ├── atomic-wait feature "default"
+│   │   │       │       │   │   │           │   └── atomic-wait v1.1.0
+│   │   │       │       │   │   │           │       └── libc feature "default" (*)
+│   │   │       │       │   │   │           └── equator feature "default"
+│   │   │       │       │   │   │               └── equator v0.4.2
+│   │   │       │       │   │   │                   └── equator-macro feature "default"
+│   │   │       │       │   │   │                       └── equator-macro v0.4.2 (proc-macro)
+│   │   │       │       │   │   │                           ├── proc-macro2 feature "default" (*)
+│   │   │       │       │   │   │                           ├── quote feature "default" (*)
+│   │   │       │       │   │   │                           ├── syn feature "default" (*)
+│   │   │       │       │   │   │                           └── syn feature "full" (*)
+│   │   │       │       │   │   │   [build-dependencies]
+│   │   │       │       │   │   │   ├── defer feature "default"
+│   │   │       │       │   │   │   │   └── defer v0.2.1
+│   │   │       │       │   │   │   └── interpol feature "default"
+│   │   │       │       │   │   │       └── interpol v0.2.1 (proc-macro)
+│   │   │       │       │   │   │           ├── proc-macro2 feature "default" (*)
+│   │   │       │       │   │   │           ├── quote feature "default" (*)
+│   │   │       │       │   │   │           ├── syn feature "default"
+│   │   │       │       │   │   │           │   ├── syn v1.0.109
+│   │   │       │       │   │   │           │   │   ├── proc-macro2 v1.0.107 (*)
+│   │   │       │       │   │   │           │   │   ├── quote v1.0.47 (*)
+│   │   │       │       │   │   │           │   │   └── unicode-ident feature "default" (*)
+│   │   │       │       │   │   │           │   ├── syn feature "clone-impls"
+│   │   │       │       │   │   │           │   │   └── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │   ├── syn feature "derive"
+│   │   │       │       │   │   │           │   │   └── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │   ├── syn feature "parsing"
+│   │   │       │       │   │   │           │   │   └── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │   ├── syn feature "printing"
+│   │   │       │       │   │   │           │   │   ├── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │   │   └── syn feature "quote"
+│   │   │       │       │   │   │           │   │       └── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │   └── syn feature "proc-macro"
+│   │   │       │       │   │   │           │       ├── syn v1.0.109 (*)
+│   │   │       │       │   │   │           │       ├── proc-macro2 feature "proc-macro" (*)
+│   │   │       │       │   │   │           │       ├── quote feature "proc-macro" (*)
+│   │   │       │       │   │   │           │       └── syn feature "quote" (*)
+│   │   │       │       │   │   │           └── syn feature "full"
+│   │   │       │       │   │   │               └── syn v1.0.109 (*)
+│   │   │       │       │   │   ├── threadteam v0.3.0 (*)
+│   │   │       │       │   │   ├── rayon feature "default" (*)
+│   │   │       │       │   │   ├── bytemuck feature "default" (*)
+│   │   │       │       │   │   ├── pulp feature "x86-v3" (*)
+│   │   │       │       │   │   ├── reborrow feature "default" (*)
+│   │   │       │       │   │   ├── dyn-stack feature "alloc" (*)
+│   │   │       │       │   │   ├── dyn-stack feature "core-error" (*)
+│   │   │       │       │   │   ├── equator feature "default"
+│   │   │       │       │   │   │   └── equator v0.6.0
+│   │   │       │       │   │   │       └── equator-macro feature "default"
+│   │   │       │       │   │   │           └── equator-macro v0.6.0 (proc-macro)
+│   │   │       │       │   │   └── generativity feature "default" (*)
+│   │   │       │       │   ├── t4a-gemm feature "rayon"
+│   │   │       │       │   │   ├── t4a-gemm v0.20.1 (*)
+│   │   │       │       │   │   ├── t4a-gemm feature "std"
+│   │   │       │       │   │   │   ├── t4a-gemm v0.20.1 (*)
+│   │   │       │       │   │   │   ├── dyn-stack feature "std"
+│   │   │       │       │   │   │   │   └── dyn-stack v0.13.2 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 feature "std"
+│   │   │       │       │   │   │   │   ├── t4a-gemm-c32 v0.20.1 (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "std" (*)
+│   │   │       │       │   │   │   │   └── t4a-gemm-common feature "std"
+│   │   │       │       │   │   │   │       ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   │       ├── pulp feature "std" (*)
+│   │   │       │       │   │   │   │       ├── dyn-stack feature "std" (*)
+│   │   │       │       │   │   │   │       ├── t4a-gemm-common feature "sysctl"
+│   │   │       │       │   │   │   │       │   └── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │   │       └── once_cell feature "std"
+│   │   │       │       │   │   │   │           ├── once_cell v1.21.4
+│   │   │       │       │   │   │   │           └── once_cell feature "alloc" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c64 feature "std"
+│   │   │       │       │   │   │   │   ├── t4a-gemm-c64 v0.20.1 (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "std" (*)
+│   │   │       │       │   │   │   │   └── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-f32 feature "std"
+│   │   │       │       │   │   │   │   ├── t4a-gemm-f32 v0.20.1 (*)
+│   │   │       │       │   │   │   │   ├── dyn-stack feature "std" (*)
+│   │   │       │       │   │   │   │   └── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-f64 feature "std"
+│   │   │       │       │   │   │       ├── t4a-gemm-f64 v0.20.1 (*)
+│   │   │       │       │   │   │       ├── dyn-stack feature "std" (*)
+│   │   │       │       │   │   │       └── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   ├── t4a-gemm-c32 feature "rayon"
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 feature "std" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-common feature "rayon"
+│   │   │       │       │   │   │       ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │       └── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   ├── t4a-gemm-common feature "rayon" (*)
+│   │   │       │       │   │   ├── t4a-gemm-c64 feature "rayon"
+│   │   │       │       │   │   │   ├── t4a-gemm-c64 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common feature "rayon" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-c64 feature "std" (*)
+│   │   │       │       │   │   ├── t4a-gemm-f32 feature "rayon"
+│   │   │       │       │   │   │   ├── t4a-gemm-f32 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common feature "rayon" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-f32 feature "std" (*)
+│   │   │       │       │   │   └── t4a-gemm-f64 feature "rayon"
+│   │   │       │       │   │       ├── t4a-gemm-f64 v0.20.1 (*)
+│   │   │       │       │   │       ├── t4a-gemm-common feature "rayon" (*)
+│   │   │       │       │   │       └── t4a-gemm-f64 feature "std" (*)
+│   │   │       │       │   └── t4a-private-gemm-x86 feature "rayon"
+│   │   │       │       │       ├── t4a-private-gemm-x86 v0.1.28 (*)
+│   │   │       │       │       └── t4a-private-gemm-x86 feature "std"
+│   │   │       │       │           └── t4a-private-gemm-x86 v0.1.28 (*)
+│   │   │       │       ├── t4a-faer feature "std"
+│   │   │       │       │   ├── t4a-faer v0.28.2 (*)
+│   │   │       │       │   ├── pulp feature "std" (*)
+│   │   │       │       │   ├── libm feature "arch" (*)
+│   │   │       │       │   ├── nano-gemm feature "std"
+│   │   │       │       │   │   └── nano-gemm v0.2.2 (*)
+│   │   │       │       │   ├── t4a-faer-traits feature "std"
+│   │   │       │       │   │   ├── t4a-faer-traits v0.24.2 (*)
+│   │   │       │       │   │   ├── num-complex feature "std" (*)
+│   │   │       │       │   │   ├── num-traits feature "std" (*)
+│   │   │       │       │   │   ├── pulp feature "std" (*)
+│   │   │       │       │   │   ├── libm feature "arch" (*)
+│   │   │       │       │   │   └── qd feature "std"
+│   │   │       │       │   │       ├── qd v0.8.0 (*)
+│   │   │       │       │   │       ├── num-traits feature "std" (*)
+│   │   │       │       │   │       └── pulp feature "std" (*)
+│   │   │       │       │   ├── t4a-gemm feature "apple-sme"
+│   │   │       │       │   │   ├── t4a-gemm v0.20.1 (*)
+│   │   │       │       │   │   ├── t4a-gemm-c32 feature "apple-sme"
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-c32 feature "std" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-common feature "apple-sme"
+│   │   │       │       │   │   │       ├── t4a-gemm-common v0.20.3 (*)
+│   │   │       │       │   │   │       └── t4a-gemm-common feature "std" (*)
+│   │   │       │       │   │   ├── t4a-gemm-common feature "apple-sme" (*)
+│   │   │       │       │   │   ├── t4a-gemm-c64 feature "apple-sme"
+│   │   │       │       │   │   │   ├── t4a-gemm-c64 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common feature "apple-sme" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-c64 feature "std" (*)
+│   │   │       │       │   │   ├── t4a-gemm-f32 feature "apple-sme"
+│   │   │       │       │   │   │   ├── t4a-gemm-f32 v0.20.1 (*)
+│   │   │       │       │   │   │   ├── t4a-gemm-common feature "apple-sme" (*)
+│   │   │       │       │   │   │   └── t4a-gemm-f32 feature "std" (*)
+│   │   │       │       │   │   └── t4a-gemm-f64 feature "apple-sme"
+│   │   │       │       │   │       ├── t4a-gemm-f64 v0.20.1 (*)
+│   │   │       │       │   │       ├── t4a-gemm-common feature "apple-sme" (*)
+│   │   │       │       │   │       └── t4a-gemm-f64 feature "std" (*)
+│   │   │       │       │   └── t4a-gemm feature "std" (*)
+│   │   │       │       ├── t4a-faer feature "threadteam"
+│   │   │       │       │   ├── t4a-faer v0.28.2 (*)
+│   │   │       │       │   ├── threadteam feature "parallel" (*)
+│   │   │       │       │   ├── t4a-faer feature "rayon" (*)
+│   │   │       │       │   └── t4a-faer feature "threadteam" (*)
+│   │   │       │       ├── tcontract-exec feature "default"
+│   │   │       │       │   └── tcontract-exec v0.9.1
+│   │   │       │       │       ├── thiserror feature "default" (*)
+│   │   │       │       │       ├── threadteam feature "default" (*)
+│   │   │       │       │       ├── t4a-faer feature "rayon" (*)
+│   │   │       │       │       ├── t4a-faer feature "std" (*)
+│   │   │       │       │       └── t4a-faer feature "threadteam" (*)
+│   │   │       │       ├── tcontract-exec feature "faer"
+│   │   │       │       │   └── tcontract-exec v0.9.1 (*)
+│   │   │       │       └── tcontract-kernel feature "std"
+│   │   │       │           └── tcontract-kernel v0.3.1
+│   │   │       │               └── num-complex feature "default" (*)
+│   │   │       └── tcontract-exec feature "default" (*)
+│   │   ├── num-complex feature "default" (*)
+│   │   ├── num-traits feature "default" (*)
+│   │   ├── tinyvec feature "alloc" (*)
+│   │   ├── tinyvec feature "default" (*)
+│   │   ├── strided-basic feature "parallel" (*)
+│   │   ├── libm feature "default" (*)
+│   │   ├── threadteam feature "default" (*)
+│   │   ├── t4a-faer feature "rayon" (*)
+│   │   ├── t4a-faer feature "std" (*)
+│   │   ├── t4a-faer feature "threadteam" (*)
+│   │   ├── elem-simd-math feature "default"
+│   │   │   ├── elem-simd-math v0.1.2
+│   │   │   │   └── fearless_simd feature "default"
+│   │   │   │       ├── fearless_simd v1.2.0
+│   │   │   │       └── fearless_simd feature "std"
+│   │   │   │           └── fearless_simd v1.2.0
+│   │   │   └── elem-simd-math feature "simd"
+│   │   │       └── elem-simd-math v0.1.2 (*)
+│   │   ├── lru feature "default" (*)
+│   │   ├── smallvec feature "default" (*)
+│   │   ├── smallvec feature "union" (*)
+│   │   ├── strided-kernel feature "default"
+│   │   │   ├── strided-kernel v0.10.0
+│   │   │   │   ├── strided-basic v0.10.0 (*)
+│   │   │   │   ├── strided-fused v0.10.0
+│   │   │   │   │   ├── strided-basic v0.10.0 (*)
+│   │   │   │   │   ├── num-complex feature "default" (*)
+│   │   │   │   │   ├── pulp feature "default" (*)
+│   │   │   │   │   ├── pulp feature "x86-v4" (*)
+│   │   │   │   │   └── elem-simd-math feature "default" (*)
+│   │   │   │   └── num-complex feature "default" (*)
+│   │   │   └── strided-kernel feature "simd"
+│   │   │       ├── strided-kernel v0.10.0 (*)
+│   │   │       ├── strided-basic feature "simd"
+│   │   │       │   └── strided-basic v0.10.0 (*)
+│   │   │       └── strided-fused feature "simd"
+│   │   │           ├── strided-fused v0.10.0 (*)
+│   │   │           └── strided-basic feature "simd" (*)
+│   │   ├── strided-kernel feature "parallel"
+│   │   │   ├── strided-kernel v0.10.0 (*)
+│   │   │   ├── strided-basic feature "parallel" (*)
+│   │   │   └── strided-fused feature "parallel"
+│   │   │       ├── strided-fused v0.10.0 (*)
+│   │   │       └── strided-basic feature "parallel" (*)
+│   │   ├── strided-nn feature "default"
+│   │   │   └── strided-nn v0.10.0
+│   │   │       ├── thiserror feature "default" (*)
+│   │   │       ├── strided-basic feature "parallel" (*)
+│   │   │       ├── pulp feature "default" (*)
+│   │   │       ├── pulp feature "x86-v4" (*)
+│   │   │       └── elem-simd-math feature "default" (*)
+│   │   ├── tenferro-core-ops feature "default" (*)
+│   │   ├── tenferro-cpu-basic feature "default"
+│   │   │   └── tenferro-cpu-basic v0.9.0
+│   │   │       ├── strided-basic v0.10.0 (*)
+│   │   │       ├── thiserror feature "default" (*)
+│   │   │       ├── num-complex feature "default" (*)
+│   │   │       ├── num-traits feature "default" (*)
+│   │   │       └── tenferro-tensor feature "default"
+│   │   │           └── tenferro-tensor v0.9.0 (*)
+│   │   ├── tenferro-tensor feature "default" (*)
+│   │   ├── tenferro-cpu-fused feature "default"
+│   │   │   └── tenferro-cpu-fused v0.9.0
+│   │   │       ├── strided-basic v0.10.0 (*)
+│   │   │       ├── thiserror feature "default" (*)
+│   │   │       ├── num-complex feature "default" (*)
+│   │   │       ├── num-traits feature "default" (*)
+│   │   │       ├── strided-fused feature "parallel" (*)
+│   │   │       ├── tenferro-cpu-basic feature "default" (*)
+│   │   │       └── tenferro-tensor feature "default" (*)
+│   │   └── tenferro-internal-cpu-kernels feature "default"
+│   │       └── tenferro-internal-cpu-kernels v0.9.0
+│   │           ├── thiserror feature "default" (*)
+│   │           ├── num-complex feature "default" (*)
+│   │           ├── num-traits feature "default" (*)
+│   │           ├── tinyvec feature "alloc" (*)
+│   │           ├── tinyvec feature "default" (*)
+│   │           ├── strided-kernel feature "default" (*)
+│   │           ├── strided-kernel feature "parallel" (*)
+│   │           ├── tenferro-cpu-basic feature "default" (*)
+│   │           ├── tenferro-tensor feature "default" (*)
+│   │           └── tenferro-tensor-core feature "default" (*)
+│   ├── tenferro-internal-ops v0.9.0 (*)
+│   ├── tenferro-runtime v0.9.0 (*)
+│   ├── tenferro-tensor v0.9.0 (*)
+│   ├── omeco feature "default"
+│   │   └── omeco v0.2.6
+│   │       ├── priority-queue feature "default"
+│   │       │   ├── priority-queue v2.7.0
+│   │       │   │   ├── indexmap v2.14.2
+│   │       │   │   │   ├── equivalent v1.0.3
+│   │       │   │   │   └── hashbrown v0.17.1 (*)
+│   │       │   │   └── equivalent feature "default"
+│   │       │   │       └── equivalent v1.0.3
+│   │       │   └── priority-queue feature "std"
+│   │       │       ├── priority-queue v2.7.0 (*)
+│   │       │       └── indexmap feature "std"
+│   │       │           └── indexmap v2.14.2 (*)
+│   │       ├── rand feature "default"
+│   │       │   ├── rand v0.9.5
+│   │       │   │   ├── rand_chacha v0.9.0
+│   │       │   │   │   ├── ppv-lite86 feature "simd"
+│   │       │   │   │   │   └── ppv-lite86 v0.2.21
+│   │       │   │   │   │       ├── zerocopy feature "default"
+│   │       │   │   │   │       │   └── zerocopy v0.8.63
+│   │       │   │   │   │       └── zerocopy feature "simd"
+│   │       │   │   │   │           └── zerocopy v0.8.63
+│   │       │   │   │   └── rand_core feature "default"
+│   │       │   │   │       └── rand_core v0.9.5
+│   │       │   │   │           └── getrandom feature "default"
+│   │       │   │   │               └── getrandom v0.3.4
+│   │       │   │   │                   ├── libc v0.2.191
+│   │       │   │   │                   └── cfg-if feature "default" (*)
+│   │       │   │   └── rand_core v0.9.5 (*)
+│   │       │   ├── rand feature "os_rng"
+│   │       │   │   ├── rand v0.9.5 (*)
+│   │       │   │   └── rand_core feature "os_rng"
+│   │       │   │       └── rand_core v0.9.5 (*)
+│   │       │   ├── rand feature "small_rng"
+│   │       │   │   └── rand v0.9.5 (*)
+│   │       │   ├── rand feature "std"
+│   │       │   │   ├── rand v0.9.5 (*)
+│   │       │   │   ├── rand feature "alloc"
+│   │       │   │   │   └── rand v0.9.5 (*)
+│   │       │   │   ├── rand_chacha feature "std"
+│   │       │   │   │   ├── rand_chacha v0.9.0 (*)
+│   │       │   │   │   ├── ppv-lite86 feature "std"
+│   │       │   │   │   │   └── ppv-lite86 v0.2.21 (*)
+│   │       │   │   │   └── rand_core feature "std"
+│   │       │   │   │       ├── rand_core v0.9.5 (*)
+│   │       │   │   │       └── getrandom feature "std"
+│   │       │   │   │           └── getrandom v0.3.4 (*)
+│   │       │   │   └── rand_core feature "std" (*)
+│   │       │   ├── rand feature "std_rng"
+│   │       │   │   └── rand v0.9.5 (*)
+│   │       │   └── rand feature "thread_rng"
+│   │       │       ├── rand v0.9.5 (*)
+│   │       │       ├── rand feature "os_rng" (*)
+│   │       │       ├── rand feature "std" (*)
+│   │       │       └── rand feature "std_rng" (*)
+│   │       ├── rayon feature "default" (*)
+│   │       ├── serde feature "default"
+│   │       │   ├── serde v1.0.229
+│   │       │   │   ├── serde_core feature "result"
+│   │       │   │   │   └── serde_core v1.0.229
+│   │       │   │   └── serde_derive feature "default"
+│   │       │   │       └── serde_derive v1.0.229 (proc-macro)
+│   │       │   │           ├── proc-macro2 feature "proc-macro" (*)
+│   │       │   │           ├── quote feature "proc-macro" (*)
+│   │       │   │           ├── syn feature "clone-impls" (*)
+│   │       │   │           ├── syn feature "derive" (*)
+│   │       │   │           ├── syn feature "parsing" (*)
+│   │       │   │           ├── syn feature "printing" (*)
+│   │       │   │           └── syn feature "proc-macro" (*)
+│   │       │   └── serde feature "std"
+│   │       │       ├── serde v1.0.229 (*)
+│   │       │       └── serde_core feature "std"
+│   │       │           └── serde_core v1.0.229
+│   │       ├── serde feature "derive"
+│   │       │   ├── serde v1.0.229 (*)
+│   │       │   └── serde feature "serde_derive"
+│   │       │       └── serde v1.0.229 (*)
+│   │       ├── serde_json feature "default"
+│   │       │   ├── serde_json v1.0.154
+│   │       │   │   ├── memchr v2.8.3
+│   │       │   │   ├── serde_core v1.0.229
+│   │       │   │   ├── itoa feature "default"
+│   │       │   │   │   └── itoa v1.0.18
+│   │       │   │   └── zmij feature "default"
+│   │       │   │       └── zmij v1.0.23
+│   │       │   └── serde_json feature "std"
+│   │       │       ├── serde_json v1.0.154 (*)
+│   │       │       ├── serde_core feature "std" (*)
+│   │       │       └── memchr feature "std"
+│   │       │           ├── memchr v2.8.3
+│   │       │           └── memchr feature "alloc"
+│   │       │               └── memchr v2.8.3
+│   │       └── thiserror feature "default" (*)
+│   ├── thiserror feature "default" (*)
+│   ├── cpueinsum feature "default" (*)
+│   ├── tinyvec feature "alloc" (*)
+│   ├── tinyvec feature "default" (*)
+│   ├── lru feature "default" (*)
+│   ├── tenferro-cpu-basic feature "default" (*)
+│   ├── computegraph feature "default" (*)
+│   └── tenferro-internal-extension-macros feature "default" (*)
+├── anyhow feature "default"
+│   ├── anyhow v1.0.104
+│   └── anyhow feature "std"
+│       └── anyhow v1.0.104
+├── clap feature "default"
+│   ├── clap v4.6.7
+│   │   ├── clap_builder v4.6.7
+│   │   │   ├── anstream feature "default"
+│   │   │   │   ├── anstream v1.0.0
+│   │   │   │   │   ├── anstyle feature "default"
+│   │   │   │   │   │   ├── anstyle v1.0.14
+│   │   │   │   │   │   └── anstyle feature "std"
+│   │   │   │   │   │       └── anstyle v1.0.14
+│   │   │   │   │   ├── anstyle-parse feature "default"
+│   │   │   │   │   │   ├── anstyle-parse v1.0.0
+│   │   │   │   │   │   │   └── utf8parse feature "default"
+│   │   │   │   │   │   │       └── utf8parse v0.2.2
+│   │   │   │   │   │   └── anstyle-parse feature "utf8"
+│   │   │   │   │   │       └── anstyle-parse v1.0.0 (*)
+│   │   │   │   │   ├── utf8parse feature "default" (*)
+│   │   │   │   │   ├── anstyle-query feature "default"
+│   │   │   │   │   │   └── anstyle-query v1.1.5
+│   │   │   │   │   ├── colorchoice feature "default"
+│   │   │   │   │   │   └── colorchoice v1.0.5
+│   │   │   │   │   └── is_terminal_polyfill feature "default"
+│   │   │   │   │       └── is_terminal_polyfill v1.70.2
+│   │   │   │   ├── anstream feature "auto"
+│   │   │   │   │   └── anstream v1.0.0 (*)
+│   │   │   │   └── anstream feature "wincon"
+│   │   │   │       └── anstream v1.0.0 (*)
+│   │   │   ├── anstyle feature "default" (*)
+│   │   │   ├── clap_lex feature "default"
+│   │   │   │   └── clap_lex v1.1.1
+│   │   │   └── strsim feature "default"
+│   │   │       └── strsim v0.11.1
+│   │   └── clap_derive feature "default"
+│   │       └── clap_derive v4.6.7 (proc-macro)
+│   │           ├── heck feature "default"
+│   │           │   └── heck v0.5.0
+│   │           ├── proc-macro2 feature "default" (*)
+│   │           ├── quote feature "default" (*)
+│   │           ├── syn feature "default" (*)
+│   │           └── syn feature "full"
+│   │               └── syn v3.0.9 (*)
+│   ├── clap feature "color"
+│   │   ├── clap v4.6.7 (*)
+│   │   └── clap_builder feature "color"
+│   │       └── clap_builder v4.6.7 (*)
+│   ├── clap feature "error-context"
+│   │   ├── clap v4.6.7 (*)
+│   │   └── clap_builder feature "error-context"
+│   │       └── clap_builder v4.6.7 (*)
+│   ├── clap feature "help"
+│   │   ├── clap v4.6.7 (*)
+│   │   └── clap_builder feature "help"
+│   │       └── clap_builder v4.6.7 (*)
+│   ├── clap feature "std"
+│   │   ├── clap v4.6.7 (*)
+│   │   └── clap_builder feature "std"
+│   │       ├── clap_builder v4.6.7 (*)
+│   │       └── anstyle feature "std" (*)
+│   ├── clap feature "suggestions"
+│   │   ├── clap v4.6.7 (*)
+│   │   └── clap_builder feature "suggestions"
+│   │       ├── clap_builder v4.6.7 (*)
+│   │       └── clap_builder feature "error-context" (*)
+│   └── clap feature "usage"
+│       ├── clap v4.6.7 (*)
+│       └── clap_builder feature "usage"
+│           └── clap_builder v4.6.7 (*)
+├── clap feature "derive"
+│   └── clap v4.6.7 (*)
+├── omeco feature "default" (*)
+├── rand feature "default" (*)
+├── rand feature "small_rng" (*)
+├── serde feature "default" (*)
+├── serde feature "derive" (*)
+├── serde_json feature "default" (*)
+├── tenferro-cpu feature "native"
+│   └── tenferro-cpu v0.9.0 (*)
+└── tenferro-tensor feature "default" (*)

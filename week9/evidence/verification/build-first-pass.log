@@ -1,0 +1,7 @@
+First-pass command: cargo +1.96.0 test --lib --test behavior
+Environment: RUSTUP_HOME=/mnt/d/Keria/Course/AMAT5315/week9-support/rustup; CARGO_HOME=/mnt/d/Keria/Course/AMAT5315/week9-support/cargo; CARGO_TARGET_DIR=/tmp/amat5315-week9-target
+Initial PATH included spaces and caused export identifier warnings; subsequent commands use fixed PATH without inherited Windows paths. Cargo itself continued normally.
+Cargo locked 178 Rust 1.96 compatible packages, downloaded dependencies, and started compiling. Native tensor provider dependencies require substantial first-build resources; WSL observed 6835 MB RAM and 2048 MB swap, with 668 MB swap used during parallel debug compilation.
+This summary records observed output; complete command output for the subsequent verification pass will be captured using tee.
+
+Observed first source failure: error[E0283] src/exact.rs:48 shape collect() needed explicit Vec<_> for IntoShapeVec. Corrective action: collect::<Vec<_>>(). No library/API substitution was needed.

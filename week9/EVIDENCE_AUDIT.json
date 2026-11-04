@@ -1,0 +1,102 @@
+{
+  "created_utc": "2026-11-04T11:59:47.070119+00:00",
+  "learning_sheet": {
+    "filename": "week9-learning-sheet.pdf",
+    "pages": 15,
+    "sha256": "27c21a357be350350d3d2ccc3cefdb3fd2be30aaea45b91764b7b70520c77397"
+  },
+  "sources_verified_unchanged": [
+    {
+      "path": "asia.uai",
+      "url": "https://raw.githubusercontent.com/TensorBFS/TensorInference.jl/935ed86f8e473f523cac9461c45a1f470e74f0f9/examples/asia-network/model.uai",
+      "bytes": 265,
+      "sha256": "0d78314c96b1cbbfd94682f0e99f73461cb50a935a1da85cbc814c70e3fff32d"
+    },
+    {
+      "path": "promedus/Promedus_14.uai",
+      "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai",
+      "bytes": 48170,
+      "sha256": "f213b76a7f145a06f39daa9061408981dbd525e4ce2e5156edb83a7073d71349"
+    },
+    {
+      "path": "promedus/Promedus_14.uai.evid",
+      "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai.evid",
+      "bytes": 47,
+      "sha256": "e345a4ebecf02cdd9fdaf42e7456afa5f6ecafa989b6a3c15ef525abe736a403"
+    },
+    {
+      "path": "promedus/Promedus_14.uai.PR",
+      "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/PR/Promedus_14.uai.PR",
+      "bytes": 12,
+      "sha256": "d52ca345f79e79f0385f7bd91a3c2e3521eff165b3dcb7b29be1e56ca5f96dfc"
+    },
+    {
+      "path": "promedus/Promedus_14.uai.MAR",
+      "url": "https://raw.githubusercontent.com/mroavi/uai-2014-inference-competition/22005844423f5bca62798548df808cc418fc0d7d/uai2014/MAR/Promedus_14.uai.MAR",
+      "bytes": 8607,
+      "sha256": "06e3145bb59fd0a22af235af43bc7c45bee71a764647e152314bdded4f0d256f"
+    }
+  ],
+  "source_sha256": {
+    "src\\bp.rs": "19f7216e850ffac933389770d4d8eb88e60b5edd111a43396ac059009cea0e0c",
+    "src\\exact.rs": "041c774874c619071ba2ada4f0df8cf3686873bc2b04251f863857a002972668",
+    "src\\lib.rs": "8e05c6003f58777d43accc7c1858a26f228de0925e11f418089b03a989abbb79",
+    "src\\main.rs": "ae250a5771db387ed6632bc764a3fab3485ef5105f033e7c330300047f6bb697",
+    "src\\model.rs": "57233b13680ac63648de99969a5799e94cb33063439fd3235de25aa6d8a6a2d4",
+    "src\\plan.rs": "d95f5712c71819788cb30a7589f7d42a3ed48e0d542cf02a0b94fbaab399dad2",
+    "tests\\behavior.rs": "e9ebec70e794eac36de480148ab9fcb9aa6e5f8f45d874cf6971b9083cc27032",
+    "tests\\test_python_audit.py": "983827ff37b7304914e298cf225a3f5ec27e1dbbe6bb6e263e01470e0241bde8",
+    "examples\\memory_probe.rs": "dcfbd33bafc5d32654feaede0ab11449de59d5cc04efa26ffb11970fb3013183",
+    "examples\\plan_probe.rs": "a326d6ca61cdb3834d7ca425c687d815de31e8b250226aa223ece0938397bf60",
+    "Cargo.toml": "c48f404b18cadd86690f24d8bb1ddaf50da1d7ae3c4c482298cf33be5d79a655",
+    "Cargo.lock": "52431af159c68a1f5c6cc909211e98113ec8b560b81ce7f4e2464e98d876a843",
+    "infer.design.toml": "b3b54a8d31d1d075eceae4a1141a1379d6878fc22880e7a6b01b1a9c0e46b479",
+    "verify_and_plot.py": "3c646eeea98147ed3943bac77b38ec0c760a744a8cdd8eab3e1a9af46c1e92ce",
+    "reproduce.sh": "3b2615328fa4ffd41e3b29b48756495b0b48086c62a3c34ceefe6fc004dc6c39",
+    "requirements-plot.txt": "235a633bd55c449510d4e59f0af96504fbde99cd953a11ff2d18812eb72c5ab6"
+  },
+  "independent_audit": {
+    "path": "evidence\\audit-20261104T115359.910097Z.json",
+    "sha256": "aeab9ad6de3846719aa42af0189f5023e44205a91937878da47be2415ef68c94",
+    "checks": 16,
+    "failures": 0
+  },
+  "acceptance": {
+    "asia_exact_abs_and_rel_tolerance": 1e-10,
+    "matrix_ising_absolute_tolerance": 1e-12,
+    "promedus_exact_agreement": 1e-10,
+    "promedus_published_PR_absolute_tolerance": 0.0001,
+    "promedus_published_MAR_absolute_tolerance": 1e-05
+  },
+  "actors": {
+    "exact_planning_cli": "Codex rust_implementation subagent",
+    "bp": "native WSL Pi volcengine-plan/glm-5-3-flash; coordinator strengthened residual test after handoff",
+    "independent_numpy_figures": "Codex requirements_review subagent",
+    "minimax_review": "MiniMax-M3.1-Flash stopped by token limit; no usable acceptance result"
+  },
+  "build_profile": {
+    "all_delivered_runs": "release opt-level=1; CARGO_BUILD_JOBS=2; CPU serial contraction",
+    "executable_sha256": "6eb67ebcca7717c1e1b4e4b040206bc078bf1c2e4fcdf51794b37ab82c4ee649"
+  },
+  "evidence": {
+    "artifacts\\AD\\run.json": "e3302631f43463fed8c034c688a7b149a79a7ae83af8d891b3404b8a229864a7",
+    "artifacts\\ADX\\run.json": "b3a95a59f1fcedb9a4f5058a3eff5db7876f5fb01ee8742e4566974554f3af89",
+    "artifacts\\bp-AD\\run.json": "d8bcdd5324ffd6c5a1f3fbb5e296c9c789293bda488b205098f5b3d8a03b37d8",
+    "artifacts\\bp-ADX\\run.json": "51d9c8fd05f131db7a865f2c8d2e38817d2e7412240c5c3ecc06a3306d9a951e",
+    "artifacts\\bp-prior\\run.json": "d6dba4faf6628c1bc77681a9c5e6e73c4093a7495ffbc22e0fbc6b18f95c91c0",
+    "artifacts\\bp-promedus\\run.json": "8b2105a3522f78e8d41813f12691d6557a2adfb180f5a7bb7449bfcdbefcf0e5",
+    "artifacts\\prior\\run.json": "5dd214f122eae099db579b619679d5f1690e98f5691c30e64f5e42f7e177ec48",
+    "runs\\greedy\\run.json": "9de0ddc40b9d765746da1392426456f1a45ac7fa5ac9347838c1ca26c51770f7",
+    "runs\\promedus-greedy\\run.json": "0926f50079d0b82fee5c6c90eb51e381f15de0e1c4adb9a649509d2586c7e926",
+    "runs\\promedus-treesa\\run.json": "9feba11d9085c883cece5ebf69dffcce70eaba48269956e3b78d508813a0c82b",
+    "runs\\random\\run.json": "6d3cd6b7c0987bbbfd9e253ca9d86b938f88863e246ee5f2f3ffbf9aec727e06",
+    "runs\\replay\\run.json": "5bd21d5469ea1d41f5033a178707d62e0236134d0f53d163653be82508c072b1"
+  },
+  "limitations": [
+    "BP convergence and marginal accuracy are separate; see actual traces",
+    "Promedus Z_evidence is an unnormalized partition sum, not an evidence probability",
+    "omeco native search cost and canonical executed-tree cost are distinguished in settings",
+    "Initial /tmp build cache disappeared after successful release; exact cause unconfirmed; persistent build and copied executable used for recovery",
+    "No user file deletion; exploratory sliced ASIA outputs and failed-run logs retained in local week9-support"
+  ]
+}

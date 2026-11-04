@@ -1,0 +1,45 @@
+    Blocking waiting for file lock on build directory
+   Compiling infer v0.1.0 (/mnt/d/Keria/Course/AMAT5315/week9)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 46s
+     Running unittests src/lib.rs (/tmp/amat5315-week9-target/debug/deps/infer-3e6dfb4149380886)
+
+running 7 tests
+test bp::tests::invalid_settings_are_rejected ... ok
+test bp::tests::conflicting_supports_error_with_zero_sum ... FAILED
+test bp::tests::observed_variables_are_one_hot_and_condition_marginals_match ... FAILED
+test bp::tests::zero_mass_factor_errors ... ok
+test bp::tests::trace_reports_every_recorded_state ... ok
+test bp::tests::isolated_unobserved_variable_is_uniform ... ok
+test bp::tests::tree_matches_exact_enumeration ... FAILED
+
+failures:
+
+---- bp::tests::conflicting_supports_error_with_zero_sum stdout ----
+
+thread 'bp::tests::conflicting_supports_error_with_zero_sum' (6200) panicked at src/bp.rs:568:65:
+zero support: Object {"converged": Bool(false), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "method": String("bp"), "observations": Object {}, "residual": Number(0.499755859375), "runtime_seconds": Number(0.000794508), "settings": Object {"damping": Number(0.0), "max_sweeps": Number(10), "tolerance": Number(1e-12)}, "sweeps": Number(10), "trace": Array [Object {"cumulative_update_work": Number(64), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.25), "sweep": Number(0)}, Object {"cumulative_update_work": Number(128), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.375), "sweep": Number(1)}, Object {"cumulative_update_work": Number(192), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.4375), "sweep": Number(2)}, Object {"cumulative_update_work": Number(256), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.46875), "sweep": Number(3)}, Object {"cumulative_update_work": Number(320), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.484375), "sweep": Number(4)}, Object {"cumulative_update_work": Number(384), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.4921875), "sweep": Number(5)}, Object {"cumulative_update_work": Number(448), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.49609375), "sweep": Number(6)}, Object {"cumulative_update_work": Number(512), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.498046875), "sweep": Number(7)}, Object {"cumulative_update_work": Number(576), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.4990234375), "sweep": Number(8)}, Object {"cumulative_update_work": Number(640), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.49951171875), "sweep": Number(9)}, Object {"cumulative_update_work": Number(704), "marginals": Array [Array [Number(0.5), Number(0.5)], Array [Number(0.5), Number(0.5)]], "residual": Number(0.499755859375), "sweep": Number(10)}], "update_work": Number(704)}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- bp::tests::observed_variables_are_one_hot_and_condition_marginals_match stdout ----
+
+thread 'bp::tests::observed_variables_are_one_hot_and_condition_marginals_match' (6203) panicked at src/bp.rs:483:13:
+assertion `left == right` failed: variable 1 arity mismatch
+  left: 2
+ right: 0
+
+---- bp::tests::tree_matches_exact_enumeration stdout ----
+
+thread 'bp::tests::tree_matches_exact_enumeration' (6205) panicked at src/bp.rs:501:9:
+assertion `left == right` failed: tree BP must converge
+  left: Bool(false)
+ right: Bool(true)
+
+
+failures:
+    bp::tests::conflicting_supports_error_with_zero_sum
+    bp::tests::observed_variables_are_one_hot_and_condition_marginals_match
+    bp::tests::tree_matches_exact_enumeration
+
+test result: FAILED. 4 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

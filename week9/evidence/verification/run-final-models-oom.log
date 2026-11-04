@@ -1,0 +1,300 @@
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=1.00000000000000000 max marginal error=1.110e-16 relative mass error=0.000e0
+disease 1: [0.0104,0.9895999999999999]
+disease 3: [0.055000000000000014,0.9450000000000001]
+disease 4: [0.45,0.5499999999999999]
+log10 Z_evidence=0.00000000000000000; work=52
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=0.00450137500000000 max marginal error=1.110e-16 relative mass error=1.927e-16
+disease 1: [0.08775096498292187,0.9122490350170781]
+disease 3: [0.09952514509455443,0.9004748549054455]
+disease 4: [0.8114020715892365,0.1885979284107634]
+log10 Z_evidence=-2.34665480540261262; work=52
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=0.00098822675000000 max marginal error=2.220e-16 relative mass error=1.317e-15
+disease 1: [0.39171172000757926,0.6082882799924207]
+disease 3: [0.4442705077554316,0.5557294922445684]
+disease 4: [0.6288217759739857,0.3711782240260143]
+log10 Z_evidence=-3.00514339450635060; work=54
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=0.00450137500000000 max marginal error=2.220e-16 relative mass error=1.349e-15
+disease 1: [0.08775096498292187,0.9122490350170781]
+disease 3: [0.09952514509455444,0.9004748549054455]
+disease 4: [0.8114020715892367,0.18859792841076337]
+log10 Z_evidence=-2.34665480540261218; work=280
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=0.00450137500000000 max marginal error=1.110e-16 relative mass error=1.927e-16
+disease 1: [0.08775096498292187,0.9122490350170781]
+disease 3: [0.09952514509455442,0.9004748549054455]
+disease 4: [0.8114020715892365,0.1885979284107634]
+log10 Z_evidence=-2.34665480540261262; work=52
+analysis only: work=280 largest_tensor=64
+sanity checks (contraction/enumeration and absolute errors): {"ising_absolute_error":3.552713678800501e-15,"ising_contraction":12.602562098951932,"ising_enumeration":12.602562098951928,"matrix_ab":[4.0,4.0,10.0,8.0],"matrix_ab_absolute_error":0.0,"trace_ab":12.0,"trace_absolute_error":0.0}
+evidence mass=0.00450137500000000 max marginal error=1.110e-16 relative mass error=1.927e-16
+disease 1: [0.08775096498292187,0.9122490350170781]
+disease 3: [0.09952514509455442,0.9004748549054455]
+disease 4: [0.8114020715892365,0.1885979284107634]
+log10 Z_evidence=-2.34665480540261262; work=52
+bp sweep 1: residual=2.450000e-1 cumulative_update_work=816
+bp sweep 2: residual=2.450000e-1 cumulative_update_work=1224
+bp sweep 3: residual=1.860641e-1 cumulative_update_work=1632
+bp sweep 4: residual=2.263691e-1 cumulative_update_work=2040
+bp sweep 5: residual=2.117666e-1 cumulative_update_work=2448
+bp sweep 6: residual=1.819803e-1 cumulative_update_work=2856
+bp sweep 7: residual=1.771537e-1 cumulative_update_work=3264
+bp sweep 8: residual=1.528174e-1 cumulative_update_work=3672
+bp sweep 9: residual=1.426893e-1 cumulative_update_work=4080
+bp sweep 10: residual=1.278553e-1 cumulative_update_work=4488
+bp sweep 11: residual=1.063002e-1 cumulative_update_work=4896
+bp sweep 12: residual=8.353651e-2 cumulative_update_work=5304
+bp sweep 13: residual=6.281165e-2 cumulative_update_work=5712
+bp sweep 14: residual=4.557633e-2 cumulative_update_work=6120
+bp sweep 15: residual=3.211405e-2 cumulative_update_work=6528
+bp sweep 16: residual=2.207843e-2 cumulative_update_work=6936
+bp sweep 17: residual=1.486478e-2 cumulative_update_work=7344
+bp sweep 18: residual=9.829557e-3 cumulative_update_work=7752
+bp sweep 19: residual=6.399047e-3 cumulative_update_work=8160
+bp sweep 20: residual=4.109007e-3 cumulative_update_work=8568
+bp sweep 21: residual=2.606682e-3 cumulative_update_work=8976
+bp sweep 22: residual=1.635854e-3 cumulative_update_work=9384
+bp sweep 23: residual=1.016698e-3 cumulative_update_work=9792
+bp sweep 24: residual=6.263865e-4 cumulative_update_work=10200
+bp sweep 25: residual=3.828681e-4 cumulative_update_work=10608
+bp sweep 26: residual=2.323360e-4 cumulative_update_work=11016
+bp sweep 27: residual=1.400581e-4 cumulative_update_work=11424
+bp sweep 28: residual=8.391784e-5 cumulative_update_work=11832
+bp sweep 29: residual=4.999846e-5 cumulative_update_work=12240
+bp sweep 30: residual=2.963418e-5 cumulative_update_work=12648
+bp sweep 31: residual=1.747915e-5 cumulative_update_work=13056
+bp sweep 32: residual=1.026312e-5 cumulative_update_work=13464
+bp sweep 33: residual=6.000594e-6 cumulative_update_work=13872
+bp sweep 34: residual=3.494440e-6 cumulative_update_work=14280
+bp sweep 35: residual=2.027356e-6 cumulative_update_work=14688
+bp sweep 36: residual=1.172042e-6 cumulative_update_work=15096
+bp sweep 37: residual=6.753036e-7 cumulative_update_work=15504
+bp sweep 38: residual=3.878586e-7 cumulative_update_work=15912
+bp sweep 39: residual=2.220930e-7 cumulative_update_work=16320
+bp sweep 40: residual=1.268079e-7 cumulative_update_work=16728
+bp sweep 41: residual=7.220475e-8 cumulative_update_work=17136
+bp sweep 42: residual=4.100589e-8 cumulative_update_work=17544
+bp sweep 43: residual=2.322936e-8 cumulative_update_work=17952
+bp sweep 44: residual=1.312757e-8 cumulative_update_work=18360
+bp sweep 45: residual=7.401669e-9 cumulative_update_work=18768
+bp sweep 46: residual=4.164023e-9 cumulative_update_work=19176
+bp sweep 47: residual=2.337606e-9 cumulative_update_work=19584
+bp sweep 48: residual=1.309601e-9 cumulative_update_work=19992
+bp sweep 49: residual=7.322309e-10 cumulative_update_work=20400
+bp sweep 50: residual=4.086292e-10 cumulative_update_work=20808
+bp sweep 51: residual=2.276205e-10 cumulative_update_work=21216
+bp sweep 52: residual=1.265670e-10 cumulative_update_work=21624
+bp sweep 53: residual=7.025593e-11 cumulative_update_work=22032
+bp sweep 1: residual=2.250000e-1 cumulative_update_work=604
+bp sweep 2: residual=2.250000e-1 cumulative_update_work=906
+bp sweep 3: residual=1.803672e-1 cumulative_update_work=1208
+bp sweep 4: residual=2.186768e-1 cumulative_update_work=1510
+bp sweep 5: residual=2.028228e-1 cumulative_update_work=1812
+bp sweep 6: residual=1.746821e-1 cumulative_update_work=2114
+bp sweep 7: residual=1.688150e-1 cumulative_update_work=2416
+bp sweep 8: residual=1.573788e-1 cumulative_update_work=2718
+bp sweep 9: residual=1.338990e-1 cumulative_update_work=3020
+bp sweep 10: residual=1.289278e-1 cumulative_update_work=3322
+bp sweep 11: residual=1.133685e-1 cumulative_update_work=3624
+bp sweep 12: residual=9.274075e-2 cumulative_update_work=3926
+bp sweep 13: residual=7.162997e-2 cumulative_update_work=4228
+bp sweep 14: residual=5.278137e-2 cumulative_update_work=4530
+bp sweep 15: residual=3.738324e-2 cumulative_update_work=4832
+bp sweep 16: residual=2.557758e-2 cumulative_update_work=5134
+bp sweep 17: residual=1.694338e-2 cumulative_update_work=5436
+bp sweep 18: residual=1.106114e-2 cumulative_update_work=5738
+bp sweep 19: residual=9.108506e-3 cumulative_update_work=6040
+bp sweep 20: residual=7.246355e-3 cumulative_update_work=6342
+bp sweep 21: residual=5.585752e-3 cumulative_update_work=6644
+bp sweep 22: residual=4.180261e-3 cumulative_update_work=6946
+bp sweep 23: residual=3.039841e-3 cumulative_update_work=7248
+bp sweep 24: residual=2.146346e-3 cumulative_update_work=7550
+bp sweep 25: residual=1.466891e-3 cumulative_update_work=7852
+bp sweep 26: residual=1.084086e-3 cumulative_update_work=8154
+bp sweep 27: residual=9.834758e-4 cumulative_update_work=8456
+bp sweep 28: residual=9.418003e-4 cumulative_update_work=8758
+bp sweep 29: residual=8.592651e-4 cumulative_update_work=9060
+bp sweep 30: residual=7.549777e-4 cumulative_update_work=9362
+bp sweep 31: residual=6.428726e-4 cumulative_update_work=9664
+bp sweep 32: residual=5.326294e-4 cumulative_update_work=9966
+bp sweep 33: residual=4.304678e-4 cumulative_update_work=10268
+bp sweep 34: residual=3.398906e-4 cumulative_update_work=10570
+bp sweep 35: residual=2.623746e-4 cumulative_update_work=10872
+bp sweep 36: residual=1.979811e-4 cumulative_update_work=11174
+bp sweep 37: residual=1.458662e-4 cumulative_update_work=11476
+bp sweep 38: residual=1.046786e-4 cumulative_update_work=11778
+bp sweep 39: residual=7.285098e-5 cumulative_update_work=12080
+bp sweep 40: residual=4.879662e-5 cumulative_update_work=12382
+bp sweep 41: residual=3.736178e-5 cumulative_update_work=12684
+bp sweep 42: residual=2.918889e-5 cumulative_update_work=12986
+bp sweep 43: residual=2.231742e-5 cumulative_update_work=13288
+bp sweep 44: residual=1.668581e-5 cumulative_update_work=13590
+bp sweep 45: residual=1.217584e-5 cumulative_update_work=13892
+bp sweep 46: residual=8.642193e-6 cumulative_update_work=14194
+bp sweep 47: residual=5.932432e-6 cumulative_update_work=14496
+bp sweep 48: residual=4.984668e-6 cumulative_update_work=14798
+bp sweep 49: residual=4.646368e-6 cumulative_update_work=15100
+bp sweep 50: residual=4.340383e-6 cumulative_update_work=15402
+bp sweep 51: residual=3.874019e-6 cumulative_update_work=15704
+bp sweep 52: residual=3.339887e-6 cumulative_update_work=16006
+bp sweep 53: residual=2.798845e-6 cumulative_update_work=16308
+bp sweep 54: residual=2.288477e-6 cumulative_update_work=16610
+bp sweep 55: residual=1.829744e-6 cumulative_update_work=16912
+bp sweep 56: residual=1.432105e-6 cumulative_update_work=17214
+bp sweep 57: residual=1.097386e-6 cumulative_update_work=17516
+bp sweep 58: residual=8.226344e-7 cumulative_update_work=17818
+bp sweep 59: residual=6.021713e-7 cumulative_update_work=18120
+bp sweep 60: residual=4.290249e-7 cumulative_update_work=18422
+bp sweep 61: residual=2.958856e-7 cumulative_update_work=18724
+bp sweep 62: residual=2.007417e-7 cumulative_update_work=19026
+bp sweep 63: residual=1.589919e-7 cumulative_update_work=19328
+bp sweep 64: residual=1.232951e-7 cumulative_update_work=19630
+bp sweep 65: residual=9.359159e-8 cumulative_update_work=19932
+bp sweep 66: residual=6.945763e-8 cumulative_update_work=20234
+bp sweep 67: residual=5.027504e-8 cumulative_update_work=20536
+bp sweep 68: residual=3.534718e-8 cumulative_update_work=20838
+bp sweep 69: residual=2.472624e-8 cumulative_update_work=21140
+bp sweep 70: residual=2.203785e-8 cumulative_update_work=21442
+bp sweep 71: residual=2.106156e-8 cumulative_update_work=21744
+bp sweep 72: residual=1.935473e-8 cumulative_update_work=22046
+bp sweep 73: residual=1.706408e-8 cumulative_update_work=22348
+bp sweep 74: residual=1.456619e-8 cumulative_update_work=22650
+bp sweep 75: residual=1.210369e-8 cumulative_update_work=22952
+bp sweep 76: residual=9.821982e-9 cumulative_update_work=23254
+bp sweep 77: residual=7.797892e-9 cumulative_update_work=23556
+bp sweep 78: residual=6.061517e-9 cumulative_update_work=23858
+bp sweep 79: residual=4.612575e-9 cumulative_update_work=24160
+bp sweep 80: residual=3.432304e-9 cumulative_update_work=24462
+bp sweep 81: residual=2.491906e-9 cumulative_update_work=24764
+bp sweep 82: residual=1.758338e-9 cumulative_update_work=25066
+bp sweep 83: residual=1.198109e-9 cumulative_update_work=25368
+bp sweep 84: residual=8.589010e-10 cumulative_update_work=25670
+bp sweep 85: residual=6.756294e-10 cumulative_update_work=25972
+bp sweep 86: residual=5.203782e-10 cumulative_update_work=26274
+bp sweep 87: residual=3.922235e-10 cumulative_update_work=26576
+bp sweep 88: residual=2.888508e-10 cumulative_update_work=26878
+bp sweep 89: residual=2.072483e-10 cumulative_update_work=27180
+bp sweep 90: residual=1.441746e-10 cumulative_update_work=27482
+bp sweep 91: residual=1.101037e-10 cumulative_update_work=27784
+bp sweep 92: residual=9.943632e-11 cumulative_update_work=28086
+bp sweep 1: residual=3.151581e-1 cumulative_update_work=552
+bp sweep 2: residual=2.619709e-1 cumulative_update_work=828
+bp sweep 3: residual=1.803672e-1 cumulative_update_work=1104
+bp sweep 4: residual=2.186768e-1 cumulative_update_work=1380
+bp sweep 5: residual=2.028228e-1 cumulative_update_work=1656
+bp sweep 6: residual=1.629479e-1 cumulative_update_work=1932
+bp sweep 7: residual=1.665880e-1 cumulative_update_work=2208
+bp sweep 8: residual=1.573788e-1 cumulative_update_work=2484
+bp sweep 9: residual=1.339101e-1 cumulative_update_work=2760
+bp sweep 10: residual=1.052247e-1 cumulative_update_work=3036
+bp sweep 11: residual=7.768685e-2 cumulative_update_work=3312
+bp sweep 12: residual=5.462078e-2 cumulative_update_work=3588
+bp sweep 13: residual=3.700451e-2 cumulative_update_work=3864
+bp sweep 14: residual=3.385168e-2 cumulative_update_work=4140
+bp sweep 15: residual=3.175507e-2 cumulative_update_work=4416
+bp sweep 16: residual=2.833665e-2 cumulative_update_work=4692
+bp sweep 17: residual=2.395374e-2 cumulative_update_work=4968
+bp sweep 18: residual=1.933829e-2 cumulative_update_work=5244
+bp sweep 19: residual=1.501580e-2 cumulative_update_work=5520
+bp sweep 20: residual=1.127687e-2 cumulative_update_work=5796
+bp sweep 21: residual=8.222682e-3 cumulative_update_work=6072
+bp sweep 22: residual=5.832221e-3 cumulative_update_work=6348
+bp sweep 23: residual=4.107693e-3 cumulative_update_work=6624
+bp sweep 24: residual=3.145709e-3 cumulative_update_work=6900
+bp sweep 25: residual=2.338275e-3 cumulative_update_work=7176
+bp sweep 26: residual=1.688237e-3 cumulative_update_work=7452
+bp sweep 27: residual=1.182629e-3 cumulative_update_work=7728
+bp sweep 28: residual=8.006934e-4 cumulative_update_work=8004
+bp sweep 29: residual=5.195375e-4 cumulative_update_work=8280
+bp sweep 30: residual=3.175275e-4 cumulative_update_work=8556
+bp sweep 31: residual=2.660397e-4 cumulative_update_work=8832
+bp sweep 32: residual=2.623269e-4 cumulative_update_work=9108
+bp sweep 33: residual=2.487358e-4 cumulative_update_work=9384
+bp sweep 34: residual=2.250153e-4 cumulative_update_work=9660
+bp sweep 35: residual=1.963088e-4 cumulative_update_work=9936
+bp sweep 36: residual=1.683692e-4 cumulative_update_work=10212
+bp sweep 37: residual=1.432482e-4 cumulative_update_work=10488
+bp sweep 38: residual=1.186539e-4 cumulative_update_work=10764
+bp sweep 39: residual=9.595443e-5 cumulative_update_work=11040
+bp sweep 40: residual=7.588102e-5 cumulative_update_work=11316
+bp sweep 41: residual=5.871701e-5 cumulative_update_work=11592
+bp sweep 42: residual=4.444754e-5 cumulative_update_work=11868
+bp sweep 43: residual=3.287366e-5 cumulative_update_work=12144
+bp sweep 44: residual=2.369636e-5 cumulative_update_work=12420
+bp sweep 45: residual=1.683605e-5 cumulative_update_work=12696
+bp sweep 46: residual=1.279757e-5 cumulative_update_work=12972
+bp sweep 47: residual=9.507680e-6 cumulative_update_work=13248
+bp sweep 48: residual=6.887859e-6 cumulative_update_work=13524
+bp sweep 49: residual=4.846452e-6 cumulative_update_work=13800
+bp sweep 50: residual=3.289797e-6 cumulative_update_work=14076
+bp sweep 51: residual=2.129196e-6 cumulative_update_work=14352
+bp sweep 52: residual=1.369746e-6 cumulative_update_work=14628
+bp sweep 53: residual=1.264243e-6 cumulative_update_work=14904
+bp sweep 54: residual=1.246736e-6 cumulative_update_work=15180
+bp sweep 55: residual=1.155836e-6 cumulative_update_work=15456
+bp sweep 56: residual=1.025999e-6 cumulative_update_work=15732
+bp sweep 57: residual=8.807488e-7 cumulative_update_work=16008
+bp sweep 58: residual=7.544327e-7 cumulative_update_work=16284
+bp sweep 59: residual=6.338905e-7 cumulative_update_work=16560
+bp sweep 60: residual=5.195347e-7 cumulative_update_work=16836
+bp sweep 61: residual=4.163203e-7 cumulative_update_work=17112
+bp sweep 62: residual=3.265526e-7 cumulative_update_work=17388
+bp sweep 63: residual=2.507715e-7 cumulative_update_work=17664
+bp sweep 64: residual=1.884045e-7 cumulative_update_work=17940
+bp sweep 65: residual=1.382373e-7 cumulative_update_work=18216
+bp sweep 66: residual=9.874279e-8 cumulative_update_work=18492
+bp sweep 67: residual=7.206114e-8 cumulative_update_work=18768
+bp sweep 68: residual=5.434932e-8 cumulative_update_work=19044
+bp sweep 69: residual=4.004779e-8 cumulative_update_work=19320
+bp sweep 70: residual=2.874749e-8 cumulative_update_work=19596
+bp sweep 71: residual=2.000545e-8 cumulative_update_work=19872
+bp sweep 72: residual=1.338664e-8 cumulative_update_work=20148
+bp sweep 73: residual=8.488903e-9 cumulative_update_work=20424
+bp sweep 74: residual=6.240190e-9 cumulative_update_work=20700
+bp sweep 75: residual=5.976806e-9 cumulative_update_work=20976
+bp sweep 76: residual=5.751987e-9 cumulative_update_work=21252
+bp sweep 77: residual=5.244069e-9 cumulative_update_work=21528
+bp sweep 78: residual=4.596330e-9 cumulative_update_work=21804
+bp sweep 79: residual=3.918238e-9 cumulative_update_work=22080
+bp sweep 80: residual=3.352228e-9 cumulative_update_work=22356
+bp sweep 81: residual=2.791052e-9 cumulative_update_work=22632
+bp sweep 82: residual=2.269008e-9 cumulative_update_work=22908
+bp sweep 83: residual=1.804478e-9 cumulative_update_work=23184
+bp sweep 84: residual=1.404961e-9 cumulative_update_work=23460
+bp sweep 85: residual=1.070835e-9 cumulative_update_work=23736
+bp sweep 86: residual=7.981137e-10 cumulative_update_work=24012
+bp sweep 87: residual=5.804088e-10 cumulative_update_work=24288
+bp sweep 88: residual=4.102779e-10 cumulative_update_work=24564
+bp sweep 89: residual=3.081297e-10 cumulative_update_work=24840
+bp sweep 90: residual=2.305680e-10 cumulative_update_work=25116
+bp sweep 91: residual=1.684216e-10 cumulative_update_work=25392
+bp sweep 92: residual=1.196793e-10 cumulative_update_work=25668
+bp sweep 93: residual=8.225071e-11 cumulative_update_work=25944
+/mnt/d/Keria/Course/AMAT5315/week9-support/run_stage.sh: line 12:  1039 Killed                  "$infer" --model promedus/Promedus_14.uai --evidence promedus/Promedus_14.uai.evid --order greedy --out runs/promedus-greedy
+Command exited with non-zero status 137
+	Command being timed: "bash /mnt/d/Keria/Course/AMAT5315/week9-support/run_final_models.sh"
+	User time (seconds): 23.16
+	System time (seconds): 53.49
+	Percent of CPU this job got: 93%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:22.39
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5827384
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 41644
+	Minor (reclaiming a frame) page faults: 3213161
+	Voluntary context switches: 15829
+	Involuntary context switches: 9406
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 137

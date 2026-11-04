@@ -32,3 +32,7 @@ is within `1e-2` of `math.pi`.
 ## Week 7
 
 See [Diffusion and flow matching](week7/diffusion-flow/README.md) for the updated five-part exercise, figures and independent audits. The previous PDF topic remains in week7/.
+
+## Week 9
+
+See [Probabilistic inference by tensor contraction](week9/README.md) for the CPU Rust implementation, exact ASIA and Promedus results, saved contraction plans, BP convergence/error evidence, and the Chinese step-by-step guide.
