@@ -1,0 +1,9 @@
+/target/
+/runs/
+/artifacts/
+/data/
+/reproductions/
+__pycache__/
+*.tar.gz
+*.zip
+
