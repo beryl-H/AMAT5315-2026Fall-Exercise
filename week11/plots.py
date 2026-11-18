@@ -91,9 +91,40 @@ def plot_factoring():
 
 
 
+def plot_nqueens():
+    fig, (ax, hist) = plt.subplots(1, 2, figsize=(10.6, 4.1), layout="constrained")
+    n_values = list(range(4, 11))
+    observed = [load(f"count_nq{n}")["board_count"] for n in n_values]
+    known = [2, 10, 4, 40, 92, 352, 724]
+    ax.plot(n_values, known, "--", color=DIM, linewidth=1, label="OEIS A000170")
+    ax.scatter(n_values, observed, facecolors="white", edgecolors=BLUE, zorder=3,
+               s=46, linewidths=1.5, label="Carry contraction")
+    for n, count in zip(n_values, observed):
+        ax.annotate(str(count), (n, count), xytext=(0, 7), textcoords="offset points", ha="center")
+    ax.set(xticks=n_values, xlabel="Board size N", ylabel="Valid boards (log scale)", yscale="log",
+           ylim=(1.36, max(known)*2), title="(a) Exact board counts")
+    ax.legend(loc="upper left")
+    data = load("sample_nq6")
+    counts = Counter(map(tuple, data["samples"]))
+    labels = [" ".join(map(str, b)) for b in sorted(counts)]
+    bars = hist.bar(labels, [counts[b] for b in sorted(counts)], width=0.68, color=BLUE)
+    expected = len(data["samples"]) / data["board_count"]
+    hist.axhline(expected, color=ORANGE, linestyle="--", label=f"Uniform expectation {expected:g}")
+    hist.bar_label(bars, padding=3)
+    hist.set(xlabel="Board (zero-based column by row)", ylabel="Sample count",
+             title="(b) 200 independent draws for N = 6",
+             ylim=(0, 1.28 * max(max(counts.values()), expected)))
+    hist.legend(loc="upper right")
+    for axes in (ax, hist):
+        axes.grid(axis="y", alpha=0.22)
+        axes.set_axisbelow(True)
+    save(fig, "nqueens")
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    figures = {"gates": plot_gates, "factoring": plot_factoring}
+    figures = {"gates": plot_gates, "factoring": plot_factoring, "nqueens": plot_nqueens}
     parser.add_argument("figure", choices=figures)
     figures[parser.parse_args().figure]()
 

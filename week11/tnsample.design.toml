@@ -57,3 +57,14 @@ Store the upward contraction once. Draw the variables eliminated by each node
 on the downward pass, weighting each choice by its stored child entries.
 Save every bit vector in variable order, and its directly evaluated energy.
 """
+
+[args.nqueens]
+n = """
+Board size N for plan, count and sample. Each square bit x is shared
+by the row, column and two diagonal factors. Each carry tensor T(c_in,
+x,c_out) has support (0,0,0), (0,1,1), (1,0,1). All lines start with
+carry zero. Rows and columns end at one. Diagonal ends are free.
+Count contracts only nonzero entries in row order. Sample follows the
+stored row-contraction messages using exact integer completion weights.
+Plan estimates the dense carry-network topology with OMECO.
+"""

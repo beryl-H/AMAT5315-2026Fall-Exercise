@@ -44,3 +44,17 @@ if [[ "$phase" == all || "$phase" == magnet ]]; then
         done
     done
 fi
+if [[ "$phase" == all || "$phase" == queens ]]; then
+    for n in 4 5 6 7 8 9 10; do
+        tnsample --mode count --n "$n" --seed 2026 --out "runs/count_nq$n"
+    done
+    for n in 6 8; do
+        tnsample --mode sample --n "$n" --samples 200 --seed 2026 --out "runs/sample_nq$n"
+    done
+fi
+if [[ "$phase" == all || "$phase" == plots ]]; then
+    python verify.py all
+    for figure in gates factoring nqueens; do
+        python plots.py "$figure"
+    done
+fi

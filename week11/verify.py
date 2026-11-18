@@ -157,8 +157,43 @@ def verify_magnet():
 
 
 
+def verify_queens():
+    reference = dict(zip(range(4, 11), [2, 10, 4, 40, 92, 352, 724]))
+    for n, count in reference.items():
+        data = run(f"count_nq{n}")
+        assert data["board_count"] == count
+    records = {}
+    for n in (6, 8):
+        data = run(f"sample_nq{n}")
+        assert data["board_count"] == reference[n]
+        assert len(data["samples"]) == 200
+        frequencies = Counter(map(tuple, data["samples"]))
+        for board in frequencies:
+            assert set(board) == set(range(n)) and len(board) == n
+            assert len({r + c for r, c in enumerate(board)}) == n
+            assert len({r - c for r, c in enumerate(board)}) == n
+        entry = dict(distinct=len(frequencies), example=list(data["samples"][0]))
+        if n == 6:
+            assert len(frequencies) == 4
+            chi_squared = sum((count - 50)**2 / 50 for count in frequencies.values())
+            assert chi_squared < 11.345  # 99th percentile, three degrees of freedom.
+            entry["frequency_by_lexicographic_board"] = [frequencies[b] for b in sorted(frequencies)]
+            entry["chi_squared"] = chi_squared
+        else:
+            m = reference[n]
+            missed = (1 - 1/m)**200
+            variance = m * missed * (1-missed) + m*(m-1)*((1-2/m)**200 - missed**2)
+            expected = m * (1 - missed)
+            assert abs(len(frequencies) - expected) < 4 * math.sqrt(variance)
+            entry["expected_distinct"] = expected
+            entry["distinct_sigma"] = math.sqrt(variance)
+        records[n] = entry
+    save("nqueens-check", dict(counts=reference, samples=records))
+
+
+
 def main():
-    checks = {"pred": verify_pred, "gadgets": verify_gates, "magnet": verify_magnet}
+    checks = {"pred": verify_pred, "gadgets": verify_gates, "magnet": verify_magnet, "queens": verify_queens}
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("phase", choices=(*checks, "all", "ground-config"))
     phase = parser.parse_args().phase
