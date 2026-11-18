@@ -1,6 +1,8 @@
 """Independently verify saved evidence for the Week 11 exercises."""
 import argparse
 import json
+import math
+from collections import Counter
 from pathlib import Path
 import re
 
@@ -92,11 +94,77 @@ def verify_gates():
     save("gates-check", dict(floors=floors, gaps=gaps, circuit_ground_rows=ground))
 
 
+def ground_config():
+    data = run("sample_f15")
+    ground = next(sample["bits"] for sample in data["samples"] if sample["energy"] == data["e_min"])
+    print(",".join(map(str, ground)))
+
+
+def verify_magnet():
+    ferro = run("count_p0")
+    assert (ferro["n_variables"], ferro["e_min"], ferro["g0"]) == (100, -180, 2)
+    assert len(ferro["magnet"]["bonds"]) == 180
+    assert all(energy == -1 for _, _, energy in ferro["magnet"]["bonds"])
+    assert ferro["log_z"] >= 360 + math.log(2)
+    factor = run("count_f15")
+    assert (factor["n_variables"], factor["e_min"], factor["g0"]) == (104, -299, 1)
+    assert abs(factor["log_z"] - 598.3179) < 5e-5
+    draws = run("sample_f15")
+    assert abs(factor["log_z"] - draws["log_z"]) < 1e-9
+    assert (factor["e_min"], factor["g0"]) == (draws["e_min"], draws["g0"])
+    beta = draws["parameters"]["beta"]
+    assert beta == 2
+    magnet = read(RUNS / "pred" / "factor_15.bundle.json")["target"]["data"]
+    totals = Counter()
+    for sample in draws["samples"]:
+        bits = sample["bits"]
+        assert len(bits) == 104 and set(bits) <= {0, 1}
+        s = [2 * b - 1 for b in bits]
+        energy = sum(k * s[i] * s[j] for k, (i, j) in zip(magnet["couplings"], magnet["graph"]["edges"]))
+        energy += sum(h * v for h, v in zip(magnet["fields"], s))
+        assert energy == sample["energy"] and energy >= -299
+        totals[energy] += 1
+    assert sum(totals.values()) == 2000
+    p0 = factor["g0"] * math.exp(-beta * factor["e_min"] - factor["log_z"])
+    expected = 2000 * p0
+    sigma = math.sqrt(expected * (1 - p0))
+    observed = totals[-299]
+    assert observed == draws["ground_samples"]
+    assert abs(observed - expected) < 3 * sigma
+    extracted = read(RUNS / "sample_f15" / "extract.json")
+    bits = extracted["solution"]
+    p, q = little_endian(bits[:2]), little_endian(bits[2:])
+    assert (p, q) == (3, 5)
+    assert (extracted["evaluation"], extracted["solver"]) == ("Min(0)", "external")
+    assert extracted["intermediate"]["evaluation"] == "Min(-299)"
+    scaling = []
+    for k in range(2, 9):
+        line = {"k": k}
+        for order in ("greedy", "treesa"):
+            plan = run(f"plan_k{k}_{order}")
+            assert plan["n_variables"] == 14 * k * k + 8 * k
+            assert plan["planner"] == order and plan["mode"] == "plan"
+            assert all(key not in plan for key in ("log_z", "e_min", "samples"))
+            assert plan["sc"] >= 0 and plan["tc"] >= 0
+            line[order] = {key: plan[key] for key in ("sc", "tc", "runtime_ms")}
+        scaling.append(line)
+    save("magnet-check", dict(
+        ferro={"e_min": ferro["e_min"], "g0": ferro["g0"], "log_z": ferro["log_z"]},
+        factor={"e_min": factor["e_min"], "g0": factor["g0"], "log_z": factor["log_z"], "sc": factor["sc"]},
+        factors=[p, q], expected_ground=expected, observed_ground=observed, p0=p0, binomial_sigma=sigma,
+        histogram=dict(sorted(totals.items())), scaling=scaling,
+    ))
+
+
+
 def main():
-    checks = {"pred": verify_pred, "gadgets": verify_gates}
+    checks = {"pred": verify_pred, "gadgets": verify_gates, "magnet": verify_magnet}
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phase", choices=(*checks, "all"))
+    parser.add_argument("phase", choices=(*checks, "all", "ground-config"))
     phase = parser.parse_args().phase
+    if phase == "ground-config":
+        ground_config()
+        return
     for name, check in checks.items():
         if phase in ("all", name):
             check()

@@ -28,3 +28,32 @@ stdout = "one tab-separated table with header mode, metric, value, runtime_ms"
 Save the schema version, mode, seed, run parameters and summary numbers, with
 the full-precision evidence needed to recompute them.
 """
+
+[args.magnet]
+l = "side length L of an open square lattice (spins +1/-1); default absent"
+p-af = "probability of antiferromagnetic bond J=-1, fixed by L and seed"
+beta = "nonnegative inverse temperature for magnet count and sample"
+input = "SpinGlass bundle from pred reduce; default absent"
+order = "OMECO planner, greedy or treesa (default)"
+samples = "positive number of independent sample-mode draws"
+
+[args.plan]
+mode = """
+Plan with OMECO without contracting. Report variable count and tc (log2
+operations) and sc (log2 largest intermediate tensor entries).
+"""
+
+[args.count]
+mode = """
+Report log Z from locally scaled thermal tensors and the exact minimum energy
+and multiplicity from min-plus contraction on (energy, count) pairs.
+Bundle energies use +sum K_ij s_i s_j + sum h_i s_i. The lattice describes
+bonds by J with K = -J.
+"""
+
+[args.sample]
+mode = """
+Store the upward contraction once. Draw the variables eliminated by each node
+on the downward pass, weighting each choice by its stored child entries.
+Save every bit vector in variable order, and its directly evaluated energy.
+"""

@@ -1,6 +1,8 @@
 """Render the required Week 11 figures from saved, validated JSON runs."""
 import argparse
 import json
+import math
+from collections import Counter
 from pathlib import Path
 
 import matplotlib
@@ -56,11 +58,44 @@ def plot_gates():
     save(fig, "gates")
 
 
+def plot_factoring():
+    fig, (ax, hist) = plt.subplots(1, 2, figsize=(11.5, 4.35), layout="constrained")
+    sizes = list(range(2, 9))
+    for order, color, marker in (("greedy", ORANGE, "s"), ("treesa", BLUE, "o")):
+        widths = [load(f"plan_k{k}_{order}")["sc"] for k in sizes]
+        ax.plot(sizes, widths, marker=marker, label=order, color=color)
+    ax.plot(sizes[1:], [2*k+1 for k in sizes[1:]], "--", color=DIM, label="Reference 2k + 1")
+    ax.axhline(30, ls=":", lw=1, color=DIM, label="8 GiB at 8 bytes/entry")
+    ax.set(xticks=sizes, xlabel="Bits per factor k", ylabel="Space complexity sc (log₂ entries)",
+           title="(a) OMECO contraction plan width")
+    ax.legend()
+    data = load("sample_f15")
+    counts = Counter(sample["energy"] for sample in data["samples"])
+    energies = sorted(counts)
+    e0 = data["e_min"]
+    beta = data["parameters"]["beta"]
+    expected = len(data["samples"]) * data["g0"] * math.exp(-beta * e0 - data["log_z"])
+    bars = hist.bar(energies, [counts[e] for e in energies], width=1.38,
+                    color=[BLUE if e == e0 else DIM for e in energies], label="Sampled")
+    hist.bar_label(bars, padding=3, fontsize=8)
+    hist.scatter([e0], [expected], marker="D", facecolors="white", edgecolors=ORANGE,
+                 s=65, linewidths=1.5, zorder=4, label=f"Expected ground count {expected:.1f}")
+    hist.set(xticks=energies, xlabel="Spin-glass energy", ylabel="Sample count",
+             title=f"(b) Factoring 15 at β = {beta:g}")
+    hist.set_ylim(top=max(max(counts.values()), expected) * 1.18)
+    hist.legend()
+    for axes in (ax, hist):
+        axes.grid(axis="y", alpha=0.22)
+        axes.set_axisbelow(True)
+    save(fig, "factoring")
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("figure", choices=["gates"])
-    parser.parse_args()
-    plot_gates()
+    figures = {"gates": plot_gates, "factoring": plot_factoring}
+    parser.add_argument("figure", choices=figures)
+    figures[parser.parse_args().figure]()
 
 
 if __name__ == "__main__":
