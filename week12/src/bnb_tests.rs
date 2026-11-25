@@ -5,7 +5,7 @@ use serde_json::json;
 #[test]
 fn exact_tetrahedron_trace_includes_both_bound_prunes() {
     let graph = problem::tetrahedron();
-    let result = bnb::run(&graph, &graph.model(), Policy::MostFrac, true).unwrap();
+    let result = bnb::run(&graph, &graph.model(), Policy::MostFrac, true, None).unwrap();
     assert_eq!(result.nodes, 5);
     assert_eq!(result.lp_solves, 5);
     assert_eq!(result.optimum, -3.0);
@@ -58,7 +58,7 @@ fn both_policy_optima_match_enumeration_on_weighted_graph() {
     let oracle = graph.oracle(&model).unwrap();
     assert!((brute - oracle.value).abs() < 1e-9);
     for policy in [Policy::MostFrac, Policy::Strong] {
-        let result = bnb::run(&graph, &model, policy, false).unwrap();
+        let result = bnb::run(&graph, &model, policy, false, None).unwrap();
         assert!((result.optimum - brute).abs() < 1e-9);
         assert_eq!(
             result.lp_solves,

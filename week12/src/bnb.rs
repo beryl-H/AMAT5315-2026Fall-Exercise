@@ -1,12 +1,15 @@
+use crate::features::FeatureGraph;
+use crate::neural::Model;
 use crate::problem::{solve, Problem, Solution, SpinGlass, EPS};
 use anyhow::{ensure, Context, Result};
 use serde::Serialize;
 use std::time::Instant;
 
 #[derive(Clone, Copy)]
-pub enum Policy {
+pub enum Policy<'a> {
     MostFrac,
     Strong,
+    Neural(&'a Model),
 }
 
 #[derive(Clone, Copy, Serialize)]
@@ -48,6 +51,23 @@ pub struct Trace {
     disposition: &'static str,
 }
 
+#[derive(Serialize)]
+pub struct Candidate {
+    spin: usize,
+    features: [f64; 12],
+    gain0: f64,
+    gain1: f64,
+    score: f64,
+    pruned_children: u8,
+}
+
+#[derive(Serialize)]
+pub struct Label {
+    instance_id: usize,
+    node: usize,
+    candidates: Vec<Candidate>,
+}
+
 #[derive(Default, Serialize)]
 pub struct Search {
     pub optimum: f64,
@@ -56,9 +76,13 @@ pub struct Search {
     pub lp_solves: usize,
     pub probed_candidates: usize,
     pub lp_ms: f64,
+    pub inference_ms: f64,
+    pub feature_batches: usize,
     pub runtime_ms: f64,
     pub splits: Vec<Split>,
     pub trace: Vec<Trace>,
+    #[serde(skip_serializing)]
+    pub labels: Vec<Label>,
 }
 
 impl Search {
@@ -89,10 +113,10 @@ fn prunable(bound: f64, incumbent: f64) -> bool {
     bound >= incumbent - EPS
 }
 
-fn probe_gain(probe: Option<Solution>, parent: f64, incumbent: f64) -> f64 {
+fn probe_gain(probe: Option<Solution>, parent: f64, incumbent: f64) -> (f64, u8) {
     match probe {
-        Some(lp) if !prunable(lp.value, incumbent) => (lp.value - parent).max(0.0),
-        _ => 1e6,
+        Some(lp) if !prunable(lp.value, incumbent) => ((lp.value - parent).max(0.0), 0),
+        _ => (1e6, 1),
     }
 }
 
@@ -111,9 +135,21 @@ fn winner(scored: impl IntoIterator<Item = (usize, f64)>, tolerance: f64) -> usi
     best.expect("at least one candidate").0
 }
 
-pub fn run(graph: &SpinGlass, model: &Problem, policy: Policy, trace: bool) -> Result<Search> {
+pub fn run(
+    graph: &SpinGlass,
+    model: &Problem,
+    policy: Policy<'_>,
+    trace: bool,
+    label_instance: Option<usize>,
+) -> Result<Search> {
     let started = Instant::now();
     let mut search = Search::default();
+    let setup = Instant::now();
+    let feature_graph = (label_instance.is_some() || matches!(policy, Policy::Neural(_)))
+        .then(|| FeatureGraph::new(graph));
+    if matches!(policy, Policy::Neural(_)) {
+        search.inference_ms += elapsed_ms(setup);
+    }
     let n = graph.fields.len();
     let mut incumbent = f64::INFINITY;
     let mut stack = vec![Node {
@@ -163,16 +199,78 @@ pub fn run(graph: &SpinGlass, model: &Problem, policy: Policy, trace: bool) -> R
             Policy::MostFrac => {
                 winner(candidates.iter().map(|&i| (i, fractionality(lp.x[i]))), EPS)
             }
+            Policy::Neural(network) => {
+                let t = Instant::now();
+                let features = feature_graph.as_ref().expect("neural features").extract(
+                    graph,
+                    &lp,
+                    &node.fixed,
+                    &candidates,
+                    incumbent,
+                );
+                let spin = winner(
+                    candidates
+                        .iter()
+                        .copied()
+                        .zip(features.iter().map(|f| network.score(f))),
+                    0.0,
+                );
+                search.inference_ms += elapsed_ms(t);
+                search.feature_batches += 1;
+                spin
+            }
             Policy::Strong => {
-                let mut scores = Vec::with_capacity(candidates.len());
+                let mut probes = Vec::with_capacity(candidates.len());
                 for &i in &candidates {
                     let [down, up] = node.children(i);
-                    let gain0 = probe_gain(search.lp(model, &down)?, lp.value, incumbent);
-                    let gain1 = probe_gain(search.lp(model, &up)?, lp.value, incumbent);
+                    let (gain0, prune0) = probe_gain(search.lp(model, &down)?, lp.value, incumbent);
+                    let (gain1, prune1) = probe_gain(search.lp(model, &up)?, lp.value, incumbent);
                     search.probed_candidates += 1;
-                    scores.push((i, gain0.max(EPS) * gain1.max(EPS)));
+                    probes.push((
+                        gain0,
+                        gain1,
+                        gain0.max(EPS) * gain1.max(EPS),
+                        prune0 + prune1,
+                    ));
                 }
-                winner(scores, 1e-9)
+                if let Some(instance_id) =
+                    label_instance.filter(|_| candidates.len() >= 2 && search.labels.len() < 80)
+                {
+                    let features = feature_graph.as_ref().expect("label features").extract(
+                        graph,
+                        &lp,
+                        &node.fixed,
+                        &candidates,
+                        incumbent,
+                    );
+                    let records = candidates
+                        .iter()
+                        .copied()
+                        .zip(features)
+                        .zip(&probes)
+                        .map(
+                            |((spin, features), &(gain0, gain1, score, pruned_children))| {
+                                Candidate {
+                                    spin,
+                                    features,
+                                    gain0,
+                                    gain1,
+                                    score,
+                                    pruned_children,
+                                }
+                            },
+                        )
+                        .collect();
+                    search.labels.push(Label {
+                        instance_id,
+                        node: search.nodes,
+                        candidates: records,
+                    });
+                }
+                winner(
+                    candidates.iter().copied().zip(probes.iter().map(|p| p.2)),
+                    1e-9,
+                )
             }
         };
 

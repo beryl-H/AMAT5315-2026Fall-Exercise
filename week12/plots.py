@@ -61,9 +61,31 @@ def bnb(out):
     save(fig, out, "bnb")
 
 
+
+def neural_bnb(out):
+    model = read(out, "model.json")
+    run = read(out, "eval_test/run.json")["instances"]
+    history = model["history"]
+    epochs = [row["epoch"] for row in history]
+    fig, (loss, nodes) = plt.subplots(1, 2, figsize=(11, 4.3), layout="constrained")
+    for key, label, color in [("train_ce", "Training", "most-frac"),
+                               ("val_ce", "Validation", "strong")]:
+        loss.plot(epochs, [row[key] for row in history], label=label, color=COLORS[color])
+    loss.axvline(model["best_epoch"], color="#656B73", ls="--", lw=1, label="Saved epoch")
+    loss.set(xlabel="Epoch", ylabel="Cross-entropy")
+    for name in POLICIES[:3]:
+        counts = sorted(row["results"][name]["nodes"] for row in run)
+        nodes.plot(range(1, len(counts) + 1), counts, label=name, color=COLORS[name])
+    nodes.set(xlabel="Instance rank (per policy)", ylabel="Explored nodes")
+    for ax in (loss, nodes):
+        ax.legend(frameon=False)
+    fig.suptitle("Imitation learning and exact search · 16 unseen spin glasses, 22 spins / 52 bonds")
+    save(fig, out, "neural_bnb")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("figure", choices=("gap", "bnb"))
+    parser.add_argument("figure", choices=("gap", "bnb", "neural_bnb"))
     parser.add_argument("--artifacts", type=Path, default=Path("artifacts"))
     args = parser.parse_args()
-    {"gap": gap, "bnb": bnb}[args.figure](args.artifacts)
+    {"gap": gap, "bnb": bnb, "neural_bnb": neural_bnb}[args.figure](args.artifacts)

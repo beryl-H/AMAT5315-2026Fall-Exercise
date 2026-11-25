@@ -1,135 +1,133 @@
-use crate::problem::{Problem, Solution, EPS};
+use crate::bnb::fractionality;
+use crate::problem::{Solution, SpinGlass};
 
 pub const NAMES: [&str; 12] = [
     "x_val",
     "frac_dist",
-    "cost_norm",
-    "cost_per_uncovered",
-    "uncovered_deg_norm",
-    "tight_frac",
-    "mean_slack",
-    "mean_dual",
-    "max_dual",
+    "field_h",
+    "abs_field_h",
+    "deg_norm",
+    "bond_bias",
+    "eff_field",
+    "abs_eff_field",
+    "mean_bond_dual",
+    "mean_bond_gap",
     "mean_nbr_frac",
     "gap_ratio",
-    "frac_ratio",
 ];
 
-pub fn fractionality(x: f64) -> f64 {
-    let x = x.clamp(0.0, 1.0);
-    2.0 * x.min(1.0 - x)
+pub struct FeatureGraph {
+    incident: Vec<Vec<(usize, usize)>>,
+    max_degree: f64,
 }
 
-#[derive(Default)]
-struct ActiveRows {
-    degree: usize,
-    tight: usize,
-    slack_sum: f64,
-    dual_sum: f64,
-    max_dual: f64,
-    neighbor_sum: f64,
-}
-
-pub fn features(
-    problem: &Problem,
-    solution: &Solution,
-    lower: &[f64],
-    upper: &[f64],
-    candidates: &[usize],
-    incumbent: Option<f64>,
-) -> Vec<[f64; 12]> {
-    let mut by_column: Vec<_> = problem
-        .costs
-        .iter()
-        .map(|_| ActiveRows::default())
-        .collect();
-    let free: Vec<_> = lower.iter().zip(upper).map(|(l, u)| u - l > EPS).collect();
-    let fractional: Vec<_> = solution.x.iter().map(|x| fractionality(*x)).collect();
-    let max_dual = solution.dual.iter().map(|x| x.abs()).fold(0.0, f64::max);
-    let max_cost = problem.costs.iter().copied().fold(0.0, f64::max);
-
-    for (i, row) in problem.rows.iter().enumerate() {
-        if row.iter().any(|&(j, _)| !free[j] && lower[j] >= 1.0 - EPS) {
-            continue;
+impl FeatureGraph {
+    pub fn new(graph: &SpinGlass) -> Self {
+        let mut incident = vec![Vec::new(); graph.fields.len()];
+        for (e, bond) in graph.bonds.iter().enumerate() {
+            incident[bond.u].push((e, bond.v));
+            incident[bond.v].push((e, bond.u));
         }
-        let activity: f64 = row
-            .iter()
-            .map(|&(j, coefficient)| coefficient * solution.x[j])
-            .sum();
-        let slack = (activity - 1.0).clamp(0.0, 2.0);
-        let dual = if max_dual > 0.0 {
-            solution.dual[i].abs() / max_dual
-        } else {
-            0.0
-        };
-        let (free_count, frac_sum) = row
-            .iter()
-            .filter(|&&(j, _)| free[j])
-            .fold((0, 0.0), |(count, sum), &(j, _)| {
-                (count + 1, sum + fractional[j])
-            });
-        for &(j, _) in row {
-            let stats = &mut by_column[j];
-            stats.degree += 1;
-            stats.tight += usize::from(slack < 1e-5);
-            stats.slack_sum += slack;
-            stats.dual_sum += dual;
-            stats.max_dual = stats.max_dual.max(dual);
-            let neighbors = free_count - usize::from(free[j]);
-            if neighbors != 0 {
-                let own = if free[j] { fractional[j] } else { 0.0 };
-                stats.neighbor_sum += (frac_sum - own) / neighbors as f64;
-            }
+        let max_degree = incident.iter().map(Vec::len).max().unwrap_or(0).max(1) as f64;
+        Self {
+            incident,
+            max_degree,
         }
     }
 
-    let max_degree = candidates
-        .iter()
-        .map(|&j| by_column[j].degree)
-        .max()
-        .unwrap_or(0)
-        .max(1);
-    let (unit_sum, unit_count) = candidates.iter().fold((0.0, 0), |(sum, count), &j| {
-        let degree = by_column[j].degree;
-        if degree == 0 {
-            (sum, count)
+    pub fn extract(
+        &self,
+        graph: &SpinGlass,
+        lp: &Solution,
+        fixed: &[Option<u8>],
+        candidates: &[usize],
+        incumbent: f64,
+    ) -> Vec<[f64; 12]> {
+        let n = graph.fields.len();
+        let primal = |i: usize| lp.x[i].clamp(0.0, 1.0);
+        let spin = |i| 1.0 - 2.0 * primal(i);
+        let dual_scale = lp.dual.iter().fold(1e-9_f64, |scale, d| scale.max(d.abs()));
+        let gap_ratio = if incumbent.is_finite() {
+            ((incumbent - lp.value) / incumbent.abs().max(1.0)).clamp(0.0, 2.0)
         } else {
-            (sum + problem.costs[j] / degree as f64, count + 1)
-        }
-    });
-    let mean_unit = if unit_count == 0 {
-        1.0
-    } else {
-        unit_sum / unit_count as f64
-    };
-    let gap_ratio = incumbent.map_or(1.0, |value| {
-        ((value - solution.value) / value.abs().max(1.0)).clamp(0.0, 2.0)
-    });
-    let frac_ratio = candidates.len() as f64 / free.iter().filter(|&&v| v).count().max(1) as f64;
-    candidates
-        .iter()
-        .map(|&j| {
-            let s = &by_column[j];
-            let norm = s.degree.max(1) as f64;
-            let unit = if s.degree == 0 {
-                0.0
-            } else {
-                (problem.costs[j] / norm / mean_unit).clamp(0.0, 4.0)
-            };
-            [
-                solution.x[j].clamp(0.0, 1.0),
-                fractional[j],
-                problem.costs[j] / max_cost,
-                unit,
-                s.degree as f64 / max_degree as f64,
-                s.tight as f64 / norm,
-                s.slack_sum / norm,
-                s.dual_sum / norm,
-                s.max_dual,
-                s.neighbor_sum / norm,
-                gap_ratio,
-                frac_ratio,
-            ]
-        })
-        .collect()
+            1.0
+        };
+        candidates
+            .iter()
+            .map(|&i| {
+                let local = &self.incident[i];
+                let degree = local.len() as f64;
+                let denominator = degree.max(1.0);
+                let h = graph.fields[i];
+                let mut bias = 0.0;
+                let mut local_field = h;
+                let mut dual = 0.0;
+                let mut gap = 0.0;
+                let mut nbr_frac = 0.0;
+                for &(e, j) in local {
+                    let coupling = graph.bonds[e].j;
+                    bias +=
+                        f64::from(u8::from(coupling > 0.0)) - f64::from(u8::from(coupling < 0.0));
+                    local_field += coupling * spin(j);
+                    dual += lp.dual[4 * e..4 * e + 4]
+                        .iter()
+                        .map(|d| d.abs())
+                        .sum::<f64>()
+                        / dual_scale;
+                    gap += (lp.x[n + e] - 0.5 * (1.0 - spin(i) * spin(j))).abs();
+                    if fixed[j].is_none() {
+                        nbr_frac += fractionality(primal(j));
+                    }
+                }
+                let effective = local_field / (degree + 1.0);
+                [
+                    primal(i),
+                    fractionality(primal(i)),
+                    h,
+                    h.abs(),
+                    degree / self.max_degree,
+                    bias / denominator,
+                    effective,
+                    effective.abs(),
+                    dual / denominator,
+                    gap / denominator,
+                    nbr_frac / denominator,
+                    gap_ratio,
+                ]
+            })
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::problem::Bond;
+
+    #[test]
+    fn features_use_fixed_neighbor_and_include_all_bond_duals() {
+        let graph = SpinGlass {
+            fields: vec![1.0, 0.0, -1.0],
+            bonds: vec![Bond {
+                u: 0,
+                v: 1,
+                j: -1.0,
+            }],
+        };
+        let lp = Solution {
+            value: -4.0,
+            x: vec![0.5, 1.0, 0.5, 0.75],
+            dual: vec![0.0, 4.0, -2.0, 0.0],
+        };
+        let features =
+            FeatureGraph::new(&graph).extract(&graph, &lp, &[None, Some(1), None], &[0, 2], -2.0);
+        assert_eq!(
+            features[0],
+            [0.5, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.5, 0.25, 0.0, 1.0]
+        );
+        assert_eq!(
+            features[1],
+            [0.5, 1.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        );
+    }
 }

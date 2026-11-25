@@ -1,7 +1,9 @@
 mod bnb;
 #[cfg(test)]
 mod bnb_tests;
+mod features;
 mod gap;
+mod neural;
 mod problem;
 mod study;
 
@@ -17,20 +19,26 @@ use std::time::Instant;
 enum Mode {
     Gap,
     Bnb,
+    Eval,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
 enum Branching {
     MostFrac,
     Strong,
+    Neural,
 }
 
 impl Branching {
-    fn named(self) -> (&'static str, bnb::Policy) {
-        match self {
+    fn named(self, model: Option<&neural::Model>) -> Result<(&'static str, bnb::Policy<'_>)> {
+        Ok(match self {
             Self::MostFrac => ("most-frac", bnb::Policy::MostFrac),
             Self::Strong => ("strong", bnb::Policy::Strong),
-        }
+            Self::Neural => (
+                "neural",
+                bnb::Policy::Neural(model.context("neural requires --model")?),
+            ),
+        })
     }
 }
 
@@ -51,6 +59,10 @@ struct Args {
     out: PathBuf,
     #[arg(long, value_enum)]
     policy: Option<Branching>,
+    #[arg(long)]
+    export_labels: bool,
+    #[arg(long)]
+    model: Option<PathBuf>,
 }
 
 fn write_json(path: &Path, value: &Value) -> Result<()> {
@@ -66,14 +78,54 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let graphs = problem::instances(args.spins, args.edges, args.count, args.seed)?;
     let started = Instant::now();
-    let (mode, mut run) = match args.mode {
+    let (mode, mut run, dataset) = match args.mode {
         Mode::Gap => {
-            anyhow::ensure!(args.policy.is_none(), "--policy is only for --mode bnb");
-            ("gap", gap::run(&graphs)?)
+            anyhow::ensure!(
+                args.policy.is_none() && !args.export_labels && args.model.is_none(),
+                "--mode gap accepts no branching options"
+            );
+            ("gap", gap::run(&graphs)?, None)
         }
         Mode::Bnb => {
             let policy = args.policy.context("--mode bnb requires --policy")?;
-            ("bnb", study::compare(&graphs, &[policy.named()], 1e-9)?)
+            anyhow::ensure!(
+                !args.export_labels || (matches!(policy, Branching::Strong) && args.count == 48),
+                "--export-labels requires --policy strong --count 48"
+            );
+            anyhow::ensure!(
+                args.model.is_none() || matches!(policy, Branching::Neural),
+                "--model is only used by neural policies"
+            );
+            let model = args.model.as_deref().map(neural::load).transpose()?;
+            let (run, dataset) = study::compare(
+                &graphs,
+                &[policy.named(model.as_ref())?],
+                1e-9,
+                args.export_labels,
+            )?;
+            ("bnb", run, dataset)
+        }
+        Mode::Eval => {
+            anyhow::ensure!(
+                args.policy.is_none() && !args.export_labels,
+                "--mode eval compares all policies and exports no labels"
+            );
+            let model = neural::load(
+                args.model
+                    .as_deref()
+                    .context("--mode eval requires --model")?,
+            )?;
+            let parity = model.parity()?;
+            let policies = [Branching::MostFrac, Branching::Strong, Branching::Neural]
+                .map(|p| p.named(Some(&model)).expect("model available"));
+            let (mut run, _) = study::compare(&graphs, &policies, 1e-6, false)?;
+            run["summary"]["probe_max_abs_logit_error"] = parity["max_abs_logit_error"].clone();
+            run["summary"]["probe_max_abs_probability_error"] =
+                parity["max_abs_probability_error"].clone();
+            run["probe_parity"] = parity;
+            run["largest_neural_saving"] =
+                study::best_saving(&run).context("missing neural result")?;
+            ("eval", run, None)
         }
     };
     let runtime_ms = started.elapsed().as_secs_f64() * 1000.0;
@@ -85,6 +137,9 @@ fn main() -> Result<()> {
     run["runtime_ms"] = json!(runtime_ms);
     fs::create_dir_all(&args.out)?;
     write_json(&args.out.join("run.json"), &run)?;
+    if let Some(dataset) = dataset {
+        write_json(&args.out.join("dataset.json"), &dataset)?;
+    }
     println!("mode\tmetric\tvalue\truntime_ms");
     if let Some(summary) = run["summary"].as_object() {
         for (metric, value) in summary {
@@ -98,6 +153,12 @@ fn main() -> Result<()> {
                 i + 1
             );
         }
+    }
+    if mode == "eval" {
+        println!(
+            "{mode}\tlargest_neural_saving\t{}\t{runtime_ms:.6}",
+            run["largest_neural_saving"]
+        );
     }
     Ok(())
 }

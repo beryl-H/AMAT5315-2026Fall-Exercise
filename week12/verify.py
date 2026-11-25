@@ -64,8 +64,99 @@ def bnb():
     print("B&B: matched HiGHS for 96 solves and checked every LP count and tetrahedron branch.")
 
 
+def check_model():
+    data = read("bnb_strong/dataset.json")
+    model = read("model.json")
+    assert data["feature_names"] == model["feature_names"]
+    val_rows = {}
+    for name, ids in (("train", set(range(36))), ("validation", set(range(36, 48)))):
+        assert set(data[f"{name}_instance_ids"]) == set(model[f"{name}_instance_ids"]) == ids
+        rows = data[name]
+        counts = Counter(row["instance_id"] for row in rows)
+        assert set(counts) == ids and max(counts.values()) <= 80
+        seen = set()
+        for row in rows:
+            key = (row["instance_id"], row["node"])
+            assert key not in seen
+            seen.add(key)
+            candidates = row["candidates"]
+            spins = [c["spin"] for c in candidates]
+            assert len(spins) >= 2 and spins == sorted(set(spins))
+            for c in candidates:
+                fs = c["features"]
+                assert len(fs) == 12 and all(math.isfinite(f) for f in fs)
+                assert 1e-6 < fs[0] < 1 - 1e-6
+                assert math.isclose(fs[1], 2 * min(fs[0], 1 - fs[0]))
+                assert c["score"] == max(c["gain0"], 1e-6) * max(c["gain1"], 1e-6)
+                assert c["pruned_children"] == sum(c[g] == 1e6 for g in ("gain0", "gain1"))
+            if name == "validation":
+                val_rows[key] = candidates
+        print(f"{name}: {len(rows)} nodes / {len(ids)} graphs")
+
+    train_feat = [c["features"] for row in data["train"] for c in row["candidates"]]
+    for features, mu, sigma in zip(zip(*train_feat), model["mean"], model["std"], strict=True):
+        assert abs(mean(features) - mu) < 1e-12
+        sd = mean((f - mu) ** 2 for f in features) ** 0.5
+        assert abs(max(sd, 1e-6) - sigma) < 1e-12
+    history = model["history"]
+    assert [r["epoch"] for r in history] == list(range(1, 121))
+    eligible = (h for h in history if h["epoch"] == 1 or h["epoch"] % 5 == 0)
+    assert model["best_epoch"] == min(eligible, key=lambda h: h["val_ce"])["epoch"]
+    settings = model["settings"]
+    assert settings["platform"] == "cpu" and settings["jax_version"] == "0.12.1"
+    assert len(model["probes"]) == 6
+    for p in model["probes"]:
+        row = val_rows[p["instance_id"], p["node"]]
+        assert p["columns"] == [c["spin"] for c in row]
+        assert p["features"] == [c["features"] for c in row]
+        assert abs(sum(p["probabilities"]) - 1) < 1e-12
+    print(f"Model: validated teacher records, train-only normalization, epoch {model['best_epoch']} and six held-out probes.")
+    return model
+
+
+def check_eval(run, model, policies, expected):
+    params = run["parameters"]
+    assert (params["spins"], params["edges"], params["count"], run["seed"]) == expected
+    cases = run["instances"]
+    assert len(cases) == expected[2]
+    for case in cases:
+        assert set(case["results"]) == set(policies)
+        for name in policies:
+            check_search(case, name, 1e-6)
+            s = case["results"][name]
+            assert 0 <= s["inference_ms"] <= s["runtime_ms"] - s["lp_ms"] + 1e-8
+            if name == "neural":
+                assert s["feature_batches"] == (s["nodes"] - 1) // 2
+            if name == "root-neural":
+                assert s["feature_batches"] == 1
+    parity = run["probe_parity"]
+    assert parity["passed"] and len(parity["probes"]) == 6
+    for rust, jax in zip(parity["probes"], model["probes"], strict=True):
+        assert (rust["instance_id"], rust["node"], rust["columns"]) == (
+            jax["instance_id"], jax["node"], jax["columns"])
+        for key, rust_key in (("logits", "rust_logits"), ("probabilities", "rust_probabilities")):
+            assert all(abs(a - b) < 1e-4 for a, b in zip(jax[key], rust[rust_key], strict=True))
+    for name in ("neural", "root-neural"):
+        if name in policies:
+            assert run["summary"][f"{name}_mean_nodes"] < run["summary"]["most-frac_mean_nodes"]
+    saving = run["largest_neural_saving"]
+    def key(c):
+        r = c["results"]
+        return r["most-frac"]["nodes"] - r["neural"]["nodes"], -c["id"]
+    best = max(cases, key=key)
+    assert (saving["nodes_saved"], saving["id"]) == (key(best)[0], best["id"])
+    for name in ("most-frac", "neural"):
+        assert saving[name]["splits"] == best["results"][name]["splits"]
+    print(f"Evaluation: {len(cases) * len(policies)} exact solves, all LP counts and six JAX probes verified.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=("bnb",))
+    parser.add_argument("stage", choices=("bnb", "model"))
     args = parser.parse_args()
-    bnb()
+    if args.stage == "bnb":
+        bnb()
+    else:
+        model = check_model()
+        run = read("eval_test/run.json")
+        check_eval(run, model, POLICIES[:3], (22, 52, 16, 3026))

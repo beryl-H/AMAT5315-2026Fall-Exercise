@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 # JAX platform and x64 must be configured before any arrays are created.
-os.environ.setdefault("JAX_PLATFORMS", "cpu")
+os.environ["JAX_PLATFORMS"] = "cpu"
 import jax
 jax.config.update("jax_enable_x64", True)
 import jax.nn
@@ -46,6 +46,8 @@ def parse_args() -> argparse.Namespace:
 def load_dataset(path: Path) -> dict:
     with path.open(encoding="utf-8") as fh:
         data = json.load(fh)
+    if data.get("schema") != "amat5315.week12.spin-glass.labels.v1":
+        sys.exit("expected revised spin-glass teacher labels")
     for key in ("train", "validation", "feature_names", "train_instance_ids", "validation_instance_ids"):
         if key not in data:
             sys.exit(f"dataset missing key {key!r}")
@@ -80,7 +82,7 @@ def collect_nodes(split: list[dict]) -> list[dict]:
         nodes.append({
             "instance_id": rec["instance_id"],
             "node": rec["node"],
-            "columns": [c["column"] for c in cands],
+            "columns": [c["spin"] for c in cands],
             "scores": scores,
             "features": feats,
         })
@@ -90,7 +92,7 @@ def collect_nodes(split: list[dict]) -> list[dict]:
 def tie_targets(scores: np.ndarray) -> np.ndarray:
     """Equal-mass target over candidates tied for the max score (within TIE_TOL)."""
     best = scores.max()
-    ties = np.abs(scores - best) <= TIE_TOL
+    ties = np.abs(scores - best) <= TIE_TOL * max(1.0, abs(best))
     return ties.astype(np.float64) / ties.sum()
 
 
@@ -156,9 +158,10 @@ def cross_entropy(params: dict, feats, cand_mask, scores, node_mask) -> jax.Arra
     lg = logits(params, feats)                                 # (N, K)
     very_neg = jnp.asarray(-1e30)
     lg = jnp.where(cand_mask, lg, very_neg)
-    ties = jnp.abs(scores - jnp.max(jnp.where(cand_mask, scores, -jnp.inf),
-                                    axis=1, keepdims=True)) <= TIE_TOL
-    ties = ties * cand_mask
+    best = jnp.max(jnp.where(cand_mask, scores, -jnp.inf), axis=1, keepdims=True)
+    best = jnp.where(node_mask[:, None], best, 0.0)
+    tolerance = TIE_TOL * jnp.maximum(1.0, jnp.abs(best))
+    ties = cand_mask & (jnp.abs(scores - best) <= tolerance)
     target = ties / jnp.maximum(jnp.sum(ties, axis=1, keepdims=True), 1)
     logZ = jax.nn.logsumexp(lg, axis=1)
     ce = logZ - jnp.sum(target * lg, axis=1)                   # = logZ - E_target[lg]
@@ -208,8 +211,7 @@ def main() -> None:
     # Normalisation statistics from real train candidates only.
     all_train = np.concatenate([nd["features"] for nd in train_nodes], axis=0)
     mean = all_train.mean(axis=0)
-    std = all_train.std(axis=0)
-    std[std < 1e-12] = 1.0                     # constant feature -> std 1.0
+    std = np.maximum(all_train.std(axis=0), 1e-6)
     for nd in list(train_nodes) + list(val_nodes):
         nd["raw_features"] = nd["features"]
         nd["features"] = (nd["features"] - mean) / std
@@ -262,7 +264,7 @@ def main() -> None:
         history.append({"epoch": epoch, "train_ce": train_ce,
                         "val_ce": val_ce, "top1": top1, "top3": top3,
                         "chance": chance})
-        if val_ce < best_ce:                    # retain best validation CE only
+        if (epoch == 1 or epoch % 5 == 0) and val_ce < best_ce:
             best_ce, best_params, best_epoch = val_ce, jax.device_get(params), epoch
 
     if best_params is None:
@@ -273,6 +275,11 @@ def main() -> None:
     one_over_k = float(np.mean([1.0 / len(nd["columns"]) for nd in val_nodes]))
     print(f"chosen epoch {best_epoch}: val_ce={val_ce:.6f} top1={top1:.4f} "
           f"top3={top3:.4f} chance={chance:.4f} (uniform 1/K={one_over_k:.4f})")
+    train_ids = {nd["instance_id"] for nd in train_nodes}
+    val_ids = {nd["instance_id"] for nd in val_nodes}
+    print(f"train: {len(train_nodes)} nodes / {len(train_ids)} graphs, "
+          f"validation: {len(val_nodes)} nodes / {len(val_ids)} graphs, "
+          f"overlap: {len(train_ids & val_ids)}")
 
     # Six deterministic validation probes: prefer one node per validation
     # instance (ascending instance_id), then fill remaining slots in dataset order.
@@ -316,7 +323,7 @@ def main() -> None:
         })
 
     out = {
-        "schema": "amat5315-week12-branch-model-v1",
+        "schema": "amat5315.week12.spin-glass.model.v1",
         "feature_names": data["feature_names"],
         "mean": mean.tolist(),
         "std": std.tolist(),
@@ -340,8 +347,8 @@ def main() -> None:
             "runtime_seconds": time.perf_counter() - t0,
         },
     }
-    args.out.mkdir(parents=True, exist_ok=True)
-    path = args.out / "model.json"
+    path = args.out
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(f"wrote {path}")
 

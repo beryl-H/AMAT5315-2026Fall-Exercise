@@ -63,7 +63,7 @@ pub fn load(path: &Path) -> anyhow::Result<Model> {
     )
     .context("cannot parse model JSON")?;
 
-    if raw.schema != "amat5315-week12-branch-model-v1" {
+    if raw.schema != "amat5315.week12.spin-glass.model.v1" {
         bail!("unexpected schema {:?}", raw.schema);
     }
     if raw.feature_names != crate::features::NAMES.to_vec() {

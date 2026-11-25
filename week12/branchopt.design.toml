@@ -52,3 +52,34 @@ is pruned or infeasible. Count the trial solves, leave the incumbent unchanged,
 and break ties by lowest spin index.
 """
 evidence = "Save the tetrahedron trace, ground energies, HiGHS errors, nodes, LP solves and time."
+
+
+[args.labels]
+export-labels = "save Strong Branching labels in bnb mode, off by default"
+
+[benchmark.bnb.features]
+labels = """
+Save at most 80 nodes per instance with two or more legal candidates.
+IDs 0–35 train, IDs 36–47 validate. Save both gains, their product score,
+and the number of children that were pruned or infeasible. Clamp x to [0,1],
+use s=1-2x, d=incident bond count, and scale by max(1e-9, max row |dual|).
+Features in order: x, 2 min(x,1-x), h, |h|, d/max(1,max degree),
+(positive bonds - negative bonds)/max(1,d), (h+sum J*s_neighbor)/(d+1)
+and its absolute value, mean local sum of four absolute row duals per bond
+divided by the dual scale, mean |z - 0.5*(1-s_i*s_neighbor)|,
+mean neighbor fractionality (fixed neighbor contributes 0),
+and clamp((incumbent-bound)/max(|incumbent|,1),0,2), or 1 if no incumbent.
+"""
+[writes.labels]
+"<out>/dataset.json" = "full precision features, gains, and train/validation nodes"
+
+[args.eval]
+model = "JAX model.json with training normalization and six probes"
+
+[benchmark.eval]
+policies = """
+Compare Rust logits and probabilities on all six JAX probes. Compare most-frac,
+strong and neural, which selects the legal candidate with highest MLP score.
+Record HiGHS error, nodes, LP solves and measured search wall time, and the first
+two branch spins and timings on the largest paired neural node saving.
+"""
