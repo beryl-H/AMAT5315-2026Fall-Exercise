@@ -46,9 +46,24 @@ def gap(out):
     save(fig, out, "gap")
 
 
+
+def bnb(out):
+    runs = [read(out, f"bnb_{name}/run.json")["instances"] for name in ("most", "strong")]
+    fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.2), layout="constrained")
+    for ax, key, ylabel in zip(axes, ("nodes", "lp_solves"),
+                               ("Explored nodes", "LP solves"), strict=True):
+        for name, run in zip(POLICIES[:2], runs, strict=True):
+            data = sorted(row["results"][name][key] for row in run)
+            ax.plot(range(1, len(data) + 1), data, label=name, color=COLORS[name])
+        ax.set(xlabel="Instance rank (per policy)", ylabel=ylabel)
+        ax.legend(frameon=False)
+    fig.suptitle("Branching rules · 48 spin glasses, 22 spins / 52 bonds")
+    save(fig, out, "bnb")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("figure", choices=("gap",))
+    parser.add_argument("figure", choices=("gap", "bnb"))
     parser.add_argument("--artifacts", type=Path, default=Path("artifacts"))
     args = parser.parse_args()
-    gap(args.artifacts)
+    {"gap": gap, "bnb": bnb}[args.figure](args.artifacts)

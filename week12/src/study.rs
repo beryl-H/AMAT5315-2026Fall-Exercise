@@ -1,103 +1,53 @@
 use crate::bnb::{self, Policy};
-use crate::features::NAMES;
-use crate::problem::{self, Problem};
-use anyhow::{ensure, Context, Result};
+use crate::problem::{self, SpinGlass};
+use anyhow::{ensure, Result};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
-pub fn compare(
-    problems: &[Problem],
-    policies: &[(&str, Policy<'_>)],
-    export_labels: bool,
-    tolerance: f64,
-) -> Result<(Value, Option<Value>)> {
-    let workshop = problem::workshop();
-    let example = bnb::run(&workshop, Policy::MostFrac, None)?;
+pub fn compare(graphs: &[SpinGlass], policies: &[(&str, Policy)], tolerance: f64) -> Result<Value> {
+    let tetra = problem::tetrahedron();
+    let example = bnb::run(&tetra, &tetra.model(), Policy::MostFrac, true)?;
     ensure!(
-        example.nodes == 3 && (example.optimum - 27.0).abs() < tolerance,
-        "workshop branch-and-bound must stop at the three-node optimum"
+        example.nodes == 5 && (example.optimum + 3.0).abs() < tolerance,
+        "tetrahedron must stop at the five-node optimum"
     );
-
-    let train_end = 3 * problems.len() / 4;
-    let mut train = Vec::new();
-    let mut validation = Vec::new();
-    let mut instances = Vec::with_capacity(problems.len());
+    let mut instances = Vec::with_capacity(graphs.len());
     let mut summary = BTreeMap::<String, f64>::new();
-    let mut total_error: f64 = 0.0;
-
-    for (id, p) in problems.iter().enumerate() {
-        let oracle = problem::solve(p, &p.lower, &p.upper, true)?
-            .context("generated instance has no feasible integer plan")?;
+    let mut max_error = 0.0_f64;
+    for (id, graph) in graphs.iter().enumerate() {
+        let model = graph.model();
+        let oracle = graph.oracle(&model)?;
         let mut results = BTreeMap::new();
         for &(name, policy) in policies {
-            let mut s = bnb::run(p, policy, export_labels.then_some(id))?;
+            let s = bnb::run(graph, &model, policy, false)?;
             let error = (s.optimum - oracle.value).abs();
-            total_error = total_error.max(error);
+            max_error = max_error.max(error);
             ensure!(
                 error < tolerance,
-                "optimum mismatch for {name} on instance {id}: {error}"
+                "optimum mismatch ({name}, instance {id}): {error}"
             );
             ensure!(
                 s.lp_solves == s.nodes + 2 * s.probed_candidates
                     && (name == "strong" || s.probed_candidates == 0),
-                "invalid LP count for {name} on instance {id}"
+                "invalid LP count ({name}, instance {id})"
             );
-            ensure!(
-                s.lp_ms >= 0.0
-                    && s.inference_ms >= 0.0
-                    && s.lp_ms + s.inference_ms <= s.runtime_ms + 1e-4,
-                "invalid timing for {name} on instance {id}"
-            );
-            if export_labels {
-                ensure!(s.labels.len() <= 80, "too many labels on instance {id}");
-                let records = if id < train_end {
-                    &mut train
-                } else {
-                    &mut validation
-                };
-                records.append(&mut s.labels);
-            }
-            for (metric, value) in [
+            for (key, value) in [
                 ("nodes", s.nodes as f64),
                 ("lp_solves", s.lp_solves as f64),
-                ("runtime_ms", s.runtime_ms),
                 ("lp_ms", s.lp_ms),
-                ("inference_ms", s.inference_ms),
-                ("feature_ms", s.feature_ms),
-                ("score_ms", s.score_ms),
+                ("runtime_ms", s.runtime_ms),
             ] {
-                *summary.entry(format!("{name}_mean_{metric}")).or_default() +=
-                    value / problems.len() as f64;
+                *summary.entry(format!("{name}_mean_{key}")).or_default() += value;
             }
             let mut record = serde_json::to_value(s)?;
             record["abs_optimum_error"] = json!(error);
             results.insert(name, record);
         }
-        instances.push(json!({"id": id, "problem": p, "oracle": oracle, "results": results}));
+        instances.push(json!({"id":id, "graph":graph, "oracle":oracle, "results":results}));
     }
-    summary.insert("max_abs_optimum_error".into(), total_error);
-    let dataset = export_labels.then(|| {
-        json!({
-            "schema": "amat5315.week12.strong-labels.v1", "feature_names": NAMES,
-            "train_instance_ids": (0..train_end).collect::<Vec<_>>(),
-            "validation_instance_ids": (train_end..problems.len()).collect::<Vec<_>>(),
-            "train": train, "validation": validation,
-        })
-    });
-    Ok((
-        json!({"workshop": example, "instances": instances, "summary": summary}),
-        dataset,
-    ))
-}
-
-pub fn best_saving(run: &Value) -> Option<Value> {
-    run["instances"].as_array()?.iter().filter_map(|row| {
-        let most = &row["results"]["most-frac"];
-        let neural = &row["results"]["neural"];
-        let saving = most["nodes"].as_i64()? - neural["nodes"].as_i64()?;
-        let id = row["id"].as_i64()?;
-        Some(((saving, -id), json!({"id": id, "nodes_saved": saving,
-            "most-frac": {"nodes": most["nodes"], "runtime_ms": most["runtime_ms"], "splits": most["splits"]},
-            "neural": {"nodes": neural["nodes"], "runtime_ms": neural["runtime_ms"], "splits": neural["splits"]}})))
-    }).max_by_key(|(key, _)| *key).map(|(_, row)| row)
+    for value in summary.values_mut() {
+        *value /= graphs.len() as f64;
+    }
+    summary.insert("max_abs_optimum_error".into(), max_error);
+    Ok(json!({"tetrahedron":example, "instances":instances, "summary":summary}))
 }

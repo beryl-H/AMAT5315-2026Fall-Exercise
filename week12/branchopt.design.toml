@@ -35,3 +35,20 @@ evidence = "Save graphs, LP/MILP points and energies, gaps, fractional spin coun
 [writes]
 stdout = "TSV: mode, metric, value, runtime_ms"
 "<out>/run.json" = "schema, mode, seed, parameters, summary and raw evidence"
+
+[args.bnb]
+policy = "branching rule: most-frac | strong | neural | root-neural"
+
+[benchmark.bnb]
+search = """
+Depth-first search starts without an incumbent. Prune infeasible LPs and
+bounds >= incumbent - 1e-6. Branch only on free spins with
+1e-6 < x_i < 1 - 1e-6. Visit the nearer child first, choosing 1 at 0.5.
+"""
+policies = """
+Most-frac picks the candidate closest to 0.5. Strong scores each candidate
+by max(d0,1e-6)*max(d1,1e-6) using both child LPs. Use gain 1e6 if a child
+is pruned or infeasible. Count the trial solves, leave the incumbent unchanged,
+and break ties by lowest spin index.
+"""
+evidence = "Save the tetrahedron trace, ground energies, HiGHS errors, nodes, LP solves and time."

@@ -320,3 +320,13 @@ mod tests {
         }
     }
 }
+
+pub fn tetrahedron() -> SpinGlass {
+    let bonds = (0..4)
+        .flat_map(|u| ((u + 1)..4).map(move |v| Bond { u, v, j: 1.0 }))
+        .collect();
+    SpinGlass {
+        bonds,
+        fields: vec![1.0, 0.0, 0.0, 0.0],
+    }
+}

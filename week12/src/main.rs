@@ -1,5 +1,9 @@
+mod bnb;
+#[cfg(test)]
+mod bnb_tests;
 mod gap;
 mod problem;
+mod study;
 
 use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum};
@@ -12,6 +16,22 @@ use std::time::Instant;
 #[derive(Clone, Copy, ValueEnum)]
 enum Mode {
     Gap,
+    Bnb,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Branching {
+    MostFrac,
+    Strong,
+}
+
+impl Branching {
+    fn named(self) -> (&'static str, bnb::Policy) {
+        match self {
+            Self::MostFrac => ("most-frac", bnb::Policy::MostFrac),
+            Self::Strong => ("strong", bnb::Policy::Strong),
+        }
+    }
 }
 
 #[derive(Parser)]
@@ -29,6 +49,8 @@ struct Args {
     seed: u64,
     #[arg(long)]
     out: PathBuf,
+    #[arg(long, value_enum)]
+    policy: Option<Branching>,
 }
 
 fn write_json(path: &Path, value: &Value) -> Result<()> {
@@ -45,7 +67,14 @@ fn main() -> Result<()> {
     let graphs = problem::instances(args.spins, args.edges, args.count, args.seed)?;
     let started = Instant::now();
     let (mode, mut run) = match args.mode {
-        Mode::Gap => ("gap", gap::run(&graphs)?),
+        Mode::Gap => {
+            anyhow::ensure!(args.policy.is_none(), "--policy is only for --mode bnb");
+            ("gap", gap::run(&graphs)?)
+        }
+        Mode::Bnb => {
+            let policy = args.policy.context("--mode bnb requires --policy")?;
+            ("bnb", study::compare(&graphs, &[policy.named()], 1e-9)?)
+        }
     };
     let runtime_ms = started.elapsed().as_secs_f64() * 1000.0;
     run["schema"] = json!("amat5315.week12.spin-glass.run.v1");
@@ -60,6 +89,14 @@ fn main() -> Result<()> {
     if let Some(summary) = run["summary"].as_object() {
         for (metric, value) in summary {
             println!("{mode}\t{metric}\t{value}\t{runtime_ms:.6}");
+        }
+    }
+    if let Some(trace) = run["tetrahedron"]["trace"].as_array() {
+        for (i, node) in trace.iter().enumerate() {
+            println!(
+                "{mode}\ttetrahedron_node_{}\t{node}\t{runtime_ms:.6}",
+                i + 1
+            );
         }
     }
     Ok(())
