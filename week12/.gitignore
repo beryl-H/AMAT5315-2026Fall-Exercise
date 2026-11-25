@@ -1,0 +1,9 @@
+/artifacts/
+/target/
+/.venv/
+__pycache__/
+*.png
+*.svg
+*.pdf
+model.json
+dataset.json
