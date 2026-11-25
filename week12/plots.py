@@ -83,9 +83,45 @@ def neural_bnb(out):
     save(fig, out, "neural_bnb")
 
 
+
+def evaluation(out):
+    test, transfer = [read(out, f"eval_{name}/run.json") for name in ("test", "transfer")]
+    fig, (nodes, timing) = plt.subplots(1, 2, figsize=(11.7, 4.4), layout="constrained")
+    labels = ("22 spins / 52 bonds", "30 spins / 72 bonds")
+    for i, name in enumerate(POLICIES):
+        means = [run["summary"][f"{name}_mean_nodes"] for run in (test, transfer)]
+        x = [group + (i - 1.5) * 0.19 for group in range(2)]
+        bars = nodes.bar(x, means, width=0.18, label=name, color=COLORS[name])
+        nodes.bar_label(bars, fmt="%.1f", padding=3, fontsize=8)
+    nodes.set(title="Mean explored nodes", xticks=[0, 1], xticklabels=labels)
+    nodes.set_ylim(0, max(nodes.get_ylim()[1] * 1.17, 1))
+    nodes.legend(frameon=False, fontsize=8, ncols=2)
+
+    summary = transfer["summary"]
+    lp = [summary[f"{p}_mean_lp_ms"] for p in POLICIES]
+    infer = [summary[f"{p}_mean_inference_ms"] for p in POLICIES]
+    total = [summary[f"{p}_mean_runtime_ms"] for p in POLICIES]
+    bottom = [a + b for a, b in zip(lp, infer, strict=True)]
+    other = [max(0, a - b) for a, b in zip(total, bottom, strict=True)]
+    timing.bar(POLICIES, lp, color=COLORS["most-frac"], label="HiGHS LP")
+    timing.bar(POLICIES, infer, bottom=lp, color=COLORS["strong"], label="Features + MLP")
+    timing.bar(POLICIES, other, bottom=bottom, color="#C5CCD4", label="Other search")
+    for i, (t, m) in enumerate(zip(total, infer, strict=True)):
+        detail = f"\nMLP: {m:.3f}" if m else ""
+        timing.annotate(f"{t:.1f}{detail}", (i, t), ha="center", fontsize=8,
+                        xytext=(0, 4), textcoords="offset points")
+    timing.set(title="Mean CPU search time · 30 spins / 72 bonds",
+               ylabel="Elapsed time (ms)", ylim=(0, max(total) * 1.19))
+    timing.legend(frameon=False, fontsize=8, loc="upper right")
+    fig.suptitle("Neural branching on held-out and larger spin glasses")
+    save(fig, out, "eval")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("figure", choices=("gap", "bnb", "neural_bnb"))
+    parser.add_argument("figure", choices=("gap", "bnb", "neural_bnb", "eval", "all"))
     parser.add_argument("--artifacts", type=Path, default=Path("artifacts"))
     args = parser.parse_args()
-    {"gap": gap, "bnb": bnb, "neural_bnb": neural_bnb}[args.figure](args.artifacts)
+    figures = {"gap": gap, "bnb": bnb, "neural_bnb": neural_bnb, "eval": evaluation}
+    for figure in figures.values() if args.figure == "all" else (figures[args.figure],):
+        figure(args.artifacts)

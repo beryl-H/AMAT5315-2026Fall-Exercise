@@ -27,6 +27,7 @@ enum Branching {
     MostFrac,
     Strong,
     Neural,
+    RootNeural,
 }
 
 impl Branching {
@@ -37,6 +38,10 @@ impl Branching {
             Self::Neural => (
                 "neural",
                 bnb::Policy::Neural(model.context("neural requires --model")?),
+            ),
+            Self::RootNeural => (
+                "root-neural",
+                bnb::Policy::RootNeural(model.context("root-neural requires --model")?),
             ),
         })
     }
@@ -93,7 +98,7 @@ fn main() -> Result<()> {
                 "--export-labels requires --policy strong --count 48"
             );
             anyhow::ensure!(
-                args.model.is_none() || matches!(policy, Branching::Neural),
+                args.model.is_none() || matches!(policy, Branching::Neural | Branching::RootNeural),
                 "--model is only used by neural policies"
             );
             let model = args.model.as_deref().map(neural::load).transpose()?;
@@ -116,8 +121,13 @@ fn main() -> Result<()> {
                     .context("--mode eval requires --model")?,
             )?;
             let parity = model.parity()?;
-            let policies = [Branching::MostFrac, Branching::Strong, Branching::Neural]
-                .map(|p| p.named(Some(&model)).expect("model available"));
+            let policies = [
+                Branching::MostFrac,
+                Branching::Strong,
+                Branching::Neural,
+                Branching::RootNeural,
+            ]
+            .map(|p| p.named(Some(&model)).expect("model available"));
             let (mut run, _) = study::compare(&graphs, &policies, 1e-6, false)?;
             run["summary"]["probe_max_abs_logit_error"] = parity["max_abs_logit_error"].clone();
             run["summary"]["probe_max_abs_probability_error"] =

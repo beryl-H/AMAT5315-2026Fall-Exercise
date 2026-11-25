@@ -1,82 +1,94 @@
-# AMAT5315 Week 12 · 整数规划与神经分支
+# AMAT5315 Week 12 · 自旋玻璃与学习分支
 
-[作业规格](SPEC.md) · [求解器接口](branchopt.design.toml) · [训练接口](train_branch.design.toml)
+本作业依据 16 页的修订学习单，覆盖自旋玻璃的 MILP、精确分支定界、JAX 模仿训练和 Rust CPU 迁移实验。输入、参数和验收位置见 [作业规格](SPEC.md)、[求解器设计](branchopt.design.toml)和[训练器设计](train_branch.design.toml)。
 
-## LP 松弛与取整
+## 1. LP 松弛、基态和取整
 
-车间的 LP 最优点是 `(7/3, 8/3)`，收益为 `83/3`。四舍五入得到 `(2, 3)`，需要 29 小时。向下取整得到 `(2, 2)`，收益为 22。真正的整数最优点 `(3, 2)` 收益为 27，和 LP 上界相差 `2/3`。饮食 LP 在 `(89/28, 8/7)` 达到 `323/14`。
+`pred 0.6.0` 求得四自旋方形和给定 seed 的 100 自旋图的基态分别为 **−2** 和 **−138**。方形的一组基态位为 `(0,0,1,0)`，对应自旋 `(+1,+1,−1,+1)`。沿闭环，要求三个正耦合边反向和一个负耦合边同向会产生奇数次翻转，至少一条键无法满足。
 
-种子 2026 生成的 16 个 32 × 24 集合覆盖实例平均整数差距为 10.49%。16 次最近取整都留下了未覆盖的行。逐行加入最便宜的覆盖列后，16 个方案都可行，成本比整数最优高 13.04%–78.26%。`artifacts/gap.png` 由保存的 LP、MILP 和修复方案绘制。
+用二元位 `x_i=(1-s_i)/2` 表示自旋，每条键增加连续变量 `z_ij∈[0,1]`。由四条线性不等式，`(x_i,x_j)=(0,0),(1,1)` 时强制 `z_ij=0`，而 `(0,1),(1,0)` 时强制 `z_ij=1`。目标在线性部分取系数 `−2h_i` 和 `−2J_ij`，再加回常数 `Σh_i+ΣJ_ij`。松弛后四个自旋都可取 0.5，每条键选择自己偏好的 `z`，所以方形 LP 下界为 **−4**。把位全取成 1 并重新计算键的异或，得到可行能量 **+2**，比基态高 **4**。饮食 LP 在 `(89/28,8/7)` 达到 **23.071429**。
 
-## 分支定界与 Strong Branching
+22 自旋、52 键、seed 2026 的 16 个图中，每个 LP 下界均为 **-52**，每个都有 **22** 个半整数自旋。平均基态 **-38.25**，平均整数差距 **13.75**，逐图相对差距的平均值为 **36.45%**。最近取整在 **16/16** 个图上未达到基态，平均多出 **34.25**，实例 11 多出 **60**。图见 `artifacts/gap.png`。
 
-车间先解根节点，得到 `83/3`。先走 `x₂ ≤ 2`，遇到整数可行解 `(3, 2)` 并将 27 记为当前最佳收益。再解 `x₂ ≥ 3` 的 LP，上界是 26.75，直接剪掉这一侧。实际 LP 求解和搜索节点均为 3。
+## 2. 精确分支定界
 
-| 策略 | 每例平均节点 | 每例平均 LP 求解 | 每例平均搜索耗时 |
+用栈执行深度优先搜索，先访问接近松弛解的一支，0.5 时先固定为 1。已验证的整数解提供上界，HiGHS LP 提供子树下界。只在未固定的分数自旋上分支，并同时保留其 0 和 1 两个分支。
+
+| 四面体节点 | 新固定的位 | LP 下界 | 动作 |
+| ---: | --- | ---: | --- |
+| 1 | 根节点 | −6 | 分裂自旋 0 |
+| 2 | `x₀=1` | −4 | 分裂自旋 1 |
+| 3 | `x₁=1` | −3 | 得到基态 `(1,1,0,0)` |
+| 4 | `x₁=0` | −3 | 下界等于已知最优，剪枝 |
+| 5 | `x₀=0` | −2 | 下界高于已知最优，剪去仍有三个半整数位的子树 |
+
+每个候选的两个试探 LP 给出下界增益，Strong Branching 用两项增益的乘积偏好两侧都显著收紧的分裂。试探不更新已知整数解。48 个相同图的每例平均值如下。
+
+| 策略 | 节点 | LP 次数 | 搜索时间（ms） |
 | --- | ---: | ---: | ---: |
-| most-frac | 44.04 | 44.04 | 8.19 ms |
-| strong | 18.83 | 225.63 | 47.48 ms |
+| most-frac | 50.88 | 50.88 | 23.77 |
+| strong | 16.00 | 287.42 | 123.00 |
 
-Strong Branching 将平均节点数降低 57.2%，但每个探索节点平均要解约 12 个 LP。48 个实例上的 96 次策略求解均与 HiGHS MILP 最优值一致，最大误差 `7.08 × 10⁻¹²`。标签按 36 个训练和 12 个验证实例预分配编号，实际保存 318 和 110 个有两个以上候选的节点。`artifacts/bnb.png` 汇总两组配对结果。
+Strong Branching 平均每例少走约 69% 的节点，但解约 5.65 倍的 LP。96 次求解对照 HiGHS MILP 的最大绝对误差为 **1.62e-12**。图见 `artifacts/bnb.png`，每条曲线按该策略的实例计数独立排序。
 
-## JAX 模仿训练
+## 3. 模仿训练与 Rust 推理
 
-同一个 `12 → 48 tanh → 1` MLP 分别给各候选变量打分。训练使用训练集的均值和标准差，按节点做带掩码的 softmax。并列最佳的 Strong Branching 候选平分目标概率。验证交叉熵在第 22 轮达到最低值 2.1358，之后训练交叉熵继续下降，验证交叉熵逐渐回升。保存的模型取第 22 轮权重。
+训练集包含 **276** 个节点、36 个图，验证集包含 **84** 个节点、12 个图，两集合按图划分，重叠为零。候选用相同的 12 项局部图及 LP 特征和同一组 `12 → 48 tanh → 1` 权重。只用训练候选估计标准化参数，节点内 softmax 遮住填充位置，并列教师最优候选平分目标概率。初始权重采用 Xavier，批次使用 seed 2026 打乱。120 轮中按讲义只在第 1 轮和每五轮考察保存点，第 **85** 轮的验证交叉熵最低，为 **1.7533**。验证 Top-1 为 **72.6%**，同一并列规则下随机 Top-1 为 **24.5%**。CPU 训练耗时 **1.77 秒**。
 
-独立脚本用保存的权重对 110 个验证节点重算，得到 Top-1 **31.8%** 和 Top-3 **65.5%**。在并列最佳候选都算命中的同一规则下，均匀随机选一个的平均命中率为 **18.3%**。若每个节点只承认一个正确候选，`mean(1/K)` 为 10.3%。`artifacts/training.png` 展示 120 轮曲线，模型保存了六组验证原始特征、JAX logits 和概率。
+六组未用于训练的验证探针在 Rust 和 JAX 之间的最大 logits 与概率差分别为 **2.66e-15** 和 **3.61e-16**，低于 `1e-4`。神经打分只选择合法的分支自旋，剪枝仍由 LP 界和已核验的整数解决定。16 个未见图中，实例 **4** 的基态能量为 **-38**，在线神经分支的节点节省最多。most-frac 首先分裂自旋 **0, 1**，用了 **157** 个节点和 **58.43 ms**。在线网络先选 **4, 21**，用了 **21** 个节点和 **8.77 ms**。自旋编号从 0 开始。损失曲线和排序后的节点数见 `artifacts/neural_bnb.png`。
 
-## Rust 推理与尺寸迁移
+## 4. CPU 耗时与尺寸迁移
 
-Rust 在六组探针上的最大 logits 误差为 `8.88 × 10⁻¹⁶`，最大概率误差为 `2.78 × 10⁻¹⁶`。用同一组权重评估两个规模，24 个实例、四种策略共 96 次求解均达到 HiGHS 最优值，最大差值 `8.89 × 10⁻¹¹`，低于讲义的 `10⁻⁴` 门槛。神经打分只选择合法的分支变量。LP 界负责剪枝，整数候选用原约束和目标函数复核。三个无前瞻策略各做一次 LP 求解对应一个搜索节点，Strong Branching 的额外求解与每个候选的两个试探子节点对应。
+同一份权重用于两个规模，root-neural 只在根节点取特征并给所有自旋打分，其余节点用缓存标准分与当前分数性的 3 倍相加排序。在线 neural 对每个实际分裂节点重新取特征和打分。LP 时间含模型装配和 HiGHS 求解，特征与推理时间含一次邻接表构建、特征提取和 MLP 推理。根缓存的标准化计入推理，其后读取缓存和排序计入其余搜索工作。各时间取单批顺序运行的平均 wall time，搜索计时排除独立 HiGHS MILP 对照。
 
-下表均为每例平均值，耗时单位为 ms。
-
-| 规模 | 策略 | 节点 | LP 求解次数 | LP 耗时 | 特征与打分耗时 | 总搜索耗时 |
+| 自旋 / 键 | 策略 | 平均节点 | 平均 LP 次数 | 总时间（ms） | LP（ms） | 特征与推理（ms） |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| 32 × 24 | most-frac | 46.75 | 46.75 | 8.37 | 0 | 8.42 |
-| 32 × 24 | strong | 20.38 | 248.13 | 47.43 | 0 | 47.54 |
-| 32 × 24 | neural | 26.25 | 26.25 | 4.50 | 0.256 | 4.79 |
-| 32 × 24 | root-neural | 31.63 | 31.63 | 5.73 | 0.034 | 5.80 |
-| 48 × 34 | most-frac | 223.75 | 223.75 | 54.58 | 0 | 54.87 |
-| 48 × 34 | strong | 73.75 | 1277.75 | 352.32 | 0 | 352.88 |
-| 48 × 34 | neural | 133.75 | 133.75 | 34.20 | 1.583 | 35.97 |
-| 48 × 34 | root-neural | 177.25 | 177.25 | 44.58 | 0.070 | 44.89 |
+| 22 / 52 | most-frac | 50.88 | 50.88 | 20.722 | 20.672 | 0.000 |
+| 22 / 52 | strong | 15.62 | 287.75 | 121.361 | 121.259 | 0.000 |
+| 22 / 52 | neural | 15.25 | 15.25 | 6.395 | 6.209 | 0.170 |
+| 22 / 52 | root-neural | 15.50 | 15.50 | 6.295 | 6.249 | 0.029 |
+| 30 / 72 | most-frac | 177.75 | 177.75 | 120.600 | 120.349 | 0.000 |
+| 30 / 72 | strong | 38.00 | 899.25 | 553.922 | 553.576 | 0.000 |
+| 30 / 72 | neural | 39.75 | 39.75 | 24.550 | 23.961 | 0.542 |
+| 30 / 72 | root-neural | 50.75 | 50.75 | 29.396 | 29.297 | 0.040 |
 
-在线神经分支相对 most-frac 在两组分别快约 **1.76×** 和 **1.53×**，相对 Strong Branching 分别快约 **9.94×** 和 **9.81×**。缓存根节点得分的策略减少了特征提取和打分成本。在线打分进一步缩小了树，因此在这两组中总耗时更短。结果来自本机、给定种子和这一批实例。两组的节点及耗时图为 `artifacts/evaluation.png`。
-
-32 × 24 中节省最多的是实例 4，从 129 个节点降至 29。most-frac 的前两次分支变量为 8、2，在线策略选 2、5。48 × 34 中对应实例 7，从 529 个节点降至 285，前两次分支从 21、38 换为 12、28。所有列编号从 0 开始。
+两组共 **96 次**求解均匹配 HiGHS，最大绝对误差 **2.01e-12**。三个无前瞻策略的 LP 次数均等于节点数，Strong Branching 的额外 LP 数等于探测候选数的两倍。在 30 自旋图上，在线策略相对于 most-frac 少 77.6% 的节点，相对 Strong Branching 快 22.6 倍。根缓存策略相对于 most-frac 少 71.4% 的节点，相对 Strong Branching 快 18.8 倍。根缓存显著压低了打分开销，在线策略搜索树更小。两组节点及大图耗时分解见 `artifacts/eval.png`。
 
 ## 复现
 
-在 `week12/` 中运行以下命令。环境需要 Rust、C/C++ 编译器、CMake、libclang、`uv` 和 Python 3.12 或更新版本。Rust 依赖由 `Cargo.lock` 固定，HiGHS 关闭预求解并使用一个线程。基准用 ChaCha8 根据命令行的 seed 生成实例。JAX 使用 CPU 和 float64，训练 seed 为 2026。本次基准在 WSL Ubuntu 24.04 的 AMD Ryzen 7 8745H 上运行，使用 Rust 1.96.0、`highs` 2.2.0、JAX 0.12.1、NumPy 2.5.5 和 Matplotlib 3.11.2。
+从 `week12/` 运行。实测环境为 WSL Ubuntu 24.04、AMD Ryzen 7 8745H、Rust/Cargo 1.96.0、`highs` 2.2.0、`pred` 0.6.0、Python 3.12、JAX 0.12.1、NumPy 2.5.5 和 Matplotlib 3.11.2。构建需要 C/C++ 编译器、CMake、libclang 和 `uv`。HiGHS 单线程并关闭 presolve，MILP 绝对和相对 gaps 均设为零。
 
 ```bash
-cargo test --locked --release
-cargo install --locked --path .
-branchopt --mode gap --vars 32 --rows 24 --count 16 \
-  --seed 2026 --out artifacts/gap
-python3 -B -m unittest discover -s tests -v
+# 如需安装 pred
+cargo install problemreductions-cli@0.6.0 --locked
+mkdir -p artifacts/pred
+(
+  cd artifacts/pred
+  pred create SpinGlass --graph 0-1,1-2,2-3,3-0 --couplings=1,1,1,-1 -o square.json
+  time pred solve square.json > square.solution.json
+  pred create SpinGlass --random --num-vertices 100 --edge-prob 0.04 --seed 2026 -o r100.json
+  time pred solve r100.json > r100.solution.json
+)
 
+cargo test --locked --release
 cargo install --locked --path . --force
-branchopt --mode bnb --vars 32 --rows 24 --count 48 \
-  --policy strong --export-labels --seed 2026 --out artifacts/bnb_strong
-branchopt --mode bnb --vars 32 --rows 24 --count 48 \
-  --policy most-frac --seed 2026 --out artifacts/bnb_most
-python3 verify.py bnb
+branchopt --mode gap --spins 22 --edges 52 --count 16 --seed 2026 --out artifacts/gap
+branchopt --mode bnb --spins 22 --edges 52 --count 48 --policy most-frac --seed 2026 --out artifacts/bnb_most
+branchopt --mode bnb --spins 22 --edges 52 --count 48 --policy strong --seed 2026 --out artifacts/bnb_strong
+branchopt --mode bnb --spins 22 --edges 52 --count 48 --policy strong --export-labels --seed 2026 --out artifacts/bnb_strong
 
 uv run --no-project --python 3.12 --with jax==0.12.1 python train_branch.py \
-  --dataset artifacts/bnb_strong/dataset.json --out artifacts
-python3 verify.py model
-
-cargo install --locked --path . --force
-branchopt --mode eval --vars 32 --rows 24 --count 16 --seed 3026 \
+  --dataset artifacts/bnb_strong/dataset.json --out artifacts/model.json
+branchopt --mode eval --spins 22 --edges 52 --count 16 --seed 3026 \
   --model artifacts/model.json --out artifacts/eval_test
-branchopt --mode eval --vars 48 --rows 34 --count 8 --seed 4026 \
+branchopt --mode eval --spins 30 --edges 72 --count 8 --seed 4026 \
   --model artifacts/model.json --out artifacts/eval_transfer
-python3 verify.py eval
+
+python3 -B -m unittest discover -s tests -v
+python3 -B verify.py pred
+python3 -B verify.py bnb
+python3 -B verify.py eval
 uv run --no-project --python 3.12 --with matplotlib==3.11.2 python plots.py all
 ```
 
-所有 `run.json`、强分支标签、模型权重和图都在 `artifacts/`。数字和图由保存的证据重算。表中的运行时间指 CPU 环境下的经过时间，求解器的 LP 时间与特征计算及神经打分时间分别记录。
-
-开发使用原生 WSL Pi 和火山方舟 Agent Plan 的 `glm-5.3-flash`。Pi 参与 LP/MILP、训练器与 Rust 推理草稿，以及分支定界方案复核。协调端完成集成、代码修正、数值复核和图表。
+`pred 0.6.0` 可能在打印结果前报告已知的规则枚举线程警告。本次两次命令均退出为零，能量也按原始图和返回位复算。四张图、各轮 `run.json`、标签、权重、探针及 `pred` 文件在 Git 忽略的 `artifacts/` 下。WSL 原生 Pi 使用课程既有模型协助复核算法规格、图特征和 JAX 掩码方案，Codex 整合源码并独立执行上述数值检查。

@@ -16,6 +16,22 @@ def read(name):
     return json.loads((BASE / name).read_text(encoding="utf-8"))
 
 
+def check_pred():
+    for name, n, expected in (("square", 4, -2), ("r100", 100, -138)):
+        raw = read(f"pred/{name}.json")["data"]
+        result = read(f"pred/{name}.solution.json")
+        graph = {"fields": raw["fields"], "bonds": [
+            {"u": u, "v": v, "j": j}
+            for (u, v), j in zip(raw["graph"]["edges"], raw["couplings"], strict=True)
+        ]}
+        bits = result["solution"]
+        assert raw["graph"]["num_vertices"] == len(graph["fields"]) == len(bits) == n
+        assert set(bits) <= {0, 1}
+        assert result["evaluation"] == f"Min({expected})" and result["solver"] == "ilp"
+        assert energy(graph, bits) == expected
+        print(f"pred {name}: reported and independently recomputed energy {expected}")
+
+
 def check_search(case, name, tolerance):
     search = case["results"][name]
     graph = case["graph"]
@@ -139,6 +155,7 @@ def check_eval(run, model, policies, expected):
     for name in ("neural", "root-neural"):
         if name in policies:
             assert run["summary"][f"{name}_mean_nodes"] < run["summary"]["most-frac_mean_nodes"]
+            assert run["summary"]["strong_mean_runtime_ms"] > 3 * run["summary"][f"{name}_mean_runtime_ms"]
     saving = run["largest_neural_saving"]
     def key(c):
         r = c["results"]
@@ -152,11 +169,22 @@ def check_eval(run, model, policies, expected):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=("bnb", "model"))
+    parser.add_argument("stage", choices=("pred", "bnb", "model", "eval"))
     args = parser.parse_args()
-    if args.stage == "bnb":
+    if args.stage == "pred":
+        check_pred()
+    elif args.stage == "bnb":
         bnb()
-    else:
+    elif args.stage == "model":
         model = check_model()
         run = read("eval_test/run.json")
-        check_eval(run, model, POLICIES[:3], (22, 52, 16, 3026))
+        policies = tuple(p for p in POLICIES if p in run["instances"][0]["results"])
+        assert policies in (POLICIES[:3], POLICIES)
+        check_eval(run, model, policies, (22, 52, 16, 3026))
+    else:
+        model = check_model()
+        test = read("eval_test/run.json")
+        transfer = read("eval_transfer/run.json")
+        check_eval(test, model, POLICIES, (22, 52, 16, 3026))
+        check_eval(transfer, model, POLICIES, (30, 72, 8, 4026))
+        assert test["probe_parity"] == transfer["probe_parity"]

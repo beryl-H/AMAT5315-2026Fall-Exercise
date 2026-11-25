@@ -1,5 +1,5 @@
 use crate::features::FeatureGraph;
-use crate::neural::Model;
+use crate::neural::{z_scores, Model};
 use crate::problem::{solve, Problem, Solution, SpinGlass, EPS};
 use anyhow::{ensure, Context, Result};
 use serde::Serialize;
@@ -10,6 +10,7 @@ pub enum Policy<'a> {
     MostFrac,
     Strong,
     Neural(&'a Model),
+    RootNeural(&'a Model),
 }
 
 #[derive(Clone, Copy, Serialize)]
@@ -144,14 +145,16 @@ pub fn run(
 ) -> Result<Search> {
     let started = Instant::now();
     let mut search = Search::default();
+    let uses_network = matches!(policy, Policy::Neural(_) | Policy::RootNeural(_));
     let setup = Instant::now();
-    let feature_graph = (label_instance.is_some() || matches!(policy, Policy::Neural(_)))
-        .then(|| FeatureGraph::new(graph));
-    if matches!(policy, Policy::Neural(_)) {
+    let feature_graph =
+        (label_instance.is_some() || uses_network).then(|| FeatureGraph::new(graph));
+    if uses_network {
         search.inference_ms += elapsed_ms(setup);
     }
     let n = graph.fields.len();
     let mut incumbent = f64::INFINITY;
+    let mut root_scores = Vec::new();
     let mut stack = vec![Node {
         fixed: vec![None; n],
         branch: None,
@@ -169,6 +172,23 @@ pub fn run(
                 search.trace(&node, Some(&lp), "bound");
             }
             continue;
+        }
+        if let Policy::RootNeural(network) = policy {
+            if node.branch.is_none() {
+                let t = Instant::now();
+                let all_spins: Vec<_> = (0..n).collect();
+                let features = feature_graph.as_ref().expect("neural features").extract(
+                    graph,
+                    &lp,
+                    &node.fixed,
+                    &all_spins,
+                    incumbent,
+                );
+                let raw_scores: Vec<_> = features.iter().map(|f| network.score(f)).collect();
+                root_scores = z_scores(&raw_scores);
+                search.inference_ms += elapsed_ms(t);
+                search.feature_batches += 1;
+            }
         }
         let candidates: Vec<_> = (0..n)
             .filter(|&i| node.fixed[i].is_none() && lp.x[i] > EPS && lp.x[i] < 1.0 - EPS)
@@ -219,6 +239,12 @@ pub fn run(
                 search.feature_batches += 1;
                 spin
             }
+            Policy::RootNeural(_) => winner(
+                candidates
+                    .iter()
+                    .map(|&i| (i, root_scores[i] + 3.0 * fractionality(lp.x[i]))),
+                0.0,
+            ),
             Policy::Strong => {
                 let mut probes = Vec::with_capacity(candidates.len());
                 for &i in &candidates {

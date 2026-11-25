@@ -211,10 +211,7 @@ pub fn z_scores(scores: &[f64]) -> Vec<f64> {
     }
     let mean = scores.iter().sum::<f64>() / n as f64;
     let var = scores.iter().map(|s| (s - mean) * (s - mean)).sum::<f64>() / n as f64;
-    let std = var.sqrt();
-    if std <= 0.0 || !std.is_finite() {
-        return vec![0.0; n];
-    }
+    let std = var.sqrt().max(1e-6);
     scores.iter().map(|s| (s - mean) / std).collect()
 }
 
@@ -225,6 +222,11 @@ mod tests {
     #[test]
     fn z_scores_constant_is_zero() {
         assert_eq!(z_scores(&[3.0, 3.0, 3.0]), vec![0.0, 0.0, 0.0]);
+    }
+
+    #[test]
+    fn root_normalization_floors_standard_deviation() {
+        assert_eq!(z_scores(&[0.0, 1e-8]), [-0.005, 0.005]);
     }
 
     #[test]

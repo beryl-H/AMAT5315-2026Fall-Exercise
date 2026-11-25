@@ -83,3 +83,11 @@ strong and neural, which selects the legal candidate with highest MLP score.
 Record HiGHS error, nodes, LP solves and measured search wall time, and the first
 two branch spins and timings on the largest paired neural node saving.
 """
+
+[benchmark.eval.root_neural]
+policy = """
+Score all n spins once at the root. Standardize with population std floored
+at 1e-6. Select the legal spin maximizing its cached score + 3 * 2 min(x,1-x).
+Reuse the same weights on 30-spin / 72-bond graphs.
+"""
+timing = "Save mean total search wall time, LP time, and feature-plus-MLP time separately."
