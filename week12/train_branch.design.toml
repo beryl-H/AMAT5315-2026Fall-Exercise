@@ -1,0 +1,24 @@
+usage = """uv run --with jax==0.12.1 python train_branch.py \
+  --dataset artifacts/bnb_strong/dataset.json --out artifacts"""
+description = "Imitate Strong Branching with one MLP shared by all candidates"
+
+[args]
+dataset = "dataset.json written by branchopt --export-labels"
+out = "directory for the saved model"
+
+[writes]
+"<out>/model.json" = "float64 weights, training mean and std, history, probes"
+
+[benchmark.model]
+precision = "float64; JAX and NumPy only"
+input = "phi_j = (features_j - mean) / std, with training-set mean and std"
+score = "f(phi_j) = w2 . tanh(W1 phi_j + b1) + b2, sizes 12 -> 48 -> 1"
+probability = "p(j | s) = softmax of f over the candidates C(s)"
+
+[benchmark.training]
+target = "uniform over the candidates tied for the best Strong Branching score"
+loss = "cross-entropy + 2e-4 (|W1|^2 + |w2|^2)"
+optimizer = "Adam, lr 4e-3, batch 64, 120 epochs"
+checkpoint = "lowest validation loss"
+history = "per epoch: train and validation cross-entropy; Top-1, Top-3, chance rate"
+probes = "6 validation nodes: raw features, logits, probabilities"

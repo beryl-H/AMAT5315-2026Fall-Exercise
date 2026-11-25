@@ -19,9 +19,15 @@ def check_batch(run, count, seed, policies, tolerance):
     assert workshop["plan"] == [3, 2] and abs(workshop["optimum"] - 27) < tolerance
     assert len(workshop["trace"]) == 3
     assert len(workshop["splits"]) == 1
+    assert workshop["splits"][0]["column"] == 1
+    assert [row["disposition"] for row in workshop["trace"]] == ["split", "incumbent", "bound"]
+    for row, expected in zip(workshop["trace"], (83 / 3, 27, 26.75), strict=True):
+        assert abs(row["bound"] - expected) < tolerance
     total = Counter()
     for row in run["instances"]:
         problem = row["problem"]
+        assert len(problem["costs"]) == run["parameters"]["vars"]
+        assert len(problem["rows"]) == run["parameters"]["rows"]
         assert set(row["results"]) == set(policies)
         for policy, result in row["results"].items():
             plan = result["plan"]
@@ -86,6 +92,29 @@ def check_model(out):
     assert [r["epoch"] for r in model["history"]] == list(range(1, 121))
     best = min(model["history"], key=lambda r: r["val_ce"])
     assert best["epoch"] == model["best_epoch"]
+    mean, std = model["mean"], model["std"]
+    w1, b1, w2, b2 = model["w1"], model["b1"], model["w2"], model["b2"]
+
+    def forward(features):
+        normalized = [(x - m) / s for x, m, s in zip(features, mean, std, strict=True)]
+        hidden = [math.tanh(b + math.fsum(x * row[k] for x, row in zip(normalized, w1, strict=True)))
+                  for k, b in enumerate(b1)]
+        return b2 + math.fsum(a * b for a, b in zip(hidden, w2, strict=True))
+
+    scores_by_metric = {key: [] for key in ("val_ce", "top1", "top3", "chance")}
+    for record in data["validation"]:
+        teacher = [c["score"] for c in record["candidates"]]
+        highest = max(teacher)
+        tied = {i for i, score in enumerate(teacher) if abs(score - highest) <= model["settings"]["tie_tolerance"]}
+        logits = [forward(c["features"]) for c in record["candidates"]]
+        order = sorted(range(len(logits)), key=lambda i: (-logits[i], i))
+        log_z = logits[order[0]] + math.log(math.fsum(math.exp(x - logits[order[0]]) for x in logits))
+        scores_by_metric["val_ce"].append(log_z - math.fsum(logits[i] for i in tied) / len(tied))
+        scores_by_metric["top1"].append(order[0] in tied)
+        scores_by_metric["top3"].append(bool(tied.intersection(order[:3])))
+        scores_by_metric["chance"].append(len(tied) / len(teacher))
+    for metric, values in scores_by_metric.items():
+        assert math.isclose(best[metric], math.fsum(values) / len(values), abs_tol=1e-10)
     assert best["top1"] > best["chance"]
     assert 0 <= best["top1"] <= best["top3"] <= 1
     assert len(model["probes"]) == 6
@@ -98,12 +127,19 @@ def check_model(out):
 
 def check_eval(out):
     policies = ["most-frac", "strong", "neural", "root-neural"]
-    for suite, count, seed in (("test", 16, 3026), ("transfer", 8, 4026)):
+    for suite, count, seed, dims in (("test", 16, 3026, (32, 24)), ("transfer", 8, 4026, (48, 34))):
         run = load(out / f"eval_{suite}/run.json")
+        assert (run["parameters"]["vars"], run["parameters"]["rows"]) == dims
         check_batch(run, count, seed, policies, 1e-4)
         parity = run["probe_parity"]
         assert parity["max_abs_logit_error"] < 1e-4
         assert parity["max_abs_probability_error"] < 1e-4
+        for row in run["instances"]:
+            for result in row["results"].values():
+                assert math.isclose(result["inference_ms"], result["feature_ms"] + result["score_ms"])
+        best = run["largest_neural_saving"]
+        assert best["nodes_saved"] == max(row["results"]["most-frac"]["nodes"] - row["results"]["neural"]["nodes"]
+                                          for row in run["instances"])
         print(f"Evaluation {suite}: {count * len(policies)} oracle checks, maximum probe probability error "
               f"{parity['max_abs_probability_error']:.3e}")
 
