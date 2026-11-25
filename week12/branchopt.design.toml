@@ -1,0 +1,42 @@
+usage = """branchopt --mode bnb --vars 32 --rows 24 --count 48 \
+  --policy strong --seed 2026 --out artifacts/bnb_strong"""
+description = "Compare LP, MILP, and branching results; no unstated defaults"
+
+[args]
+mode = "study mode: gap | bnb | eval"
+vars = "number of binary columns per Set Covering instance"
+rows = "number of covering rows per instance"
+count = "number of Set Covering instances"
+seed = "seed for reproducing the generated instances"
+out = "directory for this run's raw evidence"
+
+[writes]
+stdout = "TSV header and rows: mode, metric, value, runtime_ms"
+"<out>/run.json" = """
+Save the schema, study mode, PRNG seed, run parameters, summary metrics, and
+full-precision evidence (LP and integer bounds, node and LP counts, timings).
+"""
+
+[benchmark.highs]
+presolve = false
+threads = 1
+
+[benchmark.workshop]
+maximize = "5*x1 + 6*x2"
+constraints = ["x1 + x2 <= 5", "4*x1 + 7*x2 <= 28"]
+domain = "x1, x2 in {0, 1, 2, ...}"
+
+[benchmark.diet]
+minimize = "6*x1 + 3.5*x2"
+constraints = ["7*x2 >= 8", "4*x1 + 2*x2 >= 15", "2*x1 + x2 >= 3"]
+domain = "x1, x2 >= 0 (real)"
+
+[benchmark.set_covering]
+minimize = "sum_j c_j*x_j"
+constraints = ["sum_j A_ij*x_j >= 1 for every row i"]
+domain = "x_j in {0, 1} for every column j"
+one_probability = 0.24
+min_row_ones = 3
+min_column_ones = 2
+cost = "c_j = 2*sum_i A_ij + 1 + noise_j"
+uniform_cost_noise = [0, 1, 2, 3]

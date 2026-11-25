@@ -1,0 +1,17 @@
+[package]
+name = "branchopt"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "branchopt"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+highs = "=2.2.0"
+rand = "0.8"
+rand_chacha = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
