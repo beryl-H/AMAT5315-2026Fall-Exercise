@@ -1,13 +1,16 @@
 use crate::features::{features, fractionality};
+use crate::neural::{z_scores, Model};
 use crate::problem::{solve, Problem, Solution, EPS};
 use anyhow::{ensure, Context, Result};
 use serde::Serialize;
 use std::time::Instant;
 
 #[derive(Clone, Copy)]
-pub enum Policy {
+pub enum Policy<'a> {
     MostFrac,
     Strong,
+    Neural(&'a Model),
+    RootNeural(&'a Model),
 }
 
 #[derive(Clone)]
@@ -54,10 +57,15 @@ pub struct Trace {
 pub struct Search {
     pub optimum: f64,
     pub plan: Vec<f64>,
+    pub root_bound: Option<f64>,
     pub nodes: usize,
     pub lp_solves: usize,
+    pub probed_candidates: usize,
+    pub feature_batches: usize,
     pub lp_ms: f64,
     pub inference_ms: f64,
+    pub feature_ms: f64,
+    pub score_ms: f64,
     pub runtime_ms: f64,
     pub splits: Vec<Split>,
     pub trace: Vec<Trace>,
@@ -127,10 +135,11 @@ fn winner(candidates: &[usize], scores: impl IntoIterator<Item = f64>) -> usize 
         .0
 }
 
-pub fn run(problem: &Problem, policy: Policy, label_instance: Option<usize>) -> Result<Search> {
+pub fn run(problem: &Problem, policy: Policy<'_>, label_instance: Option<usize>) -> Result<Search> {
     let started = Instant::now();
     let mut search = Search::default();
     let mut incumbent = None;
+    let mut root_scores = Vec::new();
     let mut stack = vec![Node {
         lower: problem.lower.clone(),
         upper: problem.upper.clone(),
@@ -144,11 +153,27 @@ pub fn run(problem: &Problem, policy: Policy, label_instance: Option<usize>) -> 
             }
             continue;
         };
+        if node.depth == 0 {
+            search.root_bound = Some(lp.value);
+        }
         if bound_prunes(problem, lp.value, incumbent) {
             if problem.maximize {
                 search.trace(&node, Some(&lp), "bound");
             }
             continue;
+        }
+        if let Policy::RootNeural(model) = policy {
+            if node.depth == 0 {
+                let all: Vec<_> = (0..problem.costs.len()).collect();
+                let started = Instant::now();
+                let f = features(problem, &lp, &node.lower, &node.upper, &all, incumbent);
+                search.feature_batches += 1;
+                search.feature_ms += started.elapsed().as_secs_f64() * 1000.0;
+                let started = Instant::now();
+                let raw: Vec<_> = f.iter().map(|x| model.score(x)).collect();
+                root_scores = z_scores(&raw);
+                search.score_ms += started.elapsed().as_secs_f64() * 1000.0;
+            }
         }
         let candidates: Vec<_> = lp
             .x
@@ -187,12 +212,41 @@ pub fn run(problem: &Problem, policy: Policy, label_instance: Option<usize>) -> 
                     &candidates,
                     candidates.iter().map(|&j| fractionality(lp.x[j])),
                 ),
+                Policy::Neural(model) => {
+                    let started = Instant::now();
+                    let f = features(
+                        problem,
+                        &lp,
+                        &node.lower,
+                        &node.upper,
+                        &candidates,
+                        incumbent,
+                    );
+                    search.feature_batches += 1;
+                    search.feature_ms += started.elapsed().as_secs_f64() * 1000.0;
+                    let started = Instant::now();
+                    let column = winner(&candidates, f.iter().map(|x| model.score(x)));
+                    search.score_ms += started.elapsed().as_secs_f64() * 1000.0;
+                    column
+                }
+                Policy::RootNeural(_) => {
+                    let started = Instant::now();
+                    let column = winner(
+                        &candidates,
+                        candidates
+                            .iter()
+                            .map(|&j| root_scores[j] + 3.0 * fractionality(lp.x[j])),
+                    );
+                    search.score_ms += started.elapsed().as_secs_f64() * 1000.0;
+                    column
+                }
                 Policy::Strong => {
                     let mut gains = Vec::with_capacity(candidates.len());
                     for &j in &candidates {
                         let [down, up] = children(&node, j, lp.x[j]);
                         let gain0 = gain(problem, search.lp(problem, &down)?, lp.value, incumbent);
                         let gain1 = gain(problem, search.lp(problem, &up)?, lp.value, incumbent);
+                        search.probed_candidates += 1;
                         gains.push((gain0, gain1, gain0.max(EPS) * gain1.max(EPS)));
                     }
                     if let Some(id) =
@@ -248,6 +302,7 @@ pub fn run(problem: &Problem, policy: Policy, label_instance: Option<usize>) -> 
         }
     }
     search.optimum = incumbent.context("B&B exhausted all nodes without an integer solution")?;
+    search.inference_ms = search.feature_ms + search.score_ms;
     search.runtime_ms = started.elapsed().as_secs_f64() * 1000.0;
     Ok(search)
 }

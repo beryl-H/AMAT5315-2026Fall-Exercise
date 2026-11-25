@@ -135,8 +135,14 @@ def check_eval(out):
         assert parity["max_abs_logit_error"] < 1e-4
         assert parity["max_abs_probability_error"] < 1e-4
         for row in run["instances"]:
-            for result in row["results"].values():
+            for policy, result in row["results"].items():
                 assert math.isclose(result["inference_ms"], result["feature_ms"] + result["score_ms"])
+                assert result["lp_solves"] == result["nodes"] + 2 * result["probed_candidates"]
+                assert result["root_bound"] <= result["optimum"] + 1e-6
+                if policy == "root-neural":
+                    assert result["feature_batches"] == 1
+                if policy == "neural":
+                    assert result["feature_batches"] == (result["nodes"] - 1) // 2
         best = run["largest_neural_saving"]
         assert best["nodes_saved"] == max(row["results"]["most-frac"]["nodes"] - row["results"]["neural"]["nodes"]
                                           for row in run["instances"])

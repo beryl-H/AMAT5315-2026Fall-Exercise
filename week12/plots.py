@@ -106,7 +106,7 @@ def evaluation(out):
         time.bar(POLICIES, mlp, bottom=lp, color=COLORS[1], label="Features + scores")
         time.bar(POLICIES, other, bottom=subtotal, color="#aab3bd", label="Other search work")
         for i, (total, infer) in enumerate(zip(totals, mlp, strict=True)):
-            detail = f"\nMLP {infer:.2f}" if infer > 0 else ""
+            detail = f"\nFeatures + scores {infer:.2f}" if infer > 0 else ""
             time.annotate(f"{total:.1f}{detail}", (i, total), xytext=(0, 3), textcoords="offset points",
                           ha="center", fontsize=8)
         time.set_ylim(0, max(totals) * 1.27)

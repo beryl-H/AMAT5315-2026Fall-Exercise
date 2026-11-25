@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 
 pub fn compare(
     problems: &[Problem],
-    policies: &[(&str, Policy)],
+    policies: &[(&str, Policy<'_>)],
     export_labels: bool,
     tolerance: f64,
 ) -> Result<(Value, Option<Value>)> {
@@ -38,7 +38,8 @@ pub fn compare(
                 "optimum mismatch for {name} on instance {id}: {error}"
             );
             ensure!(
-                s.lp_solves >= s.nodes && (name == "strong" || s.lp_solves == s.nodes),
+                s.lp_solves == s.nodes + 2 * s.probed_candidates
+                    && (name == "strong" || s.probed_candidates == 0),
                 "invalid LP count for {name} on instance {id}"
             );
             ensure!(
@@ -62,6 +63,8 @@ pub fn compare(
                 ("runtime_ms", s.runtime_ms),
                 ("lp_ms", s.lp_ms),
                 ("inference_ms", s.inference_ms),
+                ("feature_ms", s.feature_ms),
+                ("score_ms", s.score_ms),
             ] {
                 *summary.entry(format!("{name}_mean_{metric}")).or_default() +=
                     value / problems.len() as f64;

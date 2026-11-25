@@ -3,6 +3,7 @@ mod bnb;
 mod bnb_tests;
 mod features;
 mod gap;
+mod neural;
 mod problem;
 mod study;
 
@@ -18,20 +19,31 @@ use std::time::Instant;
 enum Mode {
     Gap,
     Bnb,
+    Eval,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
 enum Branching {
     MostFrac,
     Strong,
+    Neural,
+    RootNeural,
 }
 
 impl Branching {
-    fn named(self) -> (&'static str, bnb::Policy) {
-        match self {
+    fn named(self, model: Option<&neural::Model>) -> Result<(&'static str, bnb::Policy<'_>)> {
+        Ok(match self {
             Self::MostFrac => ("most-frac", bnb::Policy::MostFrac),
             Self::Strong => ("strong", bnb::Policy::Strong),
-        }
+            Self::Neural => (
+                "neural",
+                bnb::Policy::Neural(model.context("neural requires --model")?),
+            ),
+            Self::RootNeural => (
+                "root-neural",
+                bnb::Policy::RootNeural(model.context("root-neural requires --model")?),
+            ),
+        })
     }
 }
 
@@ -54,6 +66,8 @@ struct Args {
     policy: Option<Branching>,
     #[arg(long)]
     export_labels: bool,
+    #[arg(long)]
+    model: Option<PathBuf>,
 }
 
 fn write_json(path: &Path, value: &Value) -> Result<()> {
@@ -73,8 +87,8 @@ fn main() -> Result<()> {
     let (mode, mut run, dataset) = match args.mode {
         Mode::Gap => {
             anyhow::ensure!(
-                args.policy.is_none() && !args.export_labels,
-                "--policy and --export-labels require --mode bnb"
+                args.policy.is_none() && !args.export_labels && args.model.is_none(),
+                "--mode gap accepts no branching options"
             );
             ("gap", gap::run(&problems)?, None)
         }
@@ -84,9 +98,46 @@ fn main() -> Result<()> {
                 !args.export_labels || matches!(branching, Branching::Strong),
                 "--export-labels requires --policy strong"
             );
-            let (run, dataset) =
-                study::compare(&problems, &[branching.named()], args.export_labels, 1e-9)?;
+            if matches!(branching, Branching::MostFrac | Branching::Strong) {
+                anyhow::ensure!(
+                    args.model.is_none(),
+                    "--model requires a neural branching policy"
+                );
+            }
+            let model = args.model.as_deref().map(neural::load).transpose()?;
+            let (run, dataset) = study::compare(
+                &problems,
+                &[branching.named(model.as_ref())?],
+                args.export_labels,
+                1e-9,
+            )?;
             ("bnb", run, dataset)
+        }
+        Mode::Eval => {
+            anyhow::ensure!(
+                args.policy.is_none() && !args.export_labels,
+                "--mode eval compares all policies and exports no training labels"
+            );
+            let model = neural::load(
+                args.model
+                    .as_deref()
+                    .context("--mode eval requires --model")?,
+            )?;
+            let parity = model.parity()?;
+            let policies = [
+                Branching::MostFrac,
+                Branching::Strong,
+                Branching::Neural,
+                Branching::RootNeural,
+            ]
+            .into_iter()
+            .map(|policy| policy.named(Some(&model)))
+            .collect::<Result<Vec<_>>>()?;
+            let (mut run, _) = study::compare(&problems, &policies, false, 1e-4)?;
+            run["probe_parity"] = parity;
+            run["largest_neural_saving"] =
+                study::best_saving(&run).context("missing paired neural results")?;
+            ("eval", run, None)
         }
     };
     let runtime_ms = started.elapsed().as_secs_f64() * 1000.0;
