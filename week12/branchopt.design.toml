@@ -1,92 +1,37 @@
-usage = """branchopt --mode bnb --vars 32 --rows 24 --count 48 \
-  --policy strong --seed 2026 --out artifacts/bnb_strong"""
-description = "Compare LP, MILP, and branching results; no unstated defaults"
+usage = "branchopt --mode gap --spins 22 --edges 52 --count 16 --seed 2026 --out artifacts/gap"
+description = "Solve spin-glass integer programs and compare branching rules"
 
 [args]
-mode = "study mode: gap | bnb | eval"
-vars = "number of binary columns per Set Covering instance"
-rows = "number of covering rows per instance"
-count = "number of Set Covering instances"
-seed = "seed for reproducing the generated instances"
-out = "directory for this run's raw evidence"
+mode = "gap | bnb | eval"
+spins = "number of spins n"
+edges = "number of undirected bonds m"
+count = "number of instances, IDs 0 through count - 1"
+seed = "seed recorded with the run"
+out = "raw evidence directory"
+
+[benchmark.gap]
+highs = { presolve = false, threads = 1 }
+model = """
+Minimize sum_e J_e (1 - 2 z_e) + sum_i h_i (1 - 2 x_i).
+x_i is binary in MILP and in [0,1] in LP; z_e is continuous in [0,1].
+For e=(u,v): z_e <= x_u+x_v, z_e <= 2-x_u-x_v,
+z_e >= x_u-x_v, z_e >= x_v-x_u.
+"""
+square = "Cycle 0-1-2-3-0, J=(+1,+1,+1,-1), h=0. Round ties upward."
+diet = "Minimize 6x1 + 3.5x2 with 7x2 >= 8, 4x1+2x2 >= 15, 2x1+x2 >= 3 and x >= 0."
+generator = """
+SplitMix64 modulo 2^64: state += 0x9E3779B97F4A7C15; z = state;
+z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9;
+z = (z ^ (z >> 27)) * 0x94D049BB133111EB; return z ^ (z >> 31).
+Draw integers in 0..k-1 by next() mod k.
+Initial instance state is first next() from seed XOR (id * 0xD1B54A32D192ED03).
+For each i, draw j until degree(i) >= min(2,n-1), skipping self-loops
+and duplicate edges. Then draw pairs i,j until m edges. Sort unique edges (u<v)
+lexicographically. In that order draw J=+1 for even next(), -1 otherwise.
+Then draw h_i = (next() mod 3) - 1 in spin order.
+"""
+evidence = "Save graphs, LP/MILP points and energies, gaps, fractional spin counts, and rounded energies and excesses."
 
 [writes]
-stdout = "TSV header and rows: mode, metric, value, runtime_ms"
-"<out>/run.json" = """
-Save the schema, study mode, PRNG seed, run parameters, summary metrics, and
-full-precision evidence (LP and integer bounds, node and LP counts, timings).
-"""
-
-[benchmark.highs]
-presolve = false
-threads = 1
-
-[benchmark.workshop]
-maximize = "5*x1 + 6*x2"
-constraints = ["x1 + x2 <= 5", "4*x1 + 7*x2 <= 28"]
-domain = "x1, x2 in {0, 1, 2, ...}"
-
-[benchmark.diet]
-minimize = "6*x1 + 3.5*x2"
-constraints = ["7*x2 >= 8", "4*x1 + 2*x2 >= 15", "2*x1 + x2 >= 3"]
-domain = "x1, x2 >= 0 (real)"
-
-[benchmark.set_covering]
-minimize = "sum_j c_j*x_j"
-constraints = ["sum_j A_ij*x_j >= 1 for every row i"]
-domain = "x_j in {0, 1} for every column j"
-one_probability = 0.24
-min_row_ones = 3
-min_column_ones = 2
-cost = "c_j = 2*sum_i A_ij + 1 + noise_j"
-uniform_cost_noise = [0, 1, 2, 3]
-
-[args.bnb]
-policy = "branching rule: most-frac | strong | neural | root-neural"
-
-[args.labels]
-export-labels = "save Strong Branching labels; default false"
-
-[writes.labels]
-"<out>/dataset.json" = """
-Save instance-disjoint train and validation candidate features alongside Strong
-Branching bound gains and scores in full precision.
-"""
-
-[benchmark.bnb.policies]
-C = "free columns j with 1e-6 < x_j < 1 - 1e-6"
-most-frac = "argmax_{j in C} 2 min(x_j, 1 - x_j)"
-strong = "argmax_{j in C} max(d_j0, 1e-6) * max(d_j1, 1e-6)"
-d_jb = "LP(x_j = b) - LP(node); 1e6 if that child is infeasible or pruned"
-
-[benchmark.bnb.features]
-R_j = "rows of column j covered by no column fixed to 1"
-s_i = "clamp((A x)_i - 1, 0, 2)"
-lambda_i = "HiGHS dual of row i"
-x_val = "x_j"
-frac_dist = "2 min(x_j, 1 - x_j)"
-cost_norm = "c_j / max_k c_k"
-cost_per_uncovered = "clamp(u_j / mean_{k in C} u_k, 0, 4), u_j = c_j / |R_j|"
-uncovered_deg_norm = "|R_j| / max_{k in C} |R_k|"
-tight_frac = "mean_{i in R_j} [s_i < 1e-5]"
-mean_slack = "mean_{i in R_j} s_i"
-mean_dual = "mean_{i in R_j} |lambda_i| / max_r |lambda_r|"
-max_dual = "max_{i in R_j} |lambda_i| / max_r |lambda_r|"
-mean_nbr_frac = "mean_{i in R_j} of mean frac_dist over row i's other free columns"
-gap_ratio = "clamp((z_best - z_node) / max(|z_best|, 1), 0, 2); 1 before an incumbent"
-frac_ratio = "|C| / number of free columns"
-
-[args.neural]
-model = "path to JSON MLP weights from train_branch.py; default absent"
-
-[benchmark.eval.policies]
-neural = "argmax_{j in C} f(phi_j), with features recomputed at every node"
-root-neural = "argmax_{j in C} z_j + 3.0 * 2 min(x_j, 1 - x_j)"
-z_j = "f(phi_j) at the root with C = all n columns, z-scored over the columns"
-
-[writes.eval]
-"<out>/run.json" = """
-Per policy and instance: optimum error against HiGHS, explored nodes, LP solves,
-LP and inference CPU ms. Probe parity against the 6 JAX probes. The first splits
-of most-frac and neural on the instance where neural saves the most nodes.
-"""
+stdout = "TSV: mode, metric, value, runtime_ms"
+"<out>/run.json" = "schema, mode, seed, parameters, summary and raw evidence"

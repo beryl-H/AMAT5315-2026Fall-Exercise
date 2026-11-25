@@ -1,110 +1,65 @@
-//! AMAT5315 Week 12, Part 1: problem representation and solving.
-
-use anyhow::{anyhow, bail, ensure};
-use rand::seq::SliceRandom;
-use rand::Rng;
-use rand_chacha::rand_core::SeedableRng;
-use rand_chacha::ChaCha8Rng;
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use serde::Serialize;
+use std::collections::BTreeSet;
 
 pub const EPS: f64 = 1e-6;
 
-/// A self-contained optimization problem.
-///
-/// - `maximize == true`: maximize `costs . x`; otherwise minimize it.
-/// - `covering == true`: rows are `sum a_ij x_j >= rhs[i]` (set covering / diet).
-///   Otherwise rows are `sum a_ij x_j <= rhs[i]` (workshop capacity constraints).
-/// - Rows are stored sparsely as `(column index, coefficient)` pairs.
-#[derive(Clone, Debug, Serialize)]
 pub struct Problem {
     pub costs: Vec<f64>,
     pub rows: Vec<Vec<(usize, f64)>>,
     pub rhs: Vec<f64>,
-    pub maximize: bool,
     pub covering: bool,
-    pub lower: Vec<f64>,
     pub upper: Vec<f64>,
+    pub integer_columns: usize,
+    pub offset: f64,
 }
 
-/// An optimal solution: objective value, primal point, and LP row duals.
-/// Duals are only meaningful for continuous solves; MIP duals are zero-filled.
 #[derive(Clone, Debug, Serialize)]
 pub struct Solution {
     pub value: f64,
     pub x: Vec<f64>,
+    #[serde(skip_serializing)]
     pub dual: Vec<f64>,
 }
 
 impl Problem {
-    /// Original objective evaluated at `x` (no sign flip).
-    pub fn objective(&self, x: &[f64]) -> f64 {
-        self.costs.iter().zip(x.iter()).map(|(c, xi)| c * xi).sum()
-    }
-
-    /// Feasibility check within [`EPS`] tolerance.
-    pub fn feasible(&self, x: &[f64]) -> bool {
-        if x.len() != self.costs.len() {
-            return false;
-        }
-        for (i, &xi) in x.iter().enumerate() {
-            if !xi.is_finite() || xi < self.lower[i] - EPS || xi > self.upper[i] + EPS {
-                return false;
-            }
-        }
-        for (r, row) in self.rows.iter().enumerate() {
-            let lhs: f64 = row.iter().map(|&(c, v)| x[c] * v).sum();
-            if self.covering {
-                if lhs < self.rhs[r] - EPS {
-                    return false;
-                }
-            } else if lhs > self.rhs[r] + EPS {
-                return false;
-            }
-        }
-        true
+    fn objective(&self, x: &[f64]) -> f64 {
+        self.offset + self.costs.iter().zip(x).map(|(c, x)| c * x).sum::<f64>()
     }
 }
 
-/// Solve `p` with the given variable bounds under a fresh HiGHS model.
-/// `integer == true` enforces integrality on every column.
-/// Returns `Ok(None)` when the problem is infeasible.
-pub fn solve(
-    p: &Problem,
-    lower: &[f64],
-    upper: &[f64],
-    integer: bool,
-) -> anyhow::Result<Option<Solution>> {
+/// When supplied, fixes only spin columns. Bond columns always stay continuous.
+pub fn solve(p: &Problem, fixed: &[Option<u8>], integer: bool) -> Result<Option<Solution>> {
     ensure!(
-        lower.len() == p.costs.len() && upper.len() == p.costs.len(),
-        "wrong bounds length"
+        fixed.len() <= p.integer_columns,
+        "too many fixed spin columns"
     );
     let mut pb = highs::RowProblem::default();
     let mut columns = Vec::with_capacity(p.costs.len());
-    for (j, &obj) in p.costs.iter().enumerate() {
-        let bounds = lower[j]..=upper[j];
-        let column = if integer {
-            pb.add_integer_column(obj, bounds)
+    for (j, (&cost, &upper)) in p.costs.iter().zip(&p.upper).enumerate() {
+        let bounds = match fixed.get(j).copied().flatten() {
+            Some(bit) => f64::from(bit)..=f64::from(bit),
+            None => 0.0..=upper,
+        };
+        let column = if integer && j < p.integer_columns {
+            pb.add_integer_column(cost, bounds)
         } else {
-            pb.add_column(obj, bounds)
+            pb.add_column(cost, bounds)
         };
         columns.push(column);
     }
     for (r, row) in p.rows.iter().enumerate() {
+        let rhs = p.rhs[r];
         let bounds = if p.covering {
-            p.rhs[r]..=f64::INFINITY
+            rhs..=f64::INFINITY
         } else {
-            f64::NEG_INFINITY..=p.rhs[r]
+            f64::NEG_INFINITY..=rhs
         };
         pb.add_row(bounds, row.iter().map(|&(j, a)| (columns[j], a)));
     }
 
-    let sense = if p.maximize {
-        highs::Sense::Maximise
-    } else {
-        highs::Sense::Minimise
-    };
     let mut model = pb
-        .try_optimise(sense)
+        .try_optimise(highs::Sense::Minimise)
         .map_err(|e| anyhow!("HiGHS model: {e:?}"))?;
     model
         .try_set_option("presolve", "off")
@@ -118,48 +73,136 @@ pub fn solve(
     if integer {
         model
             .try_set_option("mip_rel_gap", 0.0)
-            .map_err(|e| anyhow!("HiGHS relative MIP gap: {e:?}"))?;
+            .map_err(|e| anyhow!("HiGHS MIP relative gap: {e:?}"))?;
         model
             .try_set_option("mip_abs_gap", 0.0)
-            .map_err(|e| anyhow!("HiGHS absolute MIP gap: {e:?}"))?;
+            .map_err(|e| anyhow!("HiGHS MIP absolute gap: {e:?}"))?;
     }
     let response = model
         .try_solve()
         .map_err(|e| anyhow!("HiGHS solve: {e:?}"))?;
     match response.status() {
         highs::HighsModelStatus::Optimal => {
-            let sol = response.get_solution();
-            let x = sol.columns().to_vec();
-            let dual = if integer {
-                vec![0.0; p.rows.len()]
-            } else {
-                sol.dual_rows().to_vec()
-            };
+            let solution = response.get_solution();
+            let x = solution.columns().to_vec();
             Ok(Some(Solution {
                 value: p.objective(&x),
                 x,
-                dual,
+                dual: if integer {
+                    Vec::new()
+                } else {
+                    solution.dual_rows().to_vec()
+                },
             }))
         }
         highs::HighsModelStatus::Infeasible => Ok(None),
-        other => bail!("unexpected HiGHS status: {:?}", other),
+        other => bail!("unexpected HiGHS status: {other:?}"),
     }
 }
 
-/// Workshop: maximize 5*x1 + 6*x2, x1+x2 <= 5, 4*x1+7*x2 <= 28, x >= 0.
-pub fn workshop() -> Problem {
-    Problem {
-        costs: vec![5.0, 6.0],
-        rows: vec![vec![(0, 1.0), (1, 1.0)], vec![(0, 4.0), (1, 7.0)]],
-        rhs: vec![5.0, 28.0],
-        maximize: true,
-        covering: false,
-        lower: vec![0.0, 0.0],
-        upper: vec![f64::INFINITY, f64::INFINITY],
+#[derive(Clone, Copy, Debug, Serialize)]
+pub struct Bond {
+    pub u: usize,
+    pub v: usize,
+    pub j: f64,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct SpinGlass {
+    pub bonds: Vec<Bond>,
+    pub fields: Vec<f64>,
+}
+
+impl SpinGlass {
+    pub fn model(&self) -> Problem {
+        let n = self.fields.len();
+        let mut costs: Vec<_> = self.fields.iter().map(|h| -2.0 * h).collect();
+        let mut rows = Vec::with_capacity(4 * self.bonds.len());
+        let mut rhs = Vec::with_capacity(rows.capacity());
+        let mut offset = self.fields.iter().sum::<f64>();
+        for (e, &Bond { u, v, j }) in self.bonds.iter().enumerate() {
+            let z = n + e;
+            costs.push(-2.0 * j);
+            offset += j;
+            rows.extend([
+                vec![(z, 1.0), (u, -1.0), (v, -1.0)],
+                vec![(z, 1.0), (u, 1.0), (v, 1.0)],
+                vec![(z, -1.0), (u, 1.0), (v, -1.0)],
+                vec![(z, -1.0), (u, -1.0), (v, 1.0)],
+            ]);
+            rhs.extend([0.0, 2.0, 0.0, 0.0]);
+        }
+        Problem {
+            upper: vec![1.0; costs.len()],
+            costs,
+            rows,
+            rhs,
+            covering: false,
+            integer_columns: n,
+            offset,
+        }
+    }
+
+    pub fn round_bits(&self, x: &[f64]) -> Vec<u8> {
+        x[..self.fields.len()]
+            .iter()
+            .map(|&bit| u8::from(bit >= 0.5))
+            .collect()
+    }
+
+    pub fn energy(&self, bits: &[u8]) -> f64 {
+        let spin = |i| 1.0 - 2.0 * f64::from(bits[i]);
+        let bonds: f64 = self.bonds.iter().map(|b| b.j * spin(b.u) * spin(b.v)).sum();
+        bonds
+            + self
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(i, h)| h * spin(i))
+                .sum::<f64>()
+    }
+
+    pub fn oracle(&self, model: &Problem) -> Result<Solution> {
+        let optimum = solve(model, &[], true)?.context("missing spin-glass MILP optimum")?;
+        self.check_integer_point(&optimum)?;
+        Ok(optimum)
+    }
+
+    pub fn check_integer_point(&self, sol: &Solution) -> Result<Vec<u8>> {
+        let n = self.fields.len();
+        let bits = self.round_bits(&sol.x);
+        ensure!(
+            bits.iter()
+                .zip(&sol.x[..n])
+                .all(|(&b, &x)| (f64::from(b) - x).abs() <= EPS),
+            "nonintegral spin in integer point"
+        );
+        for (i, bond) in self.bonds.iter().enumerate() {
+            let xor = f64::from(bits[bond.u] ^ bits[bond.v]);
+            ensure!(
+                (sol.x[n + i] - xor).abs() <= EPS,
+                "bond {i} disagrees with XOR"
+            );
+        }
+        let energy = self.energy(&bits);
+        ensure!(
+            (energy - sol.value).abs() <= EPS,
+            "linear objective and spin energy disagree"
+        );
+        Ok(bits)
     }
 }
 
-/// Diet: minimize 6*x1 + 3.5*x2, 7*x2 >= 8, 4*x1+2*x2 >= 15, 2*x1+x2 >= 3, x >= 0.
+pub fn square() -> SpinGlass {
+    SpinGlass {
+        bonds: [(0, 1, 1.0), (0, 3, -1.0), (1, 2, 1.0), (2, 3, 1.0)]
+            .into_iter()
+            .map(|(u, v, j)| Bond { u, v, j })
+            .collect(),
+        fields: vec![0.0; 4],
+    }
+}
+
 pub fn diet() -> Problem {
     Problem {
         costs: vec![6.0, 3.5],
@@ -169,120 +212,111 @@ pub fn diet() -> Problem {
             vec![(0, 2.0), (1, 1.0)],
         ],
         rhs: vec![8.0, 15.0, 3.0],
-        maximize: false,
         covering: true,
-        lower: vec![0.0, 0.0],
-        upper: vec![f64::INFINITY, f64::INFINITY],
+        upper: vec![f64::INFINITY; 2],
+        integer_columns: 0,
+        offset: 0.0,
     }
 }
 
-/// Generate `count` random binary set-covering instances.
-/// One ChaCha8Rng is seeded once, so instances with the same `(vars, rows, seed)`
-/// share prefixes even if `count` changes.
-pub fn instances(
-    vars: usize,
-    rows: usize,
-    count: usize,
-    seed: u64,
-) -> anyhow::Result<Vec<Problem>> {
-    if vars < 3 {
-        bail!("need at least 3 variables");
-    }
-    if rows < 2 {
-        bail!("need at least 2 rows");
-    }
-    if count == 0 {
-        bail!("count must be positive");
+struct SplitMix64(u64);
+
+impl SplitMix64 {
+    fn next(&mut self) -> u64 {
+        self.0 = self.0.wrapping_add(0x9E3779B97F4A7C15);
+        let mut z = self.0;
+        z = (z ^ (z >> 30)).wrapping_mul(0xBF58476D1CE4E5B9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94D049BB133111EB);
+        z ^ (z >> 31)
     }
 
-    let mut rng = ChaCha8Rng::seed_from_u64(seed);
-    let mut out = Vec::with_capacity(count);
-    for _ in 0..count {
-        // Independent Bernoulli(0.24) entries.
-        let mut m = vec![vec![false; vars]; rows];
-        for r in 0..rows {
-            for c in 0..vars {
-                if rng.gen_bool(0.24) {
-                    m[r][c] = true;
+    fn draw(&mut self, k: usize) -> usize {
+        (self.next() % k as u64) as usize
+    }
+}
+
+fn insert_edge(edges: &mut BTreeSet<(usize, usize)>, degree: &mut [usize], i: usize, j: usize) {
+    if i != j && edges.insert((i.min(j), i.max(j))) {
+        degree[i] += 1;
+        degree[j] += 1;
+    }
+}
+
+pub fn instances(n: usize, m: usize, count: usize, seed: u64) -> Result<Vec<SpinGlass>> {
+    ensure!(n > 0 && count > 0, "spins and count must be positive");
+    let max_edges = n.checked_mul(n - 1).context("spin count too large")? / 2;
+    let min_degree = (n - 1).min(2);
+    let min_edges = n * min_degree / 2;
+    ensure!(
+        (min_edges..=max_edges).contains(&m),
+        "edge count must be in {min_edges}..={max_edges}"
+    );
+
+    (0..count)
+        .map(|id| {
+            let mixed = seed ^ (id as u64).wrapping_mul(0xD1B54A32D192ED03);
+            let mut rng = SplitMix64(SplitMix64(mixed).next());
+            let mut edges = BTreeSet::new();
+            let mut degree = vec![0; n];
+            for i in 0..n {
+                while degree[i] < min_degree {
+                    insert_edge(&mut edges, &mut degree, i, rng.draw(n));
+                    ensure!(
+                        edges.len() <= m,
+                        "instance {id}: degree construction requires more than {m} edges"
+                    );
                 }
             }
-        }
-        // Add ones (never remove) until each row has >= 3 ones.
-        for r in 0..rows {
-            let need = 3usize.saturating_sub(m[r].iter().filter(|&&e| e).count());
-            let zeros: Vec<usize> = (0..vars).filter(|&c| !m[r][c]).collect();
-            for &c in zeros.choose_multiple(&mut rng, need) {
-                m[r][c] = true;
+            while edges.len() < m {
+                let i = rng.draw(n);
+                let j = rng.draw(n);
+                insert_edge(&mut edges, &mut degree, i, j);
             }
-        }
-        // Add ones until each column has >= 2 ones.
-        for c in 0..vars {
-            let col_degree = (0..rows).filter(|&r| m[r][c]).count();
-            let need = 2usize.saturating_sub(col_degree);
-            let zeros: Vec<usize> = (0..rows).filter(|&r| !m[r][c]).collect();
-            for &r in zeros.choose_multiple(&mut rng, need) {
-                m[r][c] = true;
-            }
-        }
-
-        // Integer costs derived from the final column degrees.
-        let mut col_degree = vec![0usize; vars];
-        for r in 0..rows {
-            for c in 0..vars {
-                if m[r][c] {
-                    col_degree[c] += 1;
-                }
-            }
-        }
-        let costs: Vec<f64> = col_degree
-            .iter()
-            .map(|&d| (2 * d + 1 + rng.gen_range(0..=3)) as f64)
-            .collect();
-
-        let mat: Vec<Vec<(usize, f64)>> = (0..rows)
-            .map(|r| (0..vars).filter(|&c| m[r][c]).map(|c| (c, 1.0)).collect())
-            .collect();
-
-        out.push(Problem {
-            costs,
-            rows: mat,
-            rhs: vec![1.0; rows],
-            maximize: false,
-            covering: true,
-            lower: vec![0.0; vars],
-            upper: vec![1.0; vars],
-        });
-    }
-    Ok(out)
+            let bonds = edges
+                .into_iter()
+                .map(|(u, v)| Bond {
+                    u,
+                    v,
+                    j: if rng.next() & 1 == 0 { 1.0 } else { -1.0 },
+                })
+                .collect();
+            let fields = (0..n).map(|_| rng.draw(3) as f64 - 1.0).collect();
+            Ok(SpinGlass { bonds, fields })
+        })
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{diet, solve, workshop};
+    use super::*;
 
     #[test]
-    fn highs_matches_analytical_optima() {
-        let workshop = workshop();
-        let lp = solve(&workshop, &workshop.lower, &workshop.upper, false)
-            .unwrap()
-            .unwrap();
-        let mip = solve(&workshop, &workshop.lower, &workshop.upper, true)
-            .unwrap()
-            .unwrap();
-        assert!((lp.value - 83.0 / 3.0).abs() < 1e-4);
-        assert!((mip.value - 27.0).abs() < 1e-4);
-        let diet = diet();
-        let lp = solve(&diet, &diet.lower, &diet.upper, false)
-            .unwrap()
-            .unwrap();
-        assert!((lp.value - 323.0 / 14.0).abs() < 1e-4);
+    fn diet_and_square_match_their_analytical_optima() {
+        let diet = solve(&diet(), &[], false).unwrap().unwrap();
+        assert!((diet.value - 323.0 / 14.0).abs() < EPS);
+        let square = square();
+        let model = square.model();
+        let lp = solve(&model, &[], false).unwrap().unwrap();
+        assert_eq!(lp.dual.len(), 16);
+        assert!((lp.value + 4.0).abs() < EPS);
+        let mip = square.oracle(&model).unwrap();
+        assert!((mip.value + 2.0).abs() < EPS);
     }
 
     #[test]
-    fn highs_reports_workshop_infeasible_with_rounded_lower_bounds() {
-        let workshop = workshop();
-        assert!(solve(&workshop, &[2.0, 3.0], &workshop.upper, false)
-            .unwrap()
-            .is_none());
+    fn a_continuous_bond_is_xor_at_integral_spins() {
+        let graph = SpinGlass {
+            bonds: vec![Bond { u: 0, v: 1, j: 2.5 }],
+            fields: vec![0.3, -0.8],
+        };
+        for a in 0..2 {
+            for b in 0..2 {
+                let sol = solve(&graph.model(), &[Some(a), Some(b)], false)
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(graph.check_integer_point(&sol).unwrap(), [a, b]);
+                assert_eq!(sol.x[2], f64::from(a ^ b));
+            }
+        }
     }
 }
